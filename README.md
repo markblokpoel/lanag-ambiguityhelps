@@ -1,4 +1,4 @@
-#LANguage AGents - Project Ambiguity Helps
+###LANguage AGents - Project Ambiguity Helps
 
 This simulation project builds on the Rational Speech Act theory by Frank & Goodman (2012). Here, we investigate
 the effects of lexicon ambiguity, order of pragmatic reasoning and asymmetry between agents on the agent's
@@ -28,16 +28,16 @@ of a lexicon in just mean ambiguity.
 
 '''Structures pairs''':
 
-##Running the simulations
+####Running the simulations
 The simulation platform uses Apache Spark to parallelize the computations. You can run them in three ways: Locally
 on your machine from within an IDE (e.g., IntellijIDEA), locally on your machine using `spark-submit`
 from a terminal, or on a Spark/Hadoop server (e.g., [Amazon services](https://aws.amazon.com/emr/features/spark/)).
 
-##Running on a local machine
+####Running on a local machine
 Whether you rung the simulations from within an IDE (we will use IntellijIDEA) or from the commandline, you will first
 need to install Apache Spark and optionally Apache Hadoop.
 
-###Install Spark on OSX or Linux
+#####Install Spark on OSX or Linux
 The simulation framework requires Java JDK 1.8 (or higher) and Spark version 2.4.2 (higher version should be compatible
 but are untested). Go to the [Spark website](https://spark.apache.org/downloads.html) and download Spark pre-build for Apache Hadoop 2.7
 and later. We will describe installation for a single user (no root access required). Open a terminal and in your home
@@ -82,7 +82,7 @@ Start a Spark shell from your home directory to test if installation is successf
 $ spark-shell
 ```
 
-####Optionally install Hadoop native library
+#####Optionally install Hadoop native library
 Running the simulations using the Hadoop native library potentially improves performance, but only on RHEL4/Fedora,
 Ubuntu or Gentoo (see Hadoop 3.1.2 documentation). First download Apache Hadoop 3.1.2 (or higher)
 [here](https://hadoop.apache.org/releases.html). Unpack the contents of the of `hadoop-3.1.2.tar.gz` to
@@ -149,7 +149,7 @@ It is highly recommended to run Spark on a Unix OS such as Mac OSX or Linux. If 
 on your Windows machine, you may try to build Spark from source (not recommended) or run within a Virtual Machine,
 e.g. using [Virtual Box](https://www.virtualbox.org/) and [Ubuntu](https://www.ubuntu.com/#download).
 
-###Running simulation from IntellijIDEA#
+##Running simulation from IntellijIDEA
 Intellij will ignore `% Provided` library dependencies by default. However, this means it cannot find the
 Spark libraries and you will get an error message. These library dependencies have to be tagged as such, because these
 are assumed to be supplied by the Spark server and need to be excluded from the JAR assembly line. To run a simulation
@@ -157,7 +157,7 @@ from within Intellij, you must edit the run configuration and under "Configurati
 dependencies with Provided scope". Furthermore, in the configuration file `resources/application.conf` set
 `spark-local-mode = true`.
 
-###Running simulations from the command line interface
+##Running simulations from the command line interface
 Create a JAR file using the SBT command `assembly`. Move the newly created JAR file to a folder of your
 choosing and also copy the application.conf file there. Additionally, you can copy the `ah-*.sh` shell
 execution scripts, or use the command manually in case you want to customize the running script. The scripts assume
@@ -186,4 +186,5 @@ Execute the scripts via terminal:
 ./ah-consistent.sh
 ```
 
-###Running on a service / server
+##Running on a service / server
+To be written...
