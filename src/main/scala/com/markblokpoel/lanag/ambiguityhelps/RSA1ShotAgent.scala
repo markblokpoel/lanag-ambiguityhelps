@@ -80,8 +80,8 @@ case class RSA1ShotSpeaker(override val originalLexicon: Lexicon,
     require(referentIndex >= 0 && referentIndex < inferredLexicon.contextSize,
             "Referent index out of bounds.")
     val intentionDistribution =
-      Vector.tabulate(vocabularySize)(n => if (n == referentIndex) 1.0 else 0.0)
-    inferredLexicon dotT intentionDistribution
+      Vector.tabulate(contextSize)(n => if (n == referentIndex) 1.0 else 0.0)
+    inferredLexicon dot intentionDistribution
   }
 
   /** Returns a signal for a given intention, based on the Rational Speech Act theory and the agent's
@@ -96,11 +96,11 @@ case class RSA1ShotSpeaker(override val originalLexicon: Lexicon,
       intention: ReferentialIntention): (ContentSignal, SpeakerData) = {
     if (intention.isDefined) {
       val posterior = posteriorSignalDistribution(intention.content.get)
-      val signalIndex = Probability.softArgMax(posterior, beta)
+      val signalIndex = Probability.argMax(posterior) //softArgMax(posterior, beta)
       val signal = ContentSignal(signalIndex)
-      return (signal, SpeakerData(Some(Probability.entropy(posterior))))
-    }
-    (ContentSignal(None), SpeakerData(None))
+      (signal, SpeakerData(Some(Probability.entropy(posterior))))
+    } else
+      (ContentSignal(None), SpeakerData(None))
   }
 }
 
@@ -127,8 +127,8 @@ case class RSA1ShotListener(override val originalLexicon: Lexicon,
     require(signalIndex >= 0 && signalIndex <= inferredLexicon.vocabularySize,
             "Signal index out of bounds")
     val signalDistribution =
-      Vector.tabulate(contextSize)(n => if (n == signalIndex) 1.0 else 0.0)
-    inferredLexicon dot signalDistribution
+      Vector.tabulate(vocabularySize)(n => if (n == signalIndex) 1.0 else 0.0)
+    inferredLexicon dotT signalDistribution
   }
 
   /** Returns an intention for a given signal, based on the Rational Speech Act theory and the agent's
@@ -143,10 +143,10 @@ case class RSA1ShotListener(override val originalLexicon: Lexicon,
       signal: ContentSignal): (ReferentialIntention, ListenerData) = {
     if (signal.isDefined) {
       val posterior = posteriorReferentDistribution(signal.content.get)
-      val referentIndex = Probability.softArgMax(posterior, beta)
+      val referentIndex = Probability.argMax(posterior)//softArgMax(posterior, beta)
       val referent = ReferentialIntention(referentIndex)
-      return (referent, ListenerData(Some(Probability.entropy(posterior))))
-    }
-    (ReferentialIntention(None), ListenerData(None))
+      (referent, ListenerData(Some(Probability.entropy(posterior))))
+    } else
+      (ReferentialIntention(None), ListenerData(None))
   }
 }

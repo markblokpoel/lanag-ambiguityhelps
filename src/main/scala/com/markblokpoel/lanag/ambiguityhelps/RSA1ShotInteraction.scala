@@ -11,6 +11,7 @@ import com.markblokpoel.lanag.core.{
   Interaction,
   ReferentialIntention
 }
+import com.markblokpoel.lanag.util.InteractionIdentifier
 
 /** This implements a 1-shot director matcher simulation between two Rational Speech Act agents. Agents
   * take turns communicating a randomly assigned referent. Entropy of production and interpretation, and
@@ -23,11 +24,12 @@ import com.markblokpoel.lanag.core.{
   * @param maxTurns   The maximum number of turns, i.e., the number of signals produced, in this interaction.
   * @author Mark Blokpoel
   */
-case class RSA1ShotInteraction(override val agent1: RSA1ShotAgent,
-                               override val agent2: RSA1ShotAgent,
-                               override val originData: RSA1OriginData =
-                                 RSA1OriginData(),
-                               maxTurns: Int = 10)
+case class RSA1ShotInteraction(
+    override val agent1: RSA1ShotAgent,
+    override val agent2: RSA1ShotAgent,
+    override val originData: RSA1OriginData = RSA1OriginData(),
+    override val pairId: Long = InteractionIdentifier.nextId,
+    maxTurns: Int = 10)
     extends Interaction[ReferentialIntention, ContentSignal, RSA1ShotAgent](
       agent1,
       agent2,
@@ -43,6 +45,14 @@ case class RSA1ShotInteraction(override val agent1: RSA1ShotAgent,
   override protected var currentSpeaker: RSA1ShotSpeaker = agent1AsSpeaker
   override protected var currentListener: RSA1ShotListener = agent2AsListener
   private var turnCount = 0
+
+  def atOrder(order: Int): RSA1ShotInteraction = RSA1ShotInteraction(
+    agent1.withOrder(order),
+    agent2.withOrder(order),
+    originData,
+    pairId,
+    maxTurns
+  )
 
   override def stoppingCriterion: Boolean = turnCount >= maxTurns
 
@@ -61,10 +71,7 @@ case class RSA1ShotInteraction(override val agent1: RSA1ShotAgent,
       switchRoles()
       RSA1TurnData(turnCount - 1, success, speakerData, listenerData)
     } else {
-      RSA1TurnData(turnCount - 1,
-                   success = false,
-                   speakerData,
-                   ListenerData(None))
+      RSA1TurnData(turnCount - 1, success = false, speakerData, ListenerData(None))
     }
   }
 

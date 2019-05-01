@@ -33,7 +33,9 @@ case class RSA1ShotSummaryData(pairId: Long,
                                asymmetry: Double,
                                changeMethod: String,
                                changeRate: Double,
-                               success: Double)
+                               averageSuccess: Double,
+                               averageEntropyAsSpeaker: Double,
+                               averageEntropyAsListener: Double)
     extends Data
 
 /** Sets up a local spark simulation for a 1-shot Rational Speech Act communication simulation
@@ -92,17 +94,11 @@ object RSA1ShotConsistent extends Serializable {
       .map(parameters => gen.sampleGenerator(parameters))
       .map(generator =>
         generator.flatMap(pair => {
-          Seq(
-            RSA1ShotInteraction(pair.agent1.withOrder(0),
-                                pair.agent2.withOrder(0),
-                                pair.originData),
-            RSA1ShotInteraction(pair.agent1.withOrder(1),
-                                pair.agent2.withOrder(1),
-                                pair.originData),
-            RSA1ShotInteraction(pair.agent1.withOrder(2),
-                                pair.agent2.withOrder(2),
-                                pair.originData)
-          )
+          val interaction0 =
+            RSA1ShotInteraction(pair.agent1, pair.agent2, pair.originData)
+          Seq(interaction0.atOrder(0),
+              interaction0.atOrder(1),
+              interaction0.atOrder(2))
         }))
       .flatMap(interactions => interactions.map(_.runAndCollectData))
       .map(i =>
@@ -140,7 +136,13 @@ object RSA1ShotConsistent extends Serializable {
           i.asymmetry,
           i.changeMethod,
           i.changeRate,
-          i.interaction.count(d => d.success) / i.interaction.length.toDouble
+          i.interaction.count(d => d.success) / i.interaction.length.toDouble,
+          i.interaction.foldLeft(0.0)((acc, e) =>
+            acc + e.speakerData.speakerEntropy
+              .getOrElse(0.0)) / i.interaction.length.toDouble,
+          i.interaction.foldLeft(0.0)((acc, e) =>
+            acc + e.listenerData.listenerEntropy
+              .getOrElse(0.0)) / i.interaction.length.toDouble
       ))
     summary.write.option("header", value = true).csv(folderName + "/csv")
     summary.show()

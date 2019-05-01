@@ -33,7 +33,7 @@ class RandomizedPairGenerator(vocabularySize: Int,
                               densityResolution: Double,
                               mutationResolution: Double,
                               sampleSize: Int,
-                              beta: Double = Double.MaxValue)
+                              beta: Double = Double.PositiveInfinity)
     extends PairGenerator[RSA1ShotRandomizedParameters,
                           ReferentialIntention,
                           ContentSignal,

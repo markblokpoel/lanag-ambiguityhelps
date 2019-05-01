@@ -34,9 +34,9 @@ case class StructuredSummaryData(pairId: Long,
                                  asymmetry: Double,
                                  threshold: Double,
                                  representationalChangeRate: Double,
-                                 success: Double,
-                                 entropyAsSpeaker: Double,
-                                 entropyAsListener: Double)
+                                 averageSuccess: Double,
+                                 averageEntropyAsSpeaker: Double,
+                                 averageEntropyAsListener: Double)
     extends Data
 
 /** Sets up a local spark simulation for a 1-shot Rational Speech Act communication simulation
@@ -122,17 +122,11 @@ object RSA1ShotStructured extends Serializable {
       .map(parameters => spg.sampleGenerator(parameters))
       .map(generator =>
         generator.flatMap(pair => {
-          Seq(
-            RSA1ShotInteraction(pair.agent1.withOrder(0),
-                                pair.agent2.withOrder(0),
-                                pair.originData),
-            RSA1ShotInteraction(pair.agent1.withOrder(1),
-                                pair.agent2.withOrder(1),
-                                pair.originData),
-            RSA1ShotInteraction(pair.agent1.withOrder(2),
-                                pair.agent2.withOrder(2),
-                                pair.originData)
-          )
+          val interaction0 =
+            RSA1ShotInteraction(pair.agent1, pair.agent2, pair.originData)
+          Seq(interaction0.atOrder(0),
+              interaction0.atOrder(1),
+              interaction0.atOrder(2))
         }))
       .flatMap(interactions => interactions.map(_.runAndCollectData))
       .map(i =>

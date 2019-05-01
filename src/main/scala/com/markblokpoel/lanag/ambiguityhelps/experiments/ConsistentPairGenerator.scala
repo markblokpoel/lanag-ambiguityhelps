@@ -32,7 +32,7 @@ class ConsistentPairGenerator(vocabularySize: Int,
                               contextSize: Int,
                               changeResolution: Double,
                               sampleSize: Int,
-                              beta: Double = Double.MaxValue)
+                              beta: Double = Double.PositiveInfinity)
     extends PairGenerator[RSA1ShotConsistentParameters,
                           ReferentialIntention,
                           ContentSignal,
