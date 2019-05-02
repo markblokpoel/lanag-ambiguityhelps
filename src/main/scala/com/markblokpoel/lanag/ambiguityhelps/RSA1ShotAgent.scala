@@ -96,7 +96,7 @@ case class RSA1ShotSpeaker(override val originalLexicon: Lexicon,
       intention: ReferentialIntention): (ContentSignal, SpeakerData) = {
     if (intention.isDefined) {
       val posterior = posteriorSignalDistribution(intention.content.get)
-      val signalIndex = Probability.argMax(posterior) //softArgMax(posterior, beta)
+      val signalIndex = Probability.softArgMax(posterior, beta)
       val signal = ContentSignal(signalIndex)
       (signal, SpeakerData(Some(Probability.entropy(posterior))))
     } else
@@ -143,7 +143,7 @@ case class RSA1ShotListener(override val originalLexicon: Lexicon,
       signal: ContentSignal): (ReferentialIntention, ListenerData) = {
     if (signal.isDefined) {
       val posterior = posteriorReferentDistribution(signal.content.get)
-      val referentIndex = Probability.argMax(posterior)//softArgMax(posterior, beta)
+      val referentIndex = Probability.softArgMax(posterior, beta)
       val referent = ReferentialIntention(referentIndex)
       (referent, ListenerData(Some(Probability.entropy(posterior))))
     } else

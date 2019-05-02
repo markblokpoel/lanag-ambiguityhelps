@@ -39,9 +39,9 @@ ggplot_theme <- theme(panel.background = element_blank(), axis.line = element_li
                       axis.text = tre.14, axis.title = tre.16, legend.text = tre.12, legend.title = tre.14,
                       plot.title = tre.16)
 
-# dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/random2000"
-dataFolder = "/Users/Mark/Documents/Development/Scala/lanag-ambiguityhelps/output/rsa1shot_consistent-1556717157906/csv"
+dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/random2000"
 outputFolder = paste0(dataFolder, "/figs/")
+outputPrefix = paste0(outputFolder, "random2000_")
 dir.create(file.path(outputFolder))
 
 csvFiles = list.files(path=dataFolder, pattern="*.csv")
@@ -59,68 +59,90 @@ df_binarysub <- data[complete.cases(data) & data$agent1AmbiguityMean>0 & data$ag
 #
 # SANITY CHECK PLOTS
 #
-# Parameter space
-df_binarysubsum <- ddply(df_binarysub, c("agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetry"), summarise,
-                        N = length(asymmetry))
-ggplot(df_binarysubsum, aes(y=N, x=asymmetry)) +
- ggplot_theme + theme(axis.text.x = element_text(angle=90, vjust=0.5, color = "black"), axis.text.y = element_text(color="black"), legend.position="bottom") +
- scale_x_continuous("Asymmetry", breaks=pretty_breaks(2)) +
- scale_y_continuous("N") + geom_bar(stat="identity") +
- facet_grid(agent2AmbiguityMean ~ agent1AmbiguityMean, labeller=label_bquote(rows=alpha[L] ~ .(agent2AmbiguityMean)/.(8), cols=alpha[C] ~ .(agent1AmbiguityMean)/.(8)))
 
 # Parameter space log-scale
 df_binarysubsum <- ddply(df_binarysub, c("agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetry"), summarise, N = length(asymmetry))
 
-ggplot(df_binarysubsum, aes(y=N, x=asymmetry)) +
-  ggplot_theme + theme(axis.text.x = element_text(angle=0, vjust=0.5, color = "black"), axis.text.y = element_text(color="black"), legend.position="bottom") +
-  scale_x_continuous("Asymmetry") +
- scale_y_log10("N") +
- ggtitle("Speaker vs listener ambiguity") + geom_bar(stat="identity",fill=printsafeColors[1]) +
- facet_grid(agent2AmbiguityMean ~ agent1AmbiguityMean, labeller=label_bquote(rows=alpha[L] ~ .(agent2AmbiguityMean)/.(8), cols=alpha[C] ~ .(agent1AmbiguityMean)/.(8)))
+pl <- ggplot(df_binarysubsum, aes(y=N, x=asymmetry)) +
+  ggplot_theme + theme(panel.grid.major = element_line(colour="gray"), panel.grid.minor = element_blank(), axis.text.x = element_text(angle=-90, vjust=0.5, color = "black"), axis.text.y = element_text(color="black"), legend.position="bottom") +
+    scale_x_continuous("asymmetry", limits = c(0,1), breaks=pretty_breaks(n=3)) +
+    scale_y_log10("N", labels = scales::comma) +
+    ggtitle("Parameter space") + geom_bar(stat="identity",fill=printsafeColors[2]) +
+    facet_grid(agent2AmbiguityMean ~ agent1AmbiguityMean, labeller=label_bquote(rows=alpha[2] == ~ .(agent2AmbiguityMean)/.(8), cols=alpha[1] == ~ .(agent1AmbiguityMean)/.(8)))
+ggsave(plot=pl, width=20, height=15, units = "cm", paste0(outputPrefix, "parameterspace-log.pdf"))
 
 # Consistent lexicon generation analysis
-df_binarysubsum <- ddply(df_binarysub, c("changeRate", "changeMethod", "asymmetry"), summarise,
-                         N = length(asymmetry),
-                         meanAmbiguity1 = mean(agent1AmbiguityMean),
-                         meanAmbiguity2 = mean(agent2AmbiguityMean))
-
-ggplot(df_binarysubsum, aes(y=asymmetry, x=changeRate, color=changeMethod)) +
-  ggplot_theme + theme(axis.text.x = element_text(angle=0, vjust=0.5, color = "black"), axis.text.y = element_text(color="black"), legend.position="bottom") +
-  geom_point(size=0.5, position = position_dodge(width = 0.1))
+if(grepl("cons", outputPrefix)) {
+  df_binarysubsum <- ddply(df_binarysub, c("changeRate", "changeMethod", "asymmetry"), summarise,
+                           N = length(asymmetry),
+                           meanAmbiguity1 = mean(agent1AmbiguityMean),
+                           meanAmbiguity2 = mean(agent2AmbiguityMean))
+  df_binarysubsum$meanAmbiguity1 = floor(df_binarysubsum$meanAmbiguity1)
+  df_binarysubsum$meanAmbiguity2 = floor(df_binarysubsum$meanAmbiguity2)
+  df_binarysubsum <- df_binarysubsum[complete.cases(df_binarysubsum) & df_binarysubsum$meanAmbiguity1>0 & df_binarysubsum$meanAmbiguity2>0, ]
+  pl <- ggplot(df_binarysubsum, aes(y=asymmetry, x=changeRate, color=changeMethod, size=N)) +
+    ggplot_theme + theme(axis.text.x = element_text(angle=0, vjust=0.5, color = "black"), axis.text.y = element_text(color="black"), legend.position="right") +
+    ggtitle("Lexicon generation") +
+    scale_x_continuous("change rate", breaks = pretty_breaks(3), limits = c(0,1)) +
+    scale_y_continuous("asymmetry", breaks = pretty_breaks(3)) +
+    scale_color_discrete("change method") +
+    scale_size("number of samples") +
+    geom_point(position = position_dodge(width = 0.1)) +
+    facet_grid(meanAmbiguity2 ~ meanAmbiguity1, labeller=label_bquote(rows=alpha[2] == ~ .(meanAmbiguity2)/.(8), cols=alpha[1] == ~ .(meanAmbiguity1)/.(8)))
+  ggsave(plot=pl, width=20, height=15, units = "cm", paste0(outputPrefix, "lexicon-generation.pdf"))
+}
 
 # Structured lexicon generation analysis
-df_binarysubsum <- ddply(df_binarysub, c("threshold", "representationalChangeRate", "asymmetry"), summarise,
-                         N = length(asymmetry),
-                         meanAmbiguity1 = mean(agent1AmbiguityMean),
-                         meanAmbiguity2 = mean(agent2AmbiguityMean))
-ggplot(df_binarysubsum, aes(y=asymmetry, x=representationalChangeRate, color=threshold)) +
-  ggplot_theme + theme(axis.text.x = element_text(angle=0, vjust=0.5, color = "black"), axis.text.y = element_text(color="black"), legend.position="bottom") +
-  geom_point(size=0.5, position = position_dodge(width = 0.1))
+if(grepl("struc", outputPrefix)) {
+  df_binarysubsum <- ddply(df_binarysub, c("threshold", "representationalChangeRate", "asymmetry"), summarise,
+                           N = length(asymmetry),
+                           meanAmbiguity1 = mean(agent1AmbiguityMean),
+                           meanAmbiguity2 = mean(agent2AmbiguityMean))
+  df_binarysubsum$meanAmbiguity1 = floor(df_binarysubsum$meanAmbiguity1)
+  df_binarysubsum$meanAmbiguity2 = floor(df_binarysubsum$meanAmbiguity2)
+  df_binarysubsum <- df_binarysubsum[complete.cases(df_binarysubsum) & df_binarysubsum$meanAmbiguity1>0 & df_binarysubsum$meanAmbiguity2>0, ]
+  pl <- ggplot(df_binarysubsum, aes(y=asymmetry, x=representationalChangeRate, color=factor(threshold), size=N)) +
+    ggplot_theme + theme(axis.text.x = element_text(angle=90, vjust=0.5, color = "black"), axis.text.y = element_text(color="black"), legend.position="right") +
+    ggtitle("Lexicon generation") +
+    scale_x_continuous("representational change rate", breaks = pretty_breaks(3), limits = c(0,1)) +
+    scale_y_continuous("asymmetry", breaks = pretty_breaks(3)) +
+    scale_color_discrete("similarity threshold") +
+    scale_size("number of samples") +
+    geom_point(alpha=0.5, shape=1) +
+    facet_grid(meanAmbiguity2 ~ meanAmbiguity1, labeller=label_bquote(rows=alpha[2] == ~ .(meanAmbiguity2)/.(8), cols=alpha[1] == ~ .(meanAmbiguity1)/.(8)))
+  ggsave(plot=pl, width=20, height=15, units = "cm", paste0(outputPrefix, "lexicon-generation.pdf"))
+}
 
-df_binarysubsum <- ddply(df_binarysub, c("agent1AmbiguityMean", "agent1AmbiguityVar"), summarise,
-                         N = length(agent1AmbiguityVar))
-ggplot(df_binarysubsum, aes(x=agent1AmbiguityVar, y=N)) +
-  geom_point() + scale_y_log10() +
-  facet_wrap(agent1AmbiguityMean ~.)
+# Variance of ambiguity
+if(grepl("struc", outputPrefix) || grepl("rand", outputPrefix)) {
+  df_binarysubsum <- rbind(data.frame(ag = 1,
+                                      amb = df_binarysub$agent1AmbiguityMean,
+                                      var = df_binarysub$agent1AmbiguityVar),
+                           data.frame(ag = 2,
+                                      amb = df_binarysub$agent1AmbiguityMean,
+                                      var = df_binarysub$agent2AmbiguityVar))
+  df_binarysubsum <- ddply(df_binarysubsum, c("ag", "amb", "var"), summarise,
+                           N = length(var))
+  df_binarysubsum$varBin <- cut(df_binarysubsum$var,
+                                breaks=seq(min(df_binarysubsum$var),max(df_binarysubsum$var),0.125),
+                                labels=seq(min(df_binarysubsum$var),max(df_binarysubsum$var)-0.125,0.125),
+                                include.lowest = TRUE, right = TRUE)
 
-
-# Success rates
-df_binarysubsum <- ddply(df_binarysub, c("averageSuccess", "agent1Order", "asymmetry"), summarise, N = length(averageSuccess))
-ggplot(df_binarysubsum, aes(y=averageSuccess, x=asymmetry, color=factor(agent1Order))) +
-  ggplot_theme + theme(axis.text.x = element_text(angle=0, vjust=0.5, color = "black"), axis.text.y = element_text(color="black"), legend.position="bottom") +
-  geom_point(aes(size=0.5+N/max(df_binarysubsum$N))) +
-  facet_wrap(agent1Order ~ .)
-
-df_binarysubsum <- ddply(data, c("averageSuccess", "agent1Order"), summarise, N = length(averageSuccess))
-ggplot(df_binarysubsum, aes(x=averageSuccess, y=N, fill=factor(agent1Order))) +
-geom_bar(stat="identity", position=position_dodge(width=.1)) +
-scale_y_log10()
+  pl <- ggplot(df_binarysubsum, aes(x=varBin, y=N, fill=factor(ag))) + ggplot_theme +
+    ggtitle("Variance of ambiguity") +
+    scale_y_log10("number of samples", labels = scales::comma) +
+    scale_x_discrete("ambiguity variance", breaks=pretty_breaks(6)) +
+    scale_fill_manual("agent", values = printsafeColors[2:3]) +
+    geom_bar(position="dodge", stat="identity") +
+    facet_wrap(amb ~., labeller=label_bquote(cols= (alpha[1]==alpha[2]) == ~ .(amb)/.(8)))
+  ggsave(plot=pl, width=20, height=15, units = "cm", paste0(outputPrefix, "ambiguity-variance.pdf"))
+}
 
 #
-# Analysis
+# ANALYSIS PLOTS
 #
 
-print("Summarizing data again...")
+# Communicative success per order of pragmatic inference
 df_binarysubsum2 <- ddply(df_binarysub, c("agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetry", "agent1Order"), summarise,
                           N    = length(averageSuccess),
                           mean = mean(averageSuccess),
@@ -129,22 +151,23 @@ df_binarysubsum2 <- ddply(df_binarysub, c("agent1AmbiguityMean", "agent2Ambiguit
                           lower_ci = mean - qt(1-(0.05/2), N-1) * se,
                           upper_ci = mean + qt(1-(0.05/2), N-1) * se
 )
-print("Done.")
 pl1 <- ggplot(df_binarysubsum2, aes(x=asymmetry, y=mean, color=factor(agent1Order))) +
   ggplot_theme + theme(axis.text.x = element_text(angle=-90, vjust=0.5, color = "black"), axis.text.y = element_text(color="black"), legend.position="bottom") +
-  scale_y_continuous(breaks=pretty_breaks(n=4), limits=c(0,1)) +
-  scale_x_continuous("asymmetry",breaks = pretty_breaks(3), minor_breaks=NULL) +
-  geom_line() + facet_grid(agent2AmbiguityMean ~ agent1AmbiguityMean)
-ggsave(plot=pl1, width=20, height=15, units = "cm", paste0(outputFolder, "performance.png"))
-print("Figure written to file.")
+  ggtitle("Communicative success") +
+  scale_y_continuous("mean success rate", breaks=pretty_breaks(n=3), limits=c(0,1)) +
+  scale_x_continuous("asymmetry", breaks = pretty_breaks(3), minor_breaks=NULL, limits=c(0,1)) +
+  scale_color_discrete("order") +
+  geom_line() +
+  facet_grid(agent2AmbiguityMean ~ agent1AmbiguityMean, labeller=label_bquote(rows=alpha[2] == ~ .(agent2AmbiguityMean)/.(8), cols=alpha[1] == ~ .(agent1AmbiguityMean)/.(8)))
+ggsave(plot=pl1, width=20, height=20, units = "cm", paste0(outputPrefix, "performance.pdf"))
 
-print("Summarizing data again...")
-df_binary_subsample <- df_binarysub# %>% group_by(ambiguity1, ambiguity2, asymmetry) %>% sample_n(5000)
-df_binarysubo0 <- subset(df_binary_subsample, agent1Order==0, select=c(pairId, agent1AmbiguityMean, agent2AmbiguityMean, asymmetry, success))
-df_binarysubo1 <- subset(df_binary_subsample, agent1Order==1, select=c(pairId, agent1AmbiguityMean, agent2AmbiguityMean, asymmetry, success))
+# Difference in communicative success between order 1 and order 0
+df_binary_subsample <- df_binarysub
+df_binarysubo0 <- subset(df_binary_subsample, agent1Order==0, select=c(pairId, agent1AmbiguityMean, agent2AmbiguityMean, asymmetry, averageSuccess))
+df_binarysubo1 <- subset(df_binary_subsample, agent1Order==1, select=c(pairId, agent1AmbiguityMean, agent2AmbiguityMean, asymmetry, averageSuccess))
 
 df_binary_diff <- within(merge(df_binarysubo1,df_binarysubo0, by="pairId"), {
-  diff_success <- success.x - success.y
+  diff_success <- averageSuccess.x - averageSuccess.y
   ambiguity1 <- agent1AmbiguityMean.x
   ambiguity2 <- agent2AmbiguityMean.x
   asymmetry <- asymmetry.x
@@ -158,14 +181,11 @@ df_binary_diff_sum <- ddply(df_binary_diff, c("ambiguity1", "ambiguity2", "asymm
                             lower_ci = mean - qt(1-(0.05/2), N-1) * se,
                             upper_ci = mean + qt(1-(0.05/2), N-1) * se
 )
-print("Done.")
-
-
-pl1 <- ggplot(df_binary_diff_sum[df_binarysubsum2$agent1AmbiguityMean == df_binarysubsum2$agent2AmbiguityMean,], aes(x=asymmetry, y=mean)) +
+pl1 <- ggplot(df_binary_diff_sum, aes(x=asymmetry, y=mean)) +
   ggplot_theme + theme(panel.grid.major = element_line(colour="gray"), panel.grid.minor = element_blank(), axis.text.x = element_text(angle=-90, vjust=0.5, color = "black"), axis.text.y = element_text(color="black"), legend.position="bottom") +
-  scale_y_continuous("diff mean success order 1 - order 0") +
-  scale_x_continuous("asymmetry", limits = c(0,1)) +
-  geom_point(size=0.5) + geom_smooth(data = df_binary_diff, aes(y=diff_success), method = "lm") + #geom_ribbon(aes(ymin=lower_ci, ymax=upper_ci), alpha=0.2) +
-  facet_grid(. ~ ambiguity1, labeller=label_bquote(rows=alpha[L] ~ .(ambiguity1)/.(8)))
-ggsave(plot=pl1, width=20, height=15, units = "cm", paste0(outputFolder, "performance-diff.png"))
-print("Figure written to file.")
+  ggtitle("First order agents's communicative success beyond zero order") +
+  scale_y_continuous("mean success rate (order 1 - order 0)", breaks=pretty_breaks(n=3)) +
+  scale_x_continuous("asymmetry", breaks = pretty_breaks(3), minor_breaks=NULL, limits = c(0,1)) +
+  geom_point(size=0.25, color=printsafeColors[4]) +
+  facet_grid(ambiguity2 ~ ambiguity1, labeller=label_bquote(rows=alpha[2] == ~ .(ambiguity2)/.(8), cols=alpha[1] == ~ .(ambiguity1)/.(8)))
+ggsave(plot=pl1, width=20, height=15, units = "cm", paste0(outputPrefix, "performance-diff.pdf"))
