@@ -39,7 +39,7 @@ ggplot_theme <- theme(panel.background = element_blank(), axis.line = element_li
                       axis.text = tre.14, axis.title = tre.16, legend.text = tre.12, legend.title = tre.14,
                       plot.title = tre.16)
 
-dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/random2000"
+dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/35rounds/random2000"
 outputFolder = paste0(dataFolder, "/figs/")
 outputPrefix = paste0(outputFolder, "random2000_")
 dir.create(file.path(outputFolder))
@@ -69,7 +69,7 @@ pl <- ggplot(df_binarysubsum, aes(y=N, x=asymmetry)) +
     scale_y_log10("N", labels = scales::comma) +
     ggtitle("Parameter space") + geom_bar(stat="identity",fill=printsafeColors[2]) +
     facet_grid(agent2AmbiguityMean ~ agent1AmbiguityMean, labeller=label_bquote(rows=alpha[2] == ~ .(agent2AmbiguityMean)/.(8), cols=alpha[1] == ~ .(agent1AmbiguityMean)/.(8)))
-ggsave(plot=pl, width=20, height=15, units = "cm", paste0(outputPrefix, "parameterspace-log.pdf"))
+ggsave(plot=pl, width=20, height=20, units = "cm", paste0(outputPrefix, "parameterspace-log.pdf"))
 
 # Consistent lexicon generation analysis
 if(grepl("cons", outputPrefix)) {
@@ -89,7 +89,7 @@ if(grepl("cons", outputPrefix)) {
     scale_size("number of samples") +
     geom_point(position = position_dodge(width = 0.1)) +
     facet_grid(meanAmbiguity2 ~ meanAmbiguity1, labeller=label_bquote(rows=alpha[2] == ~ .(meanAmbiguity2)/.(8), cols=alpha[1] == ~ .(meanAmbiguity1)/.(8)))
-  ggsave(plot=pl, width=20, height=15, units = "cm", paste0(outputPrefix, "lexicon-generation.pdf"))
+  ggsave(plot=pl, width=20, height=20, units = "cm", paste0(outputPrefix, "lexicon-generation.pdf"))
 }
 
 # Structured lexicon generation analysis
@@ -110,7 +110,7 @@ if(grepl("struc", outputPrefix)) {
     scale_size("number of samples") +
     geom_point(alpha=0.5, shape=1) +
     facet_grid(meanAmbiguity2 ~ meanAmbiguity1, labeller=label_bquote(rows=alpha[2] == ~ .(meanAmbiguity2)/.(8), cols=alpha[1] == ~ .(meanAmbiguity1)/.(8)))
-  ggsave(plot=pl, width=20, height=15, units = "cm", paste0(outputPrefix, "lexicon-generation.pdf"))
+  ggsave(plot=pl, width=20, height=20, units = "cm", paste0(outputPrefix, "lexicon-generation.pdf"))
 }
 
 # Variance of ambiguity
@@ -135,7 +135,7 @@ if(grepl("struc", outputPrefix) || grepl("rand", outputPrefix)) {
     scale_fill_manual("agent", values = printsafeColors[2:3]) +
     geom_bar(position="dodge", stat="identity") +
     facet_wrap(amb ~., labeller=label_bquote(cols= (alpha[1]==alpha[2]) == ~ .(amb)/.(8)))
-  ggsave(plot=pl, width=20, height=15, units = "cm", paste0(outputPrefix, "ambiguity-variance.pdf"))
+  ggsave(plot=pl, width=20, height=20, units = "cm", paste0(outputPrefix, "ambiguity-variance.pdf"))
 }
 
 #
@@ -188,4 +188,55 @@ pl1 <- ggplot(df_binary_diff_sum, aes(x=asymmetry, y=mean)) +
   scale_x_continuous("asymmetry", breaks = pretty_breaks(3), minor_breaks=NULL, limits = c(0,1)) +
   geom_point(size=0.25, color=printsafeColors[4]) +
   facet_grid(ambiguity2 ~ ambiguity1, labeller=label_bquote(rows=alpha[2] == ~ .(ambiguity2)/.(8), cols=alpha[1] == ~ .(ambiguity1)/.(8)))
-ggsave(plot=pl1, width=20, height=15, units = "cm", paste0(outputPrefix, "performance-diff.pdf"))
+ggsave(plot=pl1, width=20, height=20, units = "cm", paste0(outputPrefix, "performance-diff.pdf"))
+
+
+# Ambiguity and asymmetry constraints
+m = 8
+a1s <- 1:m
+a2s <- 1:m
+minmaxdf <- data.frame(matrix(ncol = 5, nrow = 0))
+x <- c("ambiguity1", "ambiguity2", "mina", "meana", "maxa")
+colnames(minmaxdf) <- x
+
+for(a1 in a1s) {
+  for(a2 in a2s) {
+    maxAsymmetry <- (min(a1,m-a2)+min(a2,m-a1))/m
+    meanAsymmetry <- a1/m + a2/m - 2*a1*a2/(m*m)
+    minAsymmetry <- 1-(min(a1,a2) + min(m-a1,m-a2))/m
+    
+    newRow <- data.frame(agent1AmbiguityMean=a1,agent2AmbiguityMean=a2,mina=minAsymmetry,meana=meanAsymmetry,maxa=maxAsymmetry)
+    minmaxdf <- rbind(minmaxdf, newRow)
+  }
+}
+
+df_binarysubsum <- ddply(df_binarysub, c("agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetry"), summarise, N = log(length(asymmetry)))
+
+pl1 <- ggplot(minmaxdf, aes(x=factor(agent2AmbiguityMean), y=meana)) +
+  ggplot_theme + theme(panel.grid.major = element_line(colour="gray"), panel.grid.minor = element_blank(), axis.text.x = element_text(angle=-90, vjust=0.5, color = "black"), axis.text.y = element_text(color="black"), legend.position="bottom") +
+  ggtitle("Distribution of ambiguity and asymmetry in Experiment 1") +
+  scale_y_continuous("asymmetry", breaks=pretty_breaks(n=3)) +
+  scale_x_discrete(expression(alpha[2]), breaks = c(2,4,6,8), labels=c("2" = expression(2/8), "4" = expression(4/8),"6" = expression(6/8), "8" = expression(8/8))) +
+  scale_fill_manual(name="", guide="legend", values=c(printsafeColors[3],printsafeColors[1]), labels=c("theoretical range", "population in Experiment 1")) +
+  geom_crossbar(aes(y=meana, ymin=mina,ymax=maxa, fill=printsafeColors[3])) +
+  geom_violin(data = df_binarysubsum, aes(x=factor(df_binarysubsum$agent2AmbiguityMean), y=df_binarysubsum$asymmetry, weight=df_binarysubsum$N, fill=printsafeColors[1]), color=NA) +
+  facet_grid(. ~ agent1AmbiguityMean, labeller=label_bquote(cols=alpha[1] == ~ .(agent1AmbiguityMean)/.(8)))
+ggsave(plot=pl1, width=20, height=10, units = "cm", paste0(outputPrefix, "ambiguity-asymmetry.pdf"))
+
+
+# Descriptive statistics
+df_binarysubsum <- ddply(df_binarysub, c("agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetry"), summarise, N = length(asymmetry))
+parameterNames <- c("$\sum n$", "$\min n$", "$\max n$", "$\mean n$", "$\Var n$")
+parameterDesc <- c("total population size",
+                   "minimum pairs within condition",
+                   "maximum pairs within condition",
+                   "mean pairs in conditions",
+                   "variance of number of pairs in condition")
+parameterValues <- c(sum(df_binarysubsum$N),
+                     nmin <- min(df_binarysubsum$N),
+                     nmax <- max(df_binarysubsum$N),
+                     nmean <- mean(df_binarysubsum$N),
+                     nvar <- var(df_binarysubsum$N))
+descStats <- data.frame(parameterNames, parameterDesc, parameterValues)
+
+

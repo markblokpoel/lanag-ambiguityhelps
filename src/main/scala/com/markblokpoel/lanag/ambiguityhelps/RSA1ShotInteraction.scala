@@ -71,7 +71,10 @@ case class RSA1ShotInteraction(
       switchRoles()
       RSA1TurnData(turnCount - 1, success, speakerData, listenerData)
     } else {
-      RSA1TurnData(turnCount - 1, success = false, speakerData, ListenerData(None))
+      RSA1TurnData(turnCount - 1,
+                   success = false,
+                   speakerData,
+                   ListenerData(None))
     }
   }
 

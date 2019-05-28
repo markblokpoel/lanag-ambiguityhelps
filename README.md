@@ -40,12 +40,19 @@ need to install Apache Spark and optionally Apache Hadoop.
 ### Install Spark on OSX or Linux
 The simulation framework requires Java JDK 1.8 (or higher) and Spark version 2.4.2 (higher version should be compatible
 but are untested). Go to the [Spark website](https://spark.apache.org/downloads.html) and download Spark pre-build for Apache Hadoop 2.7
-and later. We will describe installation for a single user (no root access required). Open a terminal and in your home
-directory create a folder `libraries`. Unpack the contents of the of
-`spark-2.4.2-bin-hadoop2.7.tgz` to the libraries folder:
+and later. We will describe installation for a single user, **root access is not required** so don't use it during installation. Open a terminal and in your home
+directory create a folder `libraries`.
 
 ```
-$ tar -xvf spark-2.4.2-bin-hadoop2.7.tgz ~/libraries
+$ mkdir ~/libraries
+```
+
+Unpack the contents of the of `spark-2.4.2-bin-hadoop2.7.tgz` to the libraries folder:
+
+```
+$ cd ~/libraries
+$ tar -xvf spark-2.4.2-bin-hadoop2.7.tgz
+$ rm spark-2.4.2-bin-hadoop2.7.tgz
 ```
 
 Create a symbolic link for easier upgrading to newer Spark versions:
@@ -57,20 +64,20 @@ $ ln -s ~/libraries/spark-2.4.2-bin-hadoop2.7 ~/libraries/spark
 We now need to configure Spark and your `PATH` variable. Again, from the terminal edit your profile using
 your favorite editor (e.g., Vim or Nano). It should be located in `~/.bash_profile` (for OSX) or
 `~/.profile` for Linux. Add the following lines at the start of the file, assuming the Java compiler is
-located in `/usr/bin` (you can using `which javac`):
+located in `/usr/bin` (you can use `which javac`):
 
 ```
 SPARK_HOME=~/libraries/spark
 JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
 ```
 
-Update the line starting with `PATH=` to:
+Add the following line at the end of the file:
 
 ```
 PATH=$SPARK_HOME/bin:$PATH
 ```
 
-Now restart your terminal session or reload your profile by running:
+Close and save the file. Now restart your terminal session or reload your profile by running:
 
 ```
 $ source .bash_profile
@@ -83,13 +90,17 @@ $ spark-shell
 ```
 
 #### Optionally install Hadoop native library
+_Do not try to install Hadoop with native library, unless you have the spark-shell correctly installed._
+
 Running the simulations using the Hadoop native library potentially improves performance, but only on RHEL4/Fedora,
-Ubuntu or Gentoo (see Hadoop 3.1.2 documentation). First download Apache Hadoop 3.1.2 (or higher)
+Ubuntu or Gentoo (see Hadoop 3.1.2 documentation). First download Apache Hadoop 3.1.2 binaries (or higher)
 [here](https://hadoop.apache.org/releases.html). Unpack the contents of the of `hadoop-3.1.2.tar.gz` to
 your libraries folder:
 
 ```
-$ tar -xvf hadoop-3.1.2.tar.gz ~/libraries
+$ cd ~/libraries
+$ tar -xvf hadoop-3.1.2.tar.gz
+$ rm hadoop-3.1.2.tar.gz
 ```
 
 Create a symbolic link for easier upgrading to newer Spark versions:
@@ -105,16 +116,19 @@ HADOOP_HOME=~/libraries/hadoop
 HADOOP_CONF_DIR=$HADOOP_HOME/conf
 ```
 
-And add `$HADOOP_HOME/bin` to `$PATH`.
+And add the following line to the end of the file:
+```
+PATH=$HADOOP_HOME/bin:$PATH
+```
 
-Next, we need to configure Hadoop. In the terminal:
+Save and close the file. Next, we need to configure Hadoop. In the terminal:
 
 ```
 $ cd ~/libraries/hadoop/etc/hadoop
 $ vim hadoop-env.sh
 ```
 
-Uncomment `# JAVA_HOME=..` and replace the line with:
+Save and close the file. Uncomment `# JAVA_HOME=..` and replace the line with:
 
 ```
 JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")

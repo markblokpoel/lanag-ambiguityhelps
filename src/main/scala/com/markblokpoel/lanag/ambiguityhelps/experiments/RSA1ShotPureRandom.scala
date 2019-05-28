@@ -58,9 +58,11 @@ object RSA1ShotPureRandom extends Serializable {
     val vocabularySize = conf.getOrElse[Int]("core.vocabulary-size", 8)
     val contextSize = conf.getOrElse[Int]("core.context-size", 4)
     val sampleSize = conf.getOrElse[Int]("core.sample-size", 25)
+    val interactionLength = conf.getOrElse[Int]("core.interaction-length", 20)
     val beta = conf.getOrElse[Double]("core.beta", Double.PositiveInfinity)
     val sparkLocalMode = conf.getOrElse[Boolean]("core.spark-local-mode", false)
     val randomSeed = conf.getOrElse[Long]("core.random-seed", 0)
+    val writeJSON = conf.getOrElse[Boolean]("core.write-json", false)
     val densityResolution =
       conf.getOrElse[Double]("random.density-resolution", 0.1)
     val mutationResolution =
@@ -100,7 +102,10 @@ object RSA1ShotPureRandom extends Serializable {
       .map(generator =>
         generator.flatMap(pair => {
           val interaction0 =
-            RSA1ShotInteraction(pair.agent1, pair.agent2, pair.originData)
+            RSA1ShotInteraction(pair.agent1,
+                                pair.agent2,
+                                pair.originData,
+                                maxTurns = interactionLength)
           Seq(interaction0.atOrder(0),
               interaction0.atOrder(1),
               interaction0.atOrder(2))
@@ -124,8 +129,10 @@ object RSA1ShotPureRandom extends Serializable {
     // Cache the results so Spark doesn't recompute simulation each time you use the Dataset.
     val results = sparkSimulation.toDS().cache()
     // Write the results to JSON file.
-    results.write.json(folderName + "/json")
-    results.show()
+    if (writeJSON) {
+      results.write.json(folderName + "/json")
+      results.show()
+    }
 
     // Summarize the individual turns, and write summarized data to CSV file.
     val summary = results.map(
