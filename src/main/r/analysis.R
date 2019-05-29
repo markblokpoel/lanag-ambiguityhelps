@@ -39,9 +39,9 @@ ggplot_theme <- theme(panel.background = element_blank(), axis.line = element_li
                       axis.text = tre.14, axis.title = tre.16, legend.text = tre.12, legend.title = tre.14,
                       plot.title = tre.16)
 
-dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/35rounds/random2000"
+dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/35rounds/uniform2000"
 outputFolder = paste0(dataFolder, "/figs/")
-outputPrefix = paste0(outputFolder, "random2000_")
+outputPrefix = paste0(outputFolder, "uniform2000_")
 dir.create(file.path(outputFolder))
 
 csvFiles = list.files(path=dataFolder, pattern="*.csv")
@@ -161,6 +161,23 @@ pl1 <- ggplot(df_binarysubsum2, aes(x=asymmetry, y=mean, color=factor(agent1Orde
   facet_grid(agent2AmbiguityMean ~ agent1AmbiguityMean, labeller=label_bquote(rows=alpha[2] == ~ .(agent2AmbiguityMean)/.(8), cols=alpha[1] == ~ .(agent1AmbiguityMean)/.(8)))
 ggsave(plot=pl1, width=20, height=20, units = "cm", paste0(outputPrefix, "performance.pdf"))
 
+# Zoomed in results, 3-way interaction
+df_binarysubsum3 <- df_binarysubsum2[df_binarysubsum2$agent1AmbiguityMean<=max(df_binarysubsum2$agent1AmbiguityMean)/2 & df_binarysubsum2$agent2AmbiguityMean<=max(df_binarysubsum2$agent2AmbiguityMean)/2, ]
+df_binarysubsum3maxima <- ddply(df_binarysubsum3[df_binarysubsum3$agent1Order==0,], c("agent1AmbiguityMean", "agent2AmbiguityMean", "agent1Order"), summarise,
+                                maxSuccess = max(mean))
+
+pl1 <- ggplot(df_binarysubsum3, aes(x=asymmetry, y=mean, color=factor(agent1Order))) +
+  ggplot_theme + theme(axis.text.x = element_text(angle=-90, vjust=0.5, color = "black"), axis.text.y = element_text(color="black"), legend.position="bottom") +
+  ggtitle("Communicative success") +
+  scale_y_continuous("mean success rate", breaks=pretty_breaks(n=3), limits=c(0,1)) +
+  scale_x_continuous("asymmetry", breaks = pretty_breaks(3), minor_breaks=NULL, limits=c(0,1)) +
+  scale_color_discrete("order") +
+  geom_line() +
+  geom_hline(data=df_binarysubsum3maxima, aes(yintercept=df_binarysubsum3maxima$maxSuccess), linetype="dashed", color = rep(c(printsafeColors[1]), each = length(df_binarysubsum3maxima$agent1AmbiguityMean))) +
+  facet_grid(agent2AmbiguityMean ~ agent1AmbiguityMean, labeller=label_bquote(rows=alpha[2] == ~ .(agent2AmbiguityMean)/.(8), cols=alpha[1] == ~ .(agent1AmbiguityMean)/.(8)))
+ggsave(plot=pl1, width=20, height=20, units = "cm", paste0(outputPrefix, "performance-zoom.pdf"))
+
+
 # Difference in communicative success between order 1 and order 0
 df_binary_subsample <- df_binarysub
 df_binarysubo0 <- subset(df_binary_subsample, agent1Order==0, select=c(pairId, agent1AmbiguityMean, agent2AmbiguityMean, asymmetry, averageSuccess))
@@ -218,25 +235,31 @@ pl1 <- ggplot(minmaxdf, aes(x=factor(agent2AmbiguityMean), y=meana)) +
   scale_y_continuous("asymmetry", breaks=pretty_breaks(n=3)) +
   scale_x_discrete(expression(alpha[2]), breaks = c(2,4,6,8), labels=c("2" = expression(2/8), "4" = expression(4/8),"6" = expression(6/8), "8" = expression(8/8))) +
   scale_fill_manual(name="", guide="legend", values=c(printsafeColors[3],printsafeColors[1]), labels=c("theoretical range", "population in Experiment 1")) +
-  geom_crossbar(aes(y=meana, ymin=mina,ymax=maxa, fill=printsafeColors[3])) +
   geom_violin(data = df_binarysubsum, aes(x=factor(df_binarysubsum$agent2AmbiguityMean), y=df_binarysubsum$asymmetry, weight=df_binarysubsum$N, fill=printsafeColors[1]), color=NA) +
   facet_grid(. ~ agent1AmbiguityMean, labeller=label_bquote(cols=alpha[1] == ~ .(agent1AmbiguityMean)/.(8)))
+
+  if(grepl("consistent", dataFolder)) {
+    pl1 <- pl1 + geom_crossbar(aes(y=meana, ymin=mina,ymax=maxa, fill=printsafeColors[3]))
+  }
+
 ggsave(plot=pl1, width=20, height=10, units = "cm", paste0(outputPrefix, "ambiguity-asymmetry.pdf"))
 
 
 # Descriptive statistics
 df_binarysubsum <- ddply(df_binarysub, c("agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetry"), summarise, N = length(asymmetry))
-parameterNames <- c("$\sum n$", "$\min n$", "$\max n$", "$\mean n$", "$\Var n$")
+parameterNames <- c("$\\sum n$", "$\\min n$", "$\\max n$", "$\\mean n$", "$\\median n$", "$\\Var n$")
 parameterDesc <- c("total population size",
                    "minimum pairs within condition",
                    "maximum pairs within condition",
                    "mean pairs in conditions",
+                   "median of number of pairs in conditions",
                    "variance of number of pairs in condition")
 parameterValues <- c(sum(df_binarysubsum$N),
                      nmin <- min(df_binarysubsum$N),
                      nmax <- max(df_binarysubsum$N),
                      nmean <- mean(df_binarysubsum$N),
+                     nmed <- median(df_binarysubsum$N),
                      nvar <- var(df_binarysubsum$N))
 descStats <- data.frame(parameterNames, parameterDesc, parameterValues)
-
+write.table(descStats, paste0(outputPrefix, "descStats.snippet.tex"), quote = FALSE, eol = "\\\\\n", sep = " & ")
 
