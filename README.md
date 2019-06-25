@@ -163,6 +163,45 @@ It is highly recommended to run Spark on a Unix OS such as Mac OSX or Linux. If 
 on your Windows machine, you may try to build Spark from source (not recommended) or run within a Virtual Machine,
 e.g. using [Virtual Box](https://www.virtualbox.org/) and [Ubuntu](https://www.ubuntu.com/#download).
 
+### Installing and setting up IntelliJ
+
+Ideally, install the software through the software manager by searching for `idea` (Linux).  Otherwise, download the IDE [here](https://www.jetbrains.com/idea/) (Linux, Mac).
+
+Once you have launched the application you will have to go through the following steps:
+
+Select your preferred theme and click `Next: Default plugins`.
+
+![Win1](Images/win1.png)
+
+Optionally, disable Swing and Android, as they are are not used for the simulation and click `Next: Featured plugins`.
+
+![Win2](Images/win2.png)
+
+Install Scala, and optionally IdeaVim and IDE Features Trainer.
+
+![Win3](Images/win3.png)
+
+Now you should see the following menu:
+
+![Win4](Images/win4.png)
+
+Click on `Check out from Version Control` and select Git.
+
+Enter: `https://github.com/markblokpoel/lanag-ambiguityhelps.git` in the URL field.
+
+![Win5](Images/win5.png)
+
+Select Yes.
+![Win6](Images/win6.png)
+
+Select OK.
+![Win7](Images/win7.png)
+
+This is the final window you should see after the installation.
+Wait until the bar in the bottom has finished loading.
+Select Project on the left vertical bar to see the project.
+![Win8](Images/win8.png)
+
 ### Running simulation from IntellijIDEA
 Intellij will ignore `% Provided` library dependencies by default. However, this means it cannot find the
 Spark libraries and you will get an error message. These library dependencies have to be tagged as such, because these
