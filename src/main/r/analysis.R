@@ -24,7 +24,8 @@ load_or_install(c("tidyverse",
                   "gtable",
                   "plotly",
                   "utils",
-                  "data.table"))
+                  "data.table",
+                  "ggnewscale"))
 loadfonts()
 
 tre.12 <- element_text(size = 10, family = "LM Roman 10")
@@ -33,6 +34,7 @@ tre.16 <- element_text(size = 14, family = "LM Roman 10", hjust = 0.5)
 purpleColors <- c("#261724","#463147","#664F6F","#85709B","#A193C9","#B9BAFA")
 greenColors <- c("#1E3140","#145861","#0F8174","#47AA75","#92D069","#EDEF5E")
 printsafeColors <- c("#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00")
+safeColors <- c("#fc8d59","#ffffbf","#91bfdb")
 
 ggplot_theme <- theme(panel.background = element_blank(), axis.line = element_line(colour = "black"),
                       panel.grid.major = element_line(colour = "grey"), panel.grid.minor = element_line(colour = "grey"),
@@ -151,13 +153,14 @@ df_binarysubsum2 <- ddply(df_binarysub, c("agent1AmbiguityMean", "agent2Ambiguit
                           lower_ci = mean - qt(1-(0.05/2), N-1) * se,
                           upper_ci = mean + qt(1-(0.05/2), N-1) * se
 )
-pl1 <- ggplot(df_binarysubsum2, aes(x=asymmetry, y=mean, color=factor(agent1Order))) +
+pl1 <- ggplot(df_binarysubsum2, aes(x=asymmetry, y=mean)) +
   ggplot_theme + theme(axis.text.x = element_text(angle=-90, vjust=0.5, color = "black"), axis.text.y = element_text(color="black"), legend.position="bottom") +
   ggtitle("Communicative success") +
   scale_y_continuous("mean success rate", breaks=pretty_breaks(n=3), limits=c(0,1)) +
   scale_x_continuous("asymmetry", breaks = pretty_breaks(3), minor_breaks=NULL, limits=c(0,1)) +
   scale_color_discrete("order") +
-  geom_line() +
+  geom_line(aes(color=factor(agent1Order))) +
+  geom_segment(data=df_delta_bounds, aes(x = asymmetry.x, xend = asymmetry.y, y = meanSuccess.x, yend = meanSuccess.y)) +
   facet_grid(agent2AmbiguityMean ~ agent1AmbiguityMean, labeller=label_bquote(rows=alpha[2] == ~ .(agent2AmbiguityMean)/.(8), cols=alpha[1] == ~ .(agent1AmbiguityMean)/.(8)))
 ggsave(plot=pl1, width=20, height=20, units = "cm", paste0(outputPrefix, "performance.pdf"))
 
@@ -178,6 +181,73 @@ pl1 <- ggplot(df_binarysubsum3, aes(x=asymmetry, y=mean, color=factor(agent1Orde
 ggsave(plot=pl1, width=20, height=20, units = "cm", paste0(outputPrefix, "performance-zoom.pdf"))
 
 
+##############
+# Heatmap
+# Compute means for order 1
+df_delta1 <- df_binarysub[df_binarysub$agent1Order==1, c("pairId", "agent1Order", "agent2Order", "agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetry", "averageSuccess")]
+df_delta1sum <- ddply(df_delta1, c("agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetry"), summarise,
+                                meanSuccess = mean(averageSuccess))
+
+# Compute baselines for order 0
+df_delta0 <- df_binarysub[df_binarysub$agent1Order==0, c("pairId", "agent1Order", "agent2Order", "agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetry", "averageSuccess")]
+df_delta0sum <- ddply(df_delta0, c("agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetry"), summarise,
+                      meanSuccess = mean(averageSuccess))
+ar_delta_baseline <- tapply(df_delta0sum$meanSuccess, list(df_delta0sum$agent1AmbiguityMean, df_delta0sum$agent2AmbiguityMean), max)
+dimnames(ar_delta_baseline) <- list(agent1AmbiguityMean=1:8, agent2AmbiguityMean=1:8)
+df_delta_baseline <- as.data.frame(as.table(ar_delta_baseline))
+colnames(df_delta_baseline) <- c("agent1AmbiguityMean", "agent2AmbiguityMean", "maxSuccess")
+
+# For all unique combination of ambiguity1 and ambiguity2
+# Find line n where meanSuccess >= df_delta_baseline[ambiguity1, ambiguity2] and line n+1 where meanSuccess < df_delta_baseline[ambiguity1, ambiguity2]
+
+
+df_delta <- merge(x=df_delta1sum, y=df_delta_baseline, by = c("agent1AmbiguityMean", "agent2AmbiguityMean"))
+
+df_delta_asymmetrystart <- df_delta %>% group_by(agent1AmbiguityMean, agent2AmbiguityMean) %>% top_n(-1, asymmetry)
+df_delta_asymmetrystart$meanSuccess <- NULL
+df_delta_asymmetrystart$maxSuccess <- NULL
+colnames(df_delta_asymmetrystart) <- c("agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetryBase")
+
+df_delta_upperbounds <- df_delta[df_delta$meanSuccess>=df_delta$maxSuccess,]
+# df_delta_upperbounds$maxSuccess <- NULL
+df_delta_upperbounds <- df_delta_upperbounds %>% group_by(agent1AmbiguityMean, agent2AmbiguityMean) %>% top_n(1, asymmetry)
+df_delta_lowerbounds <- df_delta[df_delta$meanSuccess<=df_delta$maxSuccess,]
+# df_delta_lowerbounds$maxSuccess <- NULL
+df_delta_lowerbounds <- df_delta_lowerbounds %>% group_by(agent1AmbiguityMean, agent2AmbiguityMean) %>% top_n(-1, asymmetry)
+df_delta_lowerbounds$maxSuccess <- NULL
+
+df_delta_bounds <- merge(x=df_delta_lowerbounds, y=df_delta_upperbounds, by = c("agent1AmbiguityMean", "agent2AmbiguityMean"))
+df_delta_bounds <- merge(x=df_delta_bounds, y=df_delta_asymmetrystart, by = c("agent1AmbiguityMean", "agent2AmbiguityMean"))
+
+df_delta_bounds$a <- ifelse(df_delta_bounds$asymmetry.x == df_delta_bounds$asymmetry.y,
+  df_delta_bounds$asymmetry.x - df_delta_bounds$asymmetryBase
+,
+  (df_delta_bounds$asymmetry.y - df_delta_bounds$asymmetry.x) / 
+  (df_delta_bounds$meanSuccess.y - df_delta_bounds$meanSuccess.x) *
+  (df_delta_bounds$maxSuccess - df_delta_bounds$meanSuccess.y) +
+  df_delta_bounds$asymmetry.y - df_delta_bounds$asymmetryBase
+)
+
+df_delta_bounds$error <- abs((df_delta_bounds$asymmetry.x - df_delta_bounds$asymmetry.y))
+
+pl1 <- ggplot(df_delta_bounds, aes(x=factor(agent1AmbiguityMean), y=factor(agent2AmbiguityMean))) +
+  ggplot_theme + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.text.x = element_text(angle=-90, vjust=0.5, color = "black"), axis.text.y = element_text(color="black"), legend.position="bottom") +
+  # ggtitle("Delta asymmetry") +
+  scale_y_discrete("Agent 1 ambiguity") +
+  scale_x_discrete("Agent 2 ambiguity") +
+  # scale_fill_distiller("Interpolation range", palette = "Greys", direction = 1) +
+  # geom_tile(aes(fill=error)) +
+  # new_scale_fill() +
+  scale_fill_distiller("Delta asymmetry", palette = "RdBu", direction = 1) +
+  # geom_rect(aes(xmin=agent1AmbiguityMean-0.4, xmax=agent1AmbiguityMean+0.4, ymin=agent2AmbiguityMean-0.4, ymax=agent2AmbiguityMean+0.4, fill=a))
+  geom_tile(aes(fill=a)) +
+  geom_segment(aes(x=agent1AmbiguityMean-error, xend=agent1AmbiguityMean+error, y=agent2AmbiguityMean, yend=agent2AmbiguityMean)) +
+  geom_segment(aes(x=agent1AmbiguityMean-error, xend=agent1AmbiguityMean-error, y=agent2AmbiguityMean-0.1, yend=agent2AmbiguityMean+0.1)) +
+  geom_segment(aes(x=agent1AmbiguityMean+error, xend=agent1AmbiguityMean+error, y=agent2AmbiguityMean-0.1, yend=agent2AmbiguityMean+0.1))
+ggsave(plot=pl1, width=20, height=20, units = "cm", paste0(outputPrefix, "asymmetry-contrast.pdf"))
+
+
+##############
 # Difference in communicative success between order 1 and order 0
 df_binary_subsample <- df_binarysub
 df_binarysubo0 <- subset(df_binary_subsample, agent1Order==0, select=c(pairId, agent1AmbiguityMean, agent2AmbiguityMean, asymmetry, averageSuccess))
@@ -234,13 +304,12 @@ pl1 <- ggplot(minmaxdf, aes(x=factor(agent2AmbiguityMean), y=meana)) +
   ggtitle("Distribution of ambiguity and asymmetry in Experiment 1") +
   scale_y_continuous("asymmetry", breaks=pretty_breaks(n=3)) +
   scale_x_discrete(expression(alpha[2]), breaks = c(2,4,6,8), labels=c("2" = expression(2/8), "4" = expression(4/8),"6" = expression(6/8), "8" = expression(8/8))) +
-  scale_fill_manual(name="", guide="legend", values=c(printsafeColors[3],printsafeColors[1]), labels=c("theoretical range", "population in Experiment 1")) +
-  geom_violin(data = df_binarysubsum, aes(x=factor(df_binarysubsum$agent2AmbiguityMean), y=df_binarysubsum$asymmetry, weight=df_binarysubsum$N, fill=printsafeColors[1]), color=NA) +
+  scale_fill_manual(name="", guide="legend", values=c(printsafeColors[3],printsafeColors[1]), labels=c("theoretical range", "population in Experiment 1"))
+if(grepl("uniform", dataFolder)) {
+  pl1 <- pl1 + geom_crossbar(aes(y=meana, ymin=mina,ymax=maxa, fill=printsafeColors[3]))
+}
+  pl1 <- pl1 + geom_violin(data = df_binarysubsum, aes(x=factor(df_binarysubsum$agent2AmbiguityMean), y=df_binarysubsum$asymmetry, weight=df_binarysubsum$N, fill=printsafeColors[1]), color=NA) +
   facet_grid(. ~ agent1AmbiguityMean, labeller=label_bquote(cols=alpha[1] == ~ .(agent1AmbiguityMean)/.(8)))
-
-  if(grepl("consistent", dataFolder)) {
-    pl1 <- pl1 + geom_crossbar(aes(y=meana, ymin=mina,ymax=maxa, fill=printsafeColors[3]))
-  }
 
 ggsave(plot=pl1, width=20, height=10, units = "cm", paste0(outputPrefix, "ambiguity-asymmetry.pdf"))
 
