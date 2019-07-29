@@ -323,29 +323,22 @@ GGdistribution <- ggplot(DFcounts) +
         legend.position="right") +
   ggtitle("Distribution of ambiguity and asymmetry") +
   scale_y_continuous(bquote("asymmetry"~gamma), breaks = pretty_breaks(1)) +
-  scale_x_continuous("distribution", breaks = pretty_breaks(1)) +
-  scale_fill_manual("distributions", values = c("theoretical distribution" = "#9ecae1", "sample distribution" = "#2b8cbe")) +
-  scale_color_manual("distributions", values = c("theoretical distribution" = "#9ecae1", "sample distribution" = "#2b8cbe")) +
-  scale_shape_manual("", values = c("theoretical distribution mean" = 5)) +
+  scale_x_continuous("", breaks = pretty_breaks(1)) +
+  scale_fill_manual("", values = c("sample distribution" = "#1b9e77")) +
+  scale_color_manual("", values = c("sample distribution" = "#1b9e77")) +
+  scale_shape_manual("", values = c("theoretical minimum" = 91, "theoretical mean" = 5, "theoretical maximum" = 93)) +
+  geom_rect(aes(xmin = 0, xmax = N, ymin = asymmetry, ymax = asymmetry, fill = "sample distribution", color = "sample distribution")) +
   facet_grid(agent2AmbiguityMean ~ agent1AmbiguityMean,
              labeller=label_bquote(rows=.(agent2AmbiguityMean)/.(8),
                                    cols=.(agent1AmbiguityMean)/.(8))) + 
   coord_flip()
-  
-  if(grepl("uniform", dataFolder)) {
-    GGdistribution <- GGdistribution + geom_rect(data = DFminMax, aes(xmin = 0, xmax = .5,
-                                                ymin = mina, ymax = maxa,
-                                                fill = "theoretical distribution",
-                                                color = "theoretical distribution"))
-  }
 
-  GGdistribution <- GGdistribution + geom_rect(aes(xmin = 0, xmax = N,
-                             ymin = asymmetry, ymax = asymmetry,
-                             fill = "sample distribution",
-                             color = "sample distribution"))
 
   if(grepl("uniform", dataFolder)) {
-    GGdistribution <- GGdistribution + geom_point(data = DFminMax, aes(x = 0.125, y = meana, shape = "theoretical distribution mean"))
+    GGdistribution <- GGdistribution + 
+      geom_point(data = DFminMax, aes(x = 0.2, y = mina, shape = "theoretical minimum"), color = "#d95f02", size = 3.5) +
+      geom_point(data = DFminMax, aes(x = 0.2, y = maxa, shape = "theoretical maximum"), color = "#d95f02", size = 3.5) +
+      geom_point(data = DFminMax, aes(x = 0.2, y = meana, shape = "theoretical mean"), color = "#d95f02", size = 1.5)
   }
 ```
 ```{r echo = FALSE}
@@ -473,6 +466,62 @@ GGreplication <- ggplot(DFreplication21Summary, aes(x = asymmetry, y = meanDiffS
 GGreplication
 ```
 
+# Evolution of language
+
+```{r}
+
+DFevolution <- data.frame(matrix(ncol = 4, nrow = 0))
+colnames(DFevolution) <- c("asymmetry", "condition", "ambiguity", "success")
+
+
+for(x in 0:9/10) {
+  # compute asymmetric trajectories
+  aa <- x/2
+  as <- (2*aa)^2
+  newRow <- data.frame(asymmetry="asymmetric",condition="low to medium",ambiguity=aa,success=as)
+  DFevolution <- rbind(DFevolution, newRow)
+  aa <- 0.5
+  as <- min(x,0.815)
+  newRow <- data.frame(asymmetry="asymmetric",condition="medium",ambiguity=aa,success=as)
+  DFevolution <- rbind(DFevolution, newRow)
+  aa <- 0.5+((.1+x)/2)
+  as <- (2-2*aa)^2
+  newRow <- data.frame(asymmetry="asymmetric",condition="high to medium",ambiguity=aa,success=as)
+  DFevolution <- rbind(DFevolution, newRow)
+  
+  # compute symmetric trajectories
+  aa <- 0
+  as <- min(x,0.815)
+  newRow <- data.frame(asymmetry="symmetric",condition="low",ambiguity=aa,success=as)
+  DFevolution <- rbind(DFevolution, newRow)
+  aa <- 0.05+x/2
+  as <- (1-2*aa)^2
+  newRow <- data.frame(asymmetry="symmetric",condition="medium to low",ambiguity=aa,success=as)
+  DFevolution <- rbind(DFevolution, newRow)
+  aa <- 0.1+x
+  as <- (1-aa)^2
+  newRow <- data.frame(asymmetry="symmetric",condition="high to low",ambiguity=aa,success=as)
+  DFevolution <- rbind(DFevolution, newRow)
+}
+
+GGevolution <- ggplot(DFevolution, aes(x=ambiguity, y=success,color=factor(condition))) +
+  ggplot_theme +
+  theme(panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.text = element_text(),
+      axis.text.x = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks = element_blank(),
+      legend.position="right") +
+  scale_y_continuous("success/fitness") +
+  scale_x_continuous(bquote({ambiguity}~alpha/time)) +
+  scale_color_brewer("evolutionary trajectory", palette="Set2") +
+  geom_line(stat = "identity") +
+  facet_wrap( ~ asymmetry)
+```
+```{r}
+GGevolution
+```
 
 
 ```{r echo = FALSE, results = 'hide'}
@@ -515,9 +564,9 @@ dev.off()
           # plotPerformance(4,5), #8
           # plotPerformance(5,5), #9
 
-# pdf(file = "random2000_distribution.pdf")
-# GGdistribution + theme(legend.position = "bottom")
-# dev.off()
+pdf(file = "uniform2000_distribution.pdf")
+GGdistribution + theme(legend.position = "bottom") + ggtitle(NULL)
+dev.off()
 # 
 pdf(file = "randomExample.pdf")
 GGdeltaExample + theme(legend.position = "right")
@@ -529,6 +578,10 @@ dev.off()
 
 pdf(file = "uniformReplication.pdf", height = 5, width = 8)
 GGreplication
+dev.off()
+
+pdf(file = "evolutionaryTrajectories.pdf", height = 3, width = 8)
+GGevolution
 dev.off()
 ```
 
