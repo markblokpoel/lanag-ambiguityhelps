@@ -2,8 +2,7 @@
 ### Scala template
 *.class
 *.log
-### Unignore binaries for mybinder
-!binaries/lanag-ambiguityhelps-0.1.jar
+
 
 ### Java template
 
@@ -200,3 +199,6 @@ target/scala-2.12/resolution-cache/
 target/streams/
 /target/
 .idea
+
+### Unignore binaries for mybinder
+!binaries/lanag-ambiguityhelps-0.1.jar
