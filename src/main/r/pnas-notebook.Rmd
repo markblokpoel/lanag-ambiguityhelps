@@ -1,6 +1,6 @@
 ---
-title: 'Pragmatic communicators can overcome asymmetry by exploiting ambiguity: Data
-  analysis document'
+title: 'Data
+  analysis document:<br/>Pragmatic communicators can overcome asymmetry by exploiting ambiguity'
 author: Mark Blokpoel, Mark Dingemanse, George Kachergis, Sara Bögels, Ivan Toni,
   Iris van Rooij and the CABB team
 output:
@@ -12,11 +12,11 @@ output:
 ---
 
 # Introduction
+This R Notebook describes the data analysis of Blokpoel et al. (2019) *Pragmatic communicators can overcome asymmetry by exploiting ambiguity*. Running the code chunks in order will run all analyses and generates all graphs reported in the main paper. The datasets can be found here [link to Donders Repository or Github](), but you can also run the simulation experiment yourself and use that dataset.
 
-This R Notebook describes the data analysis of Blokpoel et al. (2019) *Pragmatic communicators can overcome asymmetry by exploiting ambiguity*.
+# Packages and settings
+Run the following code to install and load the required libraries.
 
-# Initialization of data analysis
-## Packages and settings
 ```{r results='hide'}
 is_installed <- function(mypkg) is.element(mypkg, installed.packages()[,1])
 
@@ -49,7 +49,7 @@ suppressWarnings(load_or_install(c("tidyverse",
 
 loadfonts(quiet = TRUE)
 
-
+# these are some ggplot settings we use later
 tre.12 <- element_text(size = 10, family = "LM Roman 10")
 tre.14 <- element_text(size = 12, family = "LM Roman 10")
 tre.16 <- element_text(size = 14, family = "LM Roman 10", hjust = 0.5)
@@ -60,32 +60,40 @@ ggplot_theme <- theme(panel.background = element_blank(), axis.line = element_li
                       plot.title = tre.16)
 ```
 
-## Loading data
+# Main experiment: Pragmatic communicators can overcome asymmetry
+Here we run analyses and generate the graphs reported for the main simulation experiment.
 
-Here, we load the data in `.csv` format, remove incomplete cases, round down ambiguity values and remove instances where ambiguity for either agent is 0.
+## Loading data and pre-processing
+We load the data in `.csv` format, remove incomplete cases, round down ambiguity values and remove instances where ambiguity for either agent is 0. Set the variable `dataFolder` to point towards the location where the collection of data files is stored. The script loads all `.csv`-files from that folder. Set the variable `tag` to a string that will be added to all output files.
 
-```{r}
+```{r results='hide'}
+# location of the data
 dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/35rounds/uniform2000"
-outputFolder = paste0(dataFolder, "/figs/")
-outputPrefix = paste0(outputFolder, "uniform2000_")
-dir.create(file.path(outputFolder), showWarnings = FALSE)
+# special tag prefix for output files
+tag = "uniform2000_"
 
+# set variables
+outputFolder = paste0(dataFolder, "/figs/")
+outputPrefix = paste0(outputFolder, tag)
+dir.create(file.path(outputFolder))
 csvFiles = list.files(path=dataFolder, pattern="*.csv")
 
+# load the files
 data <- do.call("rbind", lapply(csvFiles, function(fn)
   data.frame(Filename=fn, read.csv(paste0(dataFolder, "/" ,fn))
   )))
-
+# remove header data
 data <- data[, !(names(data) %in% c("Filename"))]
-
+# round down ambiguity values
 data$agent1AmbiguityMean = floor(data$agent1AmbiguityMean)
 data$agent2AmbiguityMean = floor(data$agent2AmbiguityMean)
+# remove incomplete cases and cases where ambiguity < 1
 DFsim <- data[complete.cases(data) & data$agent1AmbiguityMean>0 & data$agent2AmbiguityMean>0, ]
 ```
 
-Filter out parts of the parameter space with fewer than $n=15$ samples.
+This next chunk filters out parts of the parameter space with fewer than $n=15$ samples. With so few samples, we do not get accurate means for these parts of the space. If this filters out too many parts you may need to run the simulation experiment with higher `sample-size`. (For this parameter see simulation software settings in the `application.conf` file.)
 
-```{r}
+```{r results='hide'}
 DFsimFilter <- ddply(DFsim,
                      c("agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetry"),
                      summarise,
@@ -94,15 +102,13 @@ DFsimFilter <- DFsimFilter[DFsimFilter$N >= 15,]
 
 DFsim <- merge(DFsim, DFsimFilter, all = FALSE) # Comment out this line to include outliers.
 ```
-
-
-### Random sample of raw data 
-```{r echo = FALSE}
+*Table: Random samples from preprocessed summarized data.*
+```{r echo=FALSE}
 print(DFsim[sample(nrow(DFsim), 10),])
 ```
 
 ### Compute statistics
-We compute statistics for each condition, `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` $\times$ `asymmetry` $\times$ `agent1order`. Note that both agents in this simulation always have the same order of pragmatic inference (`agent1order` $=$ `agent2order`).
+Many scripts below require summary statistics of the data. We compute these statistics for each condition, `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` $\times$ `asymmetry` $\times$ `agent1order`. Note that both agents in this simulation always have the same order of pragmatic inference (`agent1order` $=$ `agent2order`).
 
 ```{r}
 suppressWarnings(DFstats <- ddply(DFsim,
@@ -116,16 +122,22 @@ suppressWarnings(DFstats <- ddply(DFsim,
                  upper_ci = mean + qt(1-(0.05/2), N-1) * se
 ))
 ```
-
-```{r echo = FALSE}
+*Table: Random samples from summary statistics.*
+```{r echo=FALSE}
 print(DFstats[sample(nrow(DFstats), 10),])
 ```
 
-# Delta asymmetry analysis
+## Analyses
+We compute four analyses: population distribution (Fig. 2 in main paper), main results (Fig. 3), replication and generalization of Frank et al. (2017) (Fig. 4) and evolution of ambiguity (Fig. 5).
 
-This section describes how the Fig. X in the paper is computed. We compute for each condition `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` how much more asymmetry 1^st^ order agents can incurr, before their communicative success drops below that of the best 0 order agents.
+### Analysis 1: Population distribution
 
-We filter zero order agents' and first order agents' data from the general dataframe `simDF`. For each of these two subsets we compute summary statistics, i.e., the mean successrates over pairs of agents in each condition. Here, the conditions are `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` $\times$ `asymmetry`.
+
+### Analysis 2: Main results
+This section describes how Fig. 2 in the paper is generated. This analysis consists of three parts: additional preprocessing and analysis, communicative success and delta asymmetry. The full panel in Fig 2. is generated at the end of this notebook under [Export to PDF](#pdf), which stiches all the subpanels together.
+
+#### Preprocessing and analysis
+We compute for each condition `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` how much more asymmetry 1^st^ order agents can incurr, before their communicative success drops below that of the best 0 order agents. We filter zero order agents' and first order agents' data from the general dataframe `simDF`. For each of these two subsets we compute summary statistics, i.e., the mean successrates over pairs of agents in each condition. Here, the conditions are `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` $\times$ `asymmetry`.
 
 ```{r}
 DFdeltaOrder1 <- DFsim[DFsim$agent1Order==1,
@@ -160,13 +172,16 @@ DFdeltaOrder0Summary <- ddply(DFdeltaOrder0,
                               summarise,
                               meanSuccess = mean(averageSuccess))
 ```
-```{r echo = FALSE}
-print(head(DFdeltaOrder0Summary))
-print(head(DFdeltaOrder1Summary))
+*Table: Random samples from zero-order summary statistics*
+```{r echo=FALSE}
+print(DFdeltaOrder0Summary[sample(nrow(DFdeltaOrder0Summary), 10),])
+```
+*Table: Random samples from first-order summary statistics*
+```{r echo=FALSE}
+print(DFdeltaOrder1Summary[sample(nrow(DFdeltaOrder1Summary), 10),])
 ```
 
-Next, we compute the asymmetry baseline, defined as the lowest asymmetry value in each `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` condition.
-
+Next, we compute the minimum asymmetry in each `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` condition.
 ```{r}
 DFdeltaMinAsymmetry <- DFdeltaOrder1Summary %>%
                        group_by(agent1AmbiguityMean, agent2AmbiguityMean) %>%
@@ -175,12 +190,12 @@ DFdeltaMinAsymmetry$meanSuccess <- NULL
 DFdeltaMinAsymmetry$maxSuccess <- NULL
 colnames(DFdeltaMinAsymmetry) <- c("agent1AmbiguityMean", "agent2AmbiguityMean", "minAsymmetry")
 ```
-```{r echo = FALSE}
-print(head(DFdeltaMinAsymmetry))
+*Table: Random samples from minimum asymmetry*
+```{r echo=FALSE}
+print(DFdeltaOrder1Summary[sample(nrow(DFdeltaOrder1Summary), 5),])
 ```
 
-We also compute the maximum mean communicative success rate for 0 order agents in each `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` condition.
-
+We then compute the maximum mean communicative success rate for 0 order agents in each `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` condition.
 ```{r}
 DFdeltaMaxSuccessOrder0 <- tapply(DFdeltaOrder0Summary$meanSuccess,
                                   list(DFdeltaOrder0Summary$agent1AmbiguityMean, DFdeltaOrder0Summary$agent2AmbiguityMean),
@@ -189,12 +204,13 @@ dimnames(DFdeltaMaxSuccessOrder0) <- list(agent1AmbiguityMean=1:8, agent2Ambigui
 DFdeltaMaxSuccessOrder0 <- as.data.frame(as.table(DFdeltaMaxSuccessOrder0))
 colnames(DFdeltaMaxSuccessOrder0) <- c("agent1AmbiguityMean", "agent2AmbiguityMean", "maxSuccess")
 ```
-```{r echo = FALSE}
-print(head(DFdeltaMaxSuccessOrder0))
+*Table: Random samples from minimum asymmetry*
+```{r echo=FALSE}
+print(DFdeltaMaxSuccessOrder0[sample(nrow(DFdeltaMaxSuccessOrder0), 5),])
 ```
 
-Having computed the mean communicative success rates for each condition, we merge these data frames, compute the intersection by finding the first data point on the above and below of the best 0 order agents' success rate. If the intersection is not exactly on one of these points, we assume a linear relation between those two points and compute the intersection with that function. Example intersection for `agent1AmbiguityMean` $=3$ `agent2AmbiguityMean` $=3$ is plotted.
-
+#### Communicative success
+Having computed the mean communicative success rates for each condition, we merge these data frames, compute the intersection by finding the first data point on the above and below of the best 0 order agents' success rate. If the intersection is not exactly on one of these points, we assume a linear relation between those two points and compute the intersection with that function.
 ```{r}
 DFdelta <- merge(x=DFdeltaOrder1Summary, y=DFdeltaMaxSuccessOrder0, by = c("agent1AmbiguityMean", "agent2AmbiguityMean"))
 
@@ -216,23 +232,23 @@ DFdelta$a <- ifelse(DFdelta$asymmetry.x == DFdelta$asymmetry.y,
   DFdelta$asymmetry.y - DFdelta$minAsymmetry
 )
 
-GGdeltaExample <- ggplot(DFstats[DFstats$agent1AmbiguityMean==3 & DFstats$agent2AmbiguityMean==3 & DFstats$agent1Order<2,]) +
+plotCommSuccess = function(a1, a2, legendPos="none") {
+  ggplot(DFstats[DFstats$agent1AmbiguityMean==a1 & DFstats$agent2AmbiguityMean==a2 & DFstats$agent1Order<2,]) +
   ggplot_theme +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         axis.text = element_text(size = 14),
-        axis.title.x = element_text(size = 24),
-        axis.title.y = element_text(size = 24),
-        plot.title = element_text(size = 24)) +
-  ggtitle(bquote("Communicative success")) +
-  scale_y_continuous("mean success rate", breaks=c(0,.25,.5,.75,1), labels = c("0.0", rep("",1), .5, rep("",1), "1.0"),  limits=c(0,1)) +
-  scale_x_continuous(bquote("asymmetry"~gamma), breaks = pretty_breaks(4), minor_breaks=NULL, limits=c(0,.6)) +
+        axis.text.x = element_text(),
+        axis.text.y = element_text(),
+        legend.position=legendPos) +
+  scale_y_continuous("", breaks=c(0,0.25,0.5,0.75,1.0), labels = c("0", rep("", 3), "1"), limits = c(0,1)) +
+  scale_x_continuous("", breaks = c(0, 0.2, 0.4, 0.6), labels = c("0", "", "", ".6"), limits = c(0,0.6)) +
   geom_line(aes(x = asymmetry, y = mean, color = factor(agent1Order))) +
-  geom_point(data = DFdelta[DFdelta$agent1AmbiguityMean==3 & DFdelta$agent2AmbiguityMean==3,],
-             aes(shape = "intersection",x = a+minAsymmetry, y = maxSuccess), size = 5, show.legend = TRUE) +
-  geom_point(data = DFdelta[DFdelta$agent1AmbiguityMean==3 & DFdelta$agent2AmbiguityMean==3,],
+  geom_point(data = DFdelta[DFdelta$agent1AmbiguityMean==a1 & DFdelta$agent2AmbiguityMean==a2,],
+             aes(shape = "intersection", x = a+minAsymmetry, y = maxSuccess), size = 5, show.legend = TRUE) +
+  geom_point(data = DFdelta[DFdelta$agent1AmbiguityMean==a1 & DFdelta$agent2AmbiguityMean==a2,],
              aes(shape = "0 order max", x = minAsymmetry, y = maxSuccess), size = 5, show.legend = TRUE) + 
-  geom_segment(data = DFdelta[DFdelta$agent1AmbiguityMean==3 & DFdelta$agent2AmbiguityMean==3,],
+  geom_segment(data = DFdelta[DFdelta$agent1AmbiguityMean==a1 & DFdelta$agent2AmbiguityMean==a2,],
                aes(linetype = "delta", x = minAsymmetry, y = maxSuccess, xend = a+minAsymmetry, yend = maxSuccess)) +
   scale_color_brewer("order of pragmatic inference", palette = "Dark2",
                      guide = guide_legend(override.aes = list(
@@ -241,15 +257,17 @@ GGdeltaExample <- ggplot(DFstats[DFstats$agent1AmbiguityMean==3 & DFstats$agent2
   scale_shape_manual("intersection", values = c("0 order max" = 2, "intersection" = 6)) +
   scale_linetype_manual("delta", values = c("delta" = "dashed"),
                         guide = guide_legend(override.aes = list(shape = c(NA))))
+}
 ```
+
+*Figure 2, Panel A: Communicative success and delta asymmetry illustration.*
+We can inspect the example graph, but you can change the ambiguity values to inspect different parts of the parameter space.
 ```{r echo = FALSE}
-GGdeltaExample
+plotCommSuccess(3,3,"right")
 ```
 
-
-## Figure X
+#### Delta asymmetry
 This delta statistic is plotted in a heatmap below, for each `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` condition.
-
 ```{r}
 GGdelta <- ggplot(DFdelta, aes(x=factor(agent1AmbiguityMean), y=factor(agent2AmbiguityMean))) +
   ggplot_theme +
@@ -268,6 +286,17 @@ GGdelta <- ggplot(DFdelta, aes(x=factor(agent1AmbiguityMean), y=factor(agent2Amb
 ```{r echo = FALSE}
 GGdelta
 ```
+
+### Analysis 3: Replication and generalization
+
+### Analysis 4: Evolution of ambiguity
+
+
+## Save to PDF
+
+
+
+
 
 
 # Ambiguity and asymmetry relationship
@@ -350,33 +379,7 @@ GGdistribution
 Here, we plot agents communicative success for various conditions of interest.
 
 ```{r}
-plotPerformance = function(a1, a2) {
-  ggplot(DFstats[DFstats$agent1AmbiguityMean==a1 & DFstats$agent2AmbiguityMean==a2 & DFstats$agent1Order<2,]) +
-  ggplot_theme +
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        axis.text = element_text(size = 14),
-        axis.text.x = element_text(),
-        axis.text.y = element_text(),
-        legend.position="none") +
-  # ggtitle(bquote(alpha[1]==.(a1)~"and"~alpha[2]==.(a2))) +
-  scale_y_continuous("", breaks=c(0,0.25,0.5,0.75,1.0), labels = c("0", rep("", 3), "1"), limits = c(0,1)) +
-  scale_x_continuous("", breaks = c(0, 0.2, 0.4, 0.6), labels = c("0", "", "", ".6"), limits = c(0,0.6)) +
-  geom_line(aes(x = asymmetry, y = mean, color = factor(agent1Order))) +
-  geom_point(data = DFdelta[DFdelta$agent1AmbiguityMean==a1 & DFdelta$agent2AmbiguityMean==a2,],
-             aes(shape = "intersection", x = a+minAsymmetry, y = maxSuccess), size = 5, show.legend = TRUE) +
-  geom_point(data = DFdelta[DFdelta$agent1AmbiguityMean==a1 & DFdelta$agent2AmbiguityMean==a2,],
-             aes(shape = "0 order max", x = minAsymmetry, y = maxSuccess), size = 5, show.legend = TRUE) + 
-  geom_segment(data = DFdelta[DFdelta$agent1AmbiguityMean==a1 & DFdelta$agent2AmbiguityMean==a2,],
-               aes(linetype = "delta", x = minAsymmetry, y = maxSuccess, xend = a+minAsymmetry, yend = maxSuccess)) +
-  scale_color_brewer("order of pragmatic inference", palette = "Dark2",
-                     guide = guide_legend(override.aes = list(
-                       linetype = c("solid", "solid"),
-                       shape = c(NA, NA)))) +
-  scale_shape_manual("intersection", values = c("0 order max" = 2, "intersection" = 6)) +
-  scale_linetype_manual("delta", values = c("delta" = "dashed"),
-                        guide = guide_legend(override.aes = list(shape = c(NA))))
-}
+
 
 # MPlayout <- matrix(c(1, 1, 2, 2, 9,
 #                      1, 1, 2, 2, 8,
@@ -522,7 +525,7 @@ GGevolution <- ggplot(DFevolution, aes(x=ambiguity, y=success,color=factor(condi
 ```{r}
 GGevolution
 ```
-
+## Export to PDF {#pdf}
 
 ```{r echo = FALSE, results = 'hide'}
 
