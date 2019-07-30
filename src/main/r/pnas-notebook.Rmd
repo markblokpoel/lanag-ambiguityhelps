@@ -69,11 +69,12 @@ We load the data in `.csv` format, remove incomplete cases, round down ambiguity
 ```{r results='hide'}
 # location of the data
 dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/35rounds/uniform2000"
-# special tag prefix for output files
+# location and tags for output files
+outputFolder = dataFolder
 tag = "uniform2000_"
 
 # set variables
-outputFolder = paste0(dataFolder, "/figs/")
+outputFolder = paste0(outputFolder, "/figs/")
 outputPrefix = paste0(outputFolder, tag)
 dir.create(file.path(outputFolder))
 csvFiles = list.files(path=dataFolder, pattern="*.csv")
@@ -130,11 +131,101 @@ print(DFstats[sample(nrow(DFstats), 10),])
 ## Analyses
 We compute four analyses: population distribution (Fig. 2 in main paper), main results (Fig. 3), replication and generalization of Frank et al. (2017) (Fig. 4) and evolution of ambiguity (Fig. 5).
 
-### Analysis 1: Population distribution
+### Analysis 1: Theoretical and simulation population distribution
+First, we compute the theoretical relationship between the ambiguity of two lexicons $\alpha_1$ and $\alpha_2$ and their asymmetry $\gamma$.
 
+$$
+\begin{align}
+    \gamma_{\min}&=&1-\frac{1}{|R|}(\min(\alpha_1,\alpha_2)+\min(|R|-\alpha_1,|R|-\alpha_2)\\
+    \gamma_{\max}&=&\frac{1}{|R|}(\min(\alpha_1, |R|-\alpha_2)+\min(|R|-\alpha_1,\alpha_2)\\
+    \gamma_{\mathrm{mean}}&=&\frac{\alpha_1+\alpha_2}{|R|}-\frac{2\alpha_1\alpha_2}{|R|^2}
+\end{align}
+$$
+```{r}
+numberOfReferents = 8
+a1s <- 1:numberOfReferents
+a2s <- 1:numberOfReferents
+DFminMax <- data.frame(matrix(ncol = 5, nrow = 0))
+x <- c("ambiguity1", "ambiguity2", "mina", "meana", "maxa")
+colnames(DFminMax) <- x
+
+for(a1 in a1s) {
+  for(a2 in a2s) {
+    maxAsymmetry <- (min(a1,numberOfReferents-a2)+min(a2,numberOfReferents-a1))/numberOfReferents
+    meanAsymmetry <- a1/numberOfReferents + a2/numberOfReferents - 2*a1*a2/(numberOfReferents*numberOfReferents)
+    minAsymmetry <- 1-(min(a1,a2) + min(numberOfReferents-a1,numberOfReferents-a2))/numberOfReferents
+    
+    newRow <- data.frame(agent1AmbiguityMean=a1,agent2AmbiguityMean=a2,mina=minAsymmetry,meana=meanAsymmetry,maxa=maxAsymmetry)
+    DFminMax <- rbind(DFminMax, newRow)
+  }
+}
+
+plotTheoreticalDistribution <- function(legendPos = "none", nrCols = 3) {
+  ggplot(DFminMax, aes(x = agent1AmbiguityMean, y = meana)) +
+  ggplot_theme +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.position = legendPos) +
+  scale_y_continuous(bquote("asymmetry"~gamma), breaks = pretty_breaks(5)) +
+  scale_x_continuous(bquote("ambiguity"~alpha[1]), breaks = pretty_breaks(8)) +
+  scale_fill_manual("", values = c("theoretical distribution" = "#d95f02")) +
+  geom_crossbar(aes(ymin = mina, ymax = maxa, fill = "theoretical distribution")) +
+  facet_wrap(. ~ agent2AmbiguityMean, labeller = label_bquote(cols=.(agent2AmbiguityMean)/.(8)), ncol = nrCols)
+}
+```
+
+*Figure 2: Theoretical population distribution.*
+```{r echo = FALSE}
+plotTheoreticalDistribution(nrCols = 8)
+```
+
+We can analyze how the samples generated in the simulation are distributed over this theoretically possible space. To do this, we summarize for each condition `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` $\times$ `asymmetry` the number of samples and transform them to $\log$-space for readibility.
+
+```{r}
+DFcounts <- ddply(DFsim[DFsim$agent1Order==0,],
+                  c("agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetry"),
+                  summarise,
+                  N = log(length(asymmetry)))
+DFcounts$N <- DFcounts$N / max(DFcounts$N)
+
+plotMainSimulationDistribution <- function(theoreticalLims = FALSE, legendPos = "none") {
+  GGdistribution <- ggplot(DFcounts) +
+  ggplot_theme +
+  theme(panel.grid.major = element_line(colour="gray"),
+        panel.grid.minor = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.line.y = element_blank(),
+        axis.text.y = element_blank(),
+        legend.position = legendPos) +
+  scale_y_continuous(bquote("asymmetry"~gamma), breaks = pretty_breaks(1)) +
+  scale_x_continuous("", breaks = pretty_breaks(1)) +
+  scale_fill_manual("", values = c("sample distribution" = "#1b9e77")) +
+  scale_color_manual("", values = c("sample distribution" = "#1b9e77")) +
+  scale_shape_manual("", values = c("theoretical minimum" = 91, "theoretical mean" = 5, "theoretical maximum" = 93)) +
+  geom_rect(aes(xmin = 0, xmax = N, ymin = asymmetry, ymax = asymmetry, fill = "sample distribution", color = "sample distribution")) +
+  facet_grid(agent2AmbiguityMean ~ agent1AmbiguityMean,
+             labeller=label_bquote(rows=.(agent2AmbiguityMean)/.(8),
+                                   cols=.(agent1AmbiguityMean)/.(8))) + 
+  coord_flip()
+
+
+  if(theoreticalLims) {
+    GGdistribution <- GGdistribution + 
+      geom_point(data = DFminMax, aes(x = 0.2, y = mina, shape = "theoretical minimum"), color = "#d95f02", size = 3.5) +
+      geom_point(data = DFminMax, aes(x = 0.2, y = maxa, shape = "theoretical maximum"), color = "#d95f02", size = 3.5) +
+      geom_point(data = DFminMax, aes(x = 0.2, y = meana, shape = "theoretical mean"), color = "#d95f02", size = 1.5)
+  }
+  GGdistribution
+}
+```
+
+*Figure SI.1: Simulation population distribution.*
+```{r echo = FALSE}
+plotMainSimulationDistribution(theoreticalLims = TRUE, legendPos = "right")
+```
 
 ### Analysis 2: Main results
-This section describes how Fig. 2 in the paper is generated. This analysis consists of three parts: additional preprocessing and analysis, communicative success and delta asymmetry. The full panel in Fig 2. is generated at the end of this notebook under [Export to PDF](#pdf), which stiches all the subpanels together.
+This section describes how Fig. 3 in the paper is generated. This analysis consists of three parts: additional preprocessing and analysis, communicative success and delta asymmetry. The full panel in Fig 3. is generated at the end of this notebook under [Export to PDF](#pdf), which stiches all the subpanels together.
 
 #### Preprocessing and analysis
 We compute for each condition `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` how much more asymmetry 1^st^ order agents can incurr, before their communicative success drops below that of the best 0 order agents. We filter zero order agents' and first order agents' data from the general dataframe `simDF`. For each of these two subsets we compute summary statistics, i.e., the mean successrates over pairs of agents in each condition. Here, the conditions are `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` $\times$ `asymmetry`.
@@ -232,7 +323,7 @@ DFdelta$a <- ifelse(DFdelta$asymmetry.x == DFdelta$asymmetry.y,
   DFdelta$asymmetry.y - DFdelta$minAsymmetry
 )
 
-plotCommSuccess = function(a1, a2, legendPos="none") {
+plotCommSuccess = function(a1, a2, legendPos = "none") {
   ggplot(DFstats[DFstats$agent1AmbiguityMean==a1 & DFstats$agent2AmbiguityMean==a2 & DFstats$agent1Order<2,]) +
   ggplot_theme +
   theme(panel.grid.major = element_blank(),
@@ -240,7 +331,7 @@ plotCommSuccess = function(a1, a2, legendPos="none") {
         axis.text = element_text(size = 14),
         axis.text.x = element_text(),
         axis.text.y = element_text(),
-        legend.position=legendPos) +
+        legend.position = legendPos) +
   scale_y_continuous("", breaks=c(0,0.25,0.5,0.75,1.0), labels = c("0", rep("", 3), "1"), limits = c(0,1)) +
   scale_x_continuous("", breaks = c(0, 0.2, 0.4, 0.6), labels = c("0", "", "", ".6"), limits = c(0,0.6)) +
   geom_line(aes(x = asymmetry, y = mean, color = factor(agent1Order))) +
@@ -255,152 +346,42 @@ plotCommSuccess = function(a1, a2, legendPos="none") {
                        linetype = c("solid", "solid"),
                        shape = c(NA, NA)))) +
   scale_shape_manual("intersection", values = c("0 order max" = 2, "intersection" = 6)) +
-  scale_linetype_manual("delta", values = c("delta" = "dashed"),
-                        guide = guide_legend(override.aes = list(shape = c(NA))))
+  scale_linetype_manual("delta", values = c("delta" = "dashed"), guide = guide_legend(override.aes = list(shape = c(NA))))
 }
 ```
 
-*Figure 2, Panel A: Communicative success and delta asymmetry illustration.*
+*Figure 3, Panel A: Communicative success and delta asymmetry illustration.*
 We can inspect the example graph, but you can change the ambiguity values to inspect different parts of the parameter space.
 ```{r echo = FALSE}
-plotCommSuccess(3,3,"right")
+plotCommSuccess(3, 3, "right")
 ```
 
 #### Delta asymmetry
 This delta statistic is plotted in a heatmap below, for each `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` condition.
 ```{r}
-GGdelta <- ggplot(DFdelta, aes(x=factor(agent1AmbiguityMean), y=factor(agent2AmbiguityMean))) +
+plotDeltaAsymmetry = function(legendPos = "none") {
+  ggplot(DFdelta, aes(x=factor(agent1AmbiguityMean), y=factor(agent2AmbiguityMean))) +
   ggplot_theme +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         axis.text = element_text(size = 14),
         axis.title.x = element_text(size = 24),
         axis.title.y = element_text(size = 24),
-        plot.title = element_text(size = 24)) +
-  ggtitle("Improved asymmetry handling") +
+        plot.title = element_text(size = 24),
+        legend.position = legendPos) +
   scale_y_discrete(bquote(ambiguity~alpha[1])) +
   scale_x_discrete(bquote(ambiguity~alpha[2])) +
   scale_fill_distiller("delta asymmetry", palette = "BuGn", direction = 1) +
   geom_tile(aes(fill=a))
+}
 ```
+*Figure 3, Panel B: Delta asymmetry heatmap.*
 ```{r echo = FALSE}
-GGdelta
+plotDeltaAsymmetry("right")
 ```
 
 ### Analysis 3: Replication and generalization
-
-### Analysis 4: Evolution of ambiguity
-
-
-## Save to PDF
-
-
-
-
-
-
-# Ambiguity and asymmetry relationship
-Here we compute the theoretical relationship between the ambiguity of two lexicons $\alpha_1$ and $\alpha_2$ and their asymmetry $\gamma$. 
-
-$$
-\begin{align}
-    \gamma_{\min}&=&1-\frac{1}{|R|}(\min(\alpha_1,\alpha_2)+\min(|R|-\alpha_1,|R|-\alpha_2)\\
-    \gamma_{\max}&=&\frac{1}{|R|}(\min(\alpha_1, |R|-\alpha_2)+\min(|R|-\alpha_1,\alpha_2)\\
-    \gamma_{\mathrm{mean}}&=&\frac{\alpha_1+\alpha_2}{|R|}-\frac{2\alpha_1\alpha_2}{|R|^2}
-\end{align}
-$$
-```{r}
-m = 8
-a1s <- 1:m
-a2s <- 1:m
-DFminMax <- data.frame(matrix(ncol = 5, nrow = 0))
-x <- c("ambiguity1", "ambiguity2", "mina", "meana", "maxa")
-colnames(DFminMax) <- x
-
-for(a1 in a1s) {
-  for(a2 in a2s) {
-    maxAsymmetry <- (min(a1,m-a2)+min(a2,m-a1))/m
-    meanAsymmetry <- a1/m + a2/m - 2*a1*a2/(m*m)
-    minAsymmetry <- 1-(min(a1,a2) + min(m-a1,m-a2))/m
-    
-    newRow <- data.frame(agent1AmbiguityMean=a1,agent2AmbiguityMean=a2,mina=minAsymmetry,meana=meanAsymmetry,maxa=maxAsymmetry)
-    DFminMax <- rbind(DFminMax, newRow)
-  }
-}
-```
-
-We also summarize for each condition `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` $\times$ `asymmetry` the number of samples and transform them to $\log$-space.
-
-```{r}
-DFcounts <- ddply(DFsim[DFsim$agent1Order==0,],
-                  c("agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetry"),
-                  summarise,
-                  N = log(length(asymmetry)))
-DFcounts$N <- DFcounts$N / max(DFcounts$N)
-```
-
-Theoretical and actual sample distributions can be plotted as follows:
-
-```{r}
-GGdistribution <- ggplot(DFcounts) +
-  ggplot_theme +
-  theme(panel.grid.major = element_line(colour="gray"),
-        panel.grid.minor = element_blank(),
-        axis.ticks.y = element_blank(),
-        axis.line.y = element_blank(),
-        axis.text.y = element_blank(),
-        legend.position="right") +
-  ggtitle("Distribution of ambiguity and asymmetry") +
-  scale_y_continuous(bquote("asymmetry"~gamma), breaks = pretty_breaks(1)) +
-  scale_x_continuous("", breaks = pretty_breaks(1)) +
-  scale_fill_manual("", values = c("sample distribution" = "#1b9e77")) +
-  scale_color_manual("", values = c("sample distribution" = "#1b9e77")) +
-  scale_shape_manual("", values = c("theoretical minimum" = 91, "theoretical mean" = 5, "theoretical maximum" = 93)) +
-  geom_rect(aes(xmin = 0, xmax = N, ymin = asymmetry, ymax = asymmetry, fill = "sample distribution", color = "sample distribution")) +
-  facet_grid(agent2AmbiguityMean ~ agent1AmbiguityMean,
-             labeller=label_bquote(rows=.(agent2AmbiguityMean)/.(8),
-                                   cols=.(agent1AmbiguityMean)/.(8))) + 
-  coord_flip()
-
-
-  if(grepl("uniform", dataFolder)) {
-    GGdistribution <- GGdistribution + 
-      geom_point(data = DFminMax, aes(x = 0.2, y = mina, shape = "theoretical minimum"), color = "#d95f02", size = 3.5) +
-      geom_point(data = DFminMax, aes(x = 0.2, y = maxa, shape = "theoretical maximum"), color = "#d95f02", size = 3.5) +
-      geom_point(data = DFminMax, aes(x = 0.2, y = meana, shape = "theoretical mean"), color = "#d95f02", size = 1.5)
-  }
-```
-```{r echo = FALSE}
-GGdistribution
-```
-
-
-# Performance
-Here, we plot agents communicative success for various conditions of interest.
-
-```{r}
-
-
-# MPlayout <- matrix(c(1, 1, 2, 2, 9,
-#                      1, 1, 2, 2, 8,
-#                      3, 4, 5, 6, 7),
-#                    nrow = 3, byrow = TRUE)
-# 
-# multiplot(GGdeltaExample + theme(legend.position = "none") + ggtitle(NULL),
-#           GGdelta + theme(legend.position = "none") + ggtitle(NULL),
-#           plotPerformance(1,1), #3
-#           plotPerformance(2,2), #4
-#           plotPerformance(2,3), #5
-#           plotPerformance(3,5), #6
-#           plotPerformance(4,4), #7
-#           plotPerformance(4,5), #8
-#           plotPerformance(5,5), #9
-#           cols = 5, layout = MPlayout)
-```
-
-
-# Replication and generalization
-
+The following analysis shows a replication of the effect reported by Frank et al. (2017) that increasing orders of pragmatic inference has diminishing returns (in terms of communicative success). We compute summary statistics for second order agents, then subtract communicative success of first order agents from second order agents. As a control we also compute the difference in communicative success between first and zero order agents. To replicate the effect, the first analysis should yield values around 0, and the second analysis should yield values greater than 0.
 ```{r}
 DFdeltaOrder2 <- DFsim[DFsim$agent1Order==2,
                        c("pairId",
@@ -450,29 +431,32 @@ replicationLabeller <- function() {
   repLabels
 }
 
-GGreplication <- ggplot(DFreplication21Summary, aes(x = asymmetry, y = meanDiffSuccess, color = factor(ambiguity1):factor(ambiguity2))) +
+plotReplication = function(legendPos = "none") {
+ ggplot(DFreplication21Summary, aes(x = asymmetry, y = meanDiffSuccess, color = factor(ambiguity1):factor(ambiguity2))) +
   ggplot_theme +
   theme(panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
       axis.text = element_text(),
       axis.text.x = element_text(),
       axis.text.y = element_text(),
-      legend.position="right") +
+      legend.position = legendPos) +
   scale_y_continuous("mean difference success", breaks = pretty_breaks(5), limits = c(-0.07,0.5)) +
   scale_x_continuous(bquote(asymmetry~gamma), breaks = pretty_breaks(3)) +
   scale_color_discrete(bquote("ambiguity"~alpha[1]~":"~"ambiguity"~alpha[2]), labels = replicationLabeller()) +
   geom_line(stat = "identity") +
   geom_line(data = DFreplication10Summary, stat = "identity") +
   facet_wrap( ~ comp)
+}
 ```
+*Figure 4: Replication and generalization of Frank et al. (2017).*
 ```{r}
-GGreplication
+plotReplication()
 ```
 
-# Evolution of language
+### Analysis 4: Evolution of ambiguity
+In this section we generate a sketch of evolutionary trajectories as described in the discussion section. Note that the actual numbers here are meaningless, what matters only is the approximation of the shape of the conjectured evolutionary trajectories.
 
 ```{r}
-
 DFevolution <- data.frame(matrix(ncol = 4, nrow = 0))
 colnames(DFevolution) <- c("asymmetry", "condition", "ambiguity", "success")
 
@@ -507,7 +491,8 @@ for(x in 0:9/10) {
   DFevolution <- rbind(DFevolution, newRow)
 }
 
-GGevolution <- ggplot(DFevolution, aes(x=ambiguity, y=success,color=factor(condition))) +
+plotEvolution <- function(legendPos = "none") {
+  ggplot(DFevolution, aes(x=ambiguity, y=success,color=factor(condition))) +
   ggplot_theme +
   theme(panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
@@ -515,19 +500,26 @@ GGevolution <- ggplot(DFevolution, aes(x=ambiguity, y=success,color=factor(condi
       axis.text.x = element_blank(),
       axis.text.y = element_blank(),
       axis.ticks = element_blank(),
-      legend.position="right") +
+      legend.position = legendPos) +
   scale_y_continuous("success/fitness") +
   scale_x_continuous(bquote({ambiguity}~alpha/time)) +
   scale_color_brewer("evolutionary trajectory", palette="Set2") +
   geom_line(stat = "identity") +
   facet_wrap( ~ asymmetry)
+}
 ```
+*Figure 5: Evolution of ambiguity.*
 ```{r}
-GGevolution
+plotEvolution(legendPos= "right")
 ```
-## Export to PDF {#pdf}
+
+## Export figures to PDF
+The following code chunk exports the figures to PDF. The figures in the main paper have been edited and combined using an external PDF editor, hence the 'raw' figures outputted here may differ slightly from the actual figures in the paper.
 
 ```{r echo = FALSE, results = 'hide'}
+pdf(file = paste0(outputPrefix, "fig2_theoretical_distribution.pdf"), height = 4, width = 8)
+plotTheoreticalDistribution(legend = "none", nrCols = 8)
+dev.off()
 
 MPlayout <- matrix(c(11,12,3, 4, 5,
                      1, 1, 2, 2, 6,
@@ -535,20 +527,49 @@ MPlayout <- matrix(c(11,12,3, 4, 5,
                      13,14,8, 9,10),
                    nrow = 4, byrow = TRUE)
 
-pdf(file = "randomOverview.pdf", width = 15, height = 12)
-multiplot(GGdeltaExample + theme(legend.position = "none") + ggtitle(NULL),
-          GGdelta + theme(legend.position = "none") + ggtitle(NULL),
-          plotPerformance(4,4), #3
-          plotPerformance(5,4), #4
-          plotPerformance(5,5), #5
-          plotPerformance(4,5), #6
-          plotPerformance(3,4), #7
-          plotPerformance(1,1), #8
-          plotPerformance(2,2), #9
-          plotPerformance(2,3), #10
+pdf(file = paste0(outputPrefix, "fig3_overview.pdf"), width = 15, height = 12)
+multiplot(plotCommSuccess(3,3),
+          plotDeltaAsymmetry(),
+          plotCommSuccess(4,4), #3
+          plotCommSuccess(5,4), #4
+          plotCommSuccess(5,5), #5
+          plotCommSuccess(4,5), #6
+          plotCommSuccess(3,4), #7
+          plotCommSuccess(1,1), #8
+          plotCommSuccess(2,2), #9
+          plotCommSuccess(2,3), #10
           NULL, NULL, NULL, NULL, #11, 12, 13, 14
           cols = 5, layout = MPlayout)
 dev.off()
+
+pdf(file = paste0(outputPrefix, "fig3_communicative_success_legend.pdf"))
+plotCommSuccess(3,3, legendPos = "right")
+dev.off()
+ 
+pdf(file = paste0(outputPrefix, "fig3_delta_asymmetry_legend.pdf"))
+plotDeltaAsymmetry(legendPos = "right")
+dev.off()
+
+pdf(file = paste0(outputPrefix, "fig4_replication.pdf"), height = 4, width = 8)
+plotReplication(legendPos = "none")
+dev.off()
+
+pdf(file = paste0(outputPrefix, "fig4_replication_legend.pdf"), height = 9, width = 8)
+plotReplication(legendPos = "bottom")
+dev.off()
+
+pdf(file = paste0(outputPrefix, "fig5_evolutionary_trajectories.pdf"), height = 5, width = 8)
+plotEvolution(legendPos = "bottom")
+dev.off()
+```
+
+# Supporting Information
+
+## Supporting Experiment A: Random generation
+
+## Supporting Experiment B: Structured generation
+
+```{r}
 # plots for random
           # plotPerformance(1,1), #3
           # NULL,#plotPerformance(2,1), #4
@@ -567,26 +588,23 @@ dev.off()
           # plotPerformance(4,5), #8
           # plotPerformance(5,5), #9
 
-pdf(file = "uniform2000_distribution.pdf")
-GGdistribution + theme(legend.position = "bottom") + ggtitle(NULL)
-dev.off()
+# MPlayout <- matrix(c(1, 1, 2, 2, 9,
+#                      1, 1, 2, 2, 8,
+#                      3, 4, 5, 6, 7),
+#                    nrow = 3, byrow = TRUE)
 # 
-pdf(file = "randomExample.pdf")
-GGdeltaExample + theme(legend.position = "right")
-dev.off()
-# 
-pdf(file = "random.pdf")
-GGdelta + theme(legend.position = "bottom")
-dev.off()
-
-pdf(file = "uniformReplication.pdf", height = 5, width = 8)
-GGreplication
-dev.off()
-
-pdf(file = "evolutionaryTrajectories.pdf", height = 3, width = 8)
-GGevolution
-dev.off()
+# multiplot(GGdeltaExample + theme(legend.position = "none") + ggtitle(NULL),
+#           GGdelta + theme(legend.position = "none") + ggtitle(NULL),
+#           plotPerformance(1,1), #3
+#           plotPerformance(2,2), #4
+#           plotPerformance(2,3), #5
+#           plotPerformance(3,5), #6
+#           plotPerformance(4,4), #7
+#           plotPerformance(4,5), #8
+#           plotPerformance(5,5), #9
+#           cols = 5, layout = MPlayout)
 ```
+
 
 
 
