@@ -61,7 +61,7 @@ ggplot_theme <- theme(panel.background = element_blank(), axis.line = element_li
 ```
 
 # Main experiment: Pragmatic communicators can overcome asymmetry
-Here we run analyses and generate the graphs reported for the main simulation experiment.
+Here we run analyses and generate the graphs reported for the main simulation experiment. We define functions that are used to perform the same analysis for the [Supporting Information Experiments](#sie).
 
 ## Loading data and pre-processing
 We load the data in `.csv` format, remove incomplete cases, round down ambiguity values and remove instances where ambiguity for either agent is 0. Set the variable `dataFolder` to point towards the location where the collection of data files is stored. The script loads all `.csv`-files from that folder. Set the variable `tag` to a string that will be added to all output files.
@@ -73,35 +73,46 @@ dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/35rounds/
 outputFolder = dataFolder
 tag = "uniform2000_"
 
-# set variables
-outputFolder = paste0(outputFolder, "/figs/")
-outputPrefix = paste0(outputFolder, tag)
-dir.create(file.path(outputFolder))
-csvFiles = list.files(path=dataFolder, pattern="*.csv")
+initializeOutput <- function(folder, tag) {
+  # initialize output
+  outputFolder = paste0(folder, "/figs/")
+  dir.create(file.path(outputFolder), showWarnings = FALSE)
+  return(paste0(outputFolder, tag))
+}
 
-# load the files
-data <- do.call("rbind", lapply(csvFiles, function(fn)
-  data.frame(Filename=fn, read.csv(paste0(dataFolder, "/" ,fn))
-  )))
-# remove header data
-data <- data[, !(names(data) %in% c("Filename"))]
-# round down ambiguity values
-data$agent1AmbiguityMean = floor(data$agent1AmbiguityMean)
-data$agent2AmbiguityMean = floor(data$agent2AmbiguityMean)
-# remove incomplete cases and cases where ambiguity < 1
-DFsim <- data[complete.cases(data) & data$agent1AmbiguityMean>0 & data$agent2AmbiguityMean>0, ]
+loadAndPreprocessData <- function(folder) {
+  # load the files
+  csvFiles = list.files(path=folder, pattern="*.csv")
+  data <- do.call("rbind", lapply(csvFiles, function(fn)
+    data.frame(Filename=fn, read.csv(paste0(dataFolder, "/" ,fn))
+    )))
+  # remove header data
+  data <- data[, !(names(data) %in% c("Filename"))]
+  # round down ambiguity values
+  data$agent1AmbiguityMean = floor(data$agent1AmbiguityMean)
+  data$agent2AmbiguityMean = floor(data$agent2AmbiguityMean)
+  # remove incomplete cases and cases where ambiguity < 1
+  return(data[complete.cases(data) & data$agent1AmbiguityMean>0 & data$agent2AmbiguityMean>0, ])
+}
+
+outputPrefix <- initializeOutput(outputFolder, tag)
+DFsim <- loadAndPreprocessData(dataFolder)
 ```
 
 This next chunk filters out parts of the parameter space with fewer than $n=15$ samples. With so few samples, we do not get accurate means for these parts of the space. If this filters out too many parts you may need to run the simulation experiment with higher `sample-size`. (For this parameter see simulation software settings in the `application.conf` file.)
 
 ```{r results='hide'}
-DFsimFilter <- ddply(DFsim,
-                     c("agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetry"),
-                     summarise,
-                     N = length(pairId))
-DFsimFilter <- DFsimFilter[DFsimFilter$N >= 15,]
+filterData <- function(df) {
+  DFsimFilter <- ddply(df,
+                       c("agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetry"),
+                       summarise,
+                       N = length(pairId))
+  DFsimFilter <- DFsimFilter[DFsimFilter$N >= 15,]
+  DFsimFilter <- merge(df, DFsimFilter, all = FALSE)
+  return(DFsimFilter)
+}
 
-DFsim <- merge(DFsim, DFsimFilter, all = FALSE) # Comment out this line to include outliers.
+DFsim <- filterData(DFsim) # Comment out this line to include outliers.
 ```
 *Table: Random samples from preprocessed summarized data.*
 ```{r echo=FALSE}
@@ -112,7 +123,8 @@ print(DFsim[sample(nrow(DFsim), 10),])
 Many scripts below require summary statistics of the data. We compute these statistics for each condition, `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` $\times$ `asymmetry` $\times$ `agent1order`. Note that both agents in this simulation always have the same order of pragmatic inference (`agent1order` $=$ `agent2order`).
 
 ```{r}
-suppressWarnings(DFstats <- ddply(DFsim,
+computeSummaryStatistics <- function(df) {
+  suppressWarnings(summary <- ddply(df,
                  c("agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetry", "agent1Order"),
                  summarise,
                  N    = length(averageSuccess),
@@ -121,7 +133,12 @@ suppressWarnings(DFstats <- ddply(DFsim,
                  se   = sd / sqrt(N),
                  lower_ci = mean - qt(1-(0.05/2), N-1) * se,
                  upper_ci = mean + qt(1-(0.05/2), N-1) * se
-))
+  ))
+  return(summary)
+}
+
+DFstats <- computeSummaryStatistics(DFsim)
+
 ```
 *Table: Random samples from summary statistics.*
 ```{r echo=FALSE}
@@ -182,14 +199,17 @@ plotTheoreticalDistribution(nrCols = 8)
 We can analyze how the samples generated in the simulation are distributed over this theoretically possible space. To do this, we summarize for each condition `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` $\times$ `asymmetry` the number of samples and transform them to $\log$-space for readibility.
 
 ```{r}
-DFcounts <- ddply(DFsim[DFsim$agent1Order==0,],
-                  c("agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetry"),
-                  summarise,
-                  N = log(length(asymmetry)))
-DFcounts$N <- DFcounts$N / max(DFcounts$N)
+computeDistributionStatistics <- function(dfsim) {
+  distributionStats <- ddply(dfsim[dfsim$agent1Order==0,],
+                    c("agent1AmbiguityMean", "agent2AmbiguityMean", "asymmetry"),
+                    summarise,
+                    N = log(length(asymmetry)))
+  distributionStats$N <- distributionStats$N / max(distributionStats$N)
+  return(distributionStats)
+}
 
-plotMainSimulationDistribution <- function(theoreticalLims = FALSE, legendPos = "none") {
-  GGdistribution <- ggplot(DFcounts) +
+plotMainSimulationDistribution <- function(distributionStats, theoreticalLims = FALSE, legendPos = "none") {
+  GGdistribution <- ggplot(distributionStats) +
   ggplot_theme +
   theme(panel.grid.major = element_line(colour="gray"),
         panel.grid.minor = element_blank(),
@@ -215,13 +235,13 @@ plotMainSimulationDistribution <- function(theoreticalLims = FALSE, legendPos = 
       geom_point(data = DFminMax, aes(x = 0.2, y = maxa, shape = "theoretical maximum"), color = "#d95f02", size = 3.5) +
       geom_point(data = DFminMax, aes(x = 0.2, y = meana, shape = "theoretical mean"), color = "#d95f02", size = 1.5)
   }
-  GGdistribution
+  return(GGdistribution)
 }
 ```
 
 *Figure SI.1: Simulation population distribution.*
 ```{r echo = FALSE}
-plotMainSimulationDistribution(theoreticalLims = TRUE, legendPos = "right")
+plotMainSimulationDistribution(computeDistributionStatistics(DFsim), theoreticalLims = TRUE, legendPos = "right")
 ```
 
 ### Analysis 2: Main results
@@ -231,7 +251,8 @@ This section describes how Fig. 3 in the paper is generated. This analysis consi
 We compute for each condition `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` how much more asymmetry 1^st^ order agents can incurr, before their communicative success drops below that of the best 0 order agents. We filter zero order agents' and first order agents' data from the general dataframe `simDF`. For each of these two subsets we compute summary statistics, i.e., the mean successrates over pairs of agents in each condition. Here, the conditions are `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` $\times$ `asymmetry`.
 
 ```{r}
-DFdeltaOrder1 <- DFsim[DFsim$agent1Order==1,
+computeSummaryPerOrder <- function(dfsim, order) {
+  dforder <- dfsim[dfsim$agent1Order==order,
                        c("pairId",
                          "agent1Order",
                          "agent2Order",
@@ -240,28 +261,21 @@ DFdeltaOrder1 <- DFsim[DFsim$agent1Order==1,
                          "asymmetry",
                          "averageSuccess")]
 
-DFdeltaOrder1Summary <- ddply(DFdeltaOrder1,
+  dforderSummary <- ddply(dforder,
                               c("agent1AmbiguityMean",
                                 "agent2AmbiguityMean",
                                 "asymmetry"),
                               summarise,
                               meanSuccess = mean(averageSuccess))
+  return(list(dforder = dforder, dforderSummary = dforderSummary))
+}
 
-DFdeltaOrder0 <- DFsim[DFsim$agent1Order==0,
-                       c("pairId",
-                         "agent1Order",
-                         "agent2Order",
-                         "agent1AmbiguityMean",
-                         "agent2AmbiguityMean",
-                         "asymmetry",
-                         "averageSuccess")]
-
-DFdeltaOrder0Summary <- ddply(DFdeltaOrder0,
-                              c("agent1AmbiguityMean",
-                                "agent2AmbiguityMean",
-                                "asymmetry"),
-                              summarise,
-                              meanSuccess = mean(averageSuccess))
+result <- computeSummaryPerOrder(DFsim, 0)
+DFdeltaOrder0 <- result$dforder
+DFdeltaOrder0Summary <- result$dforderSummary
+result <- computeSummaryPerOrder(DFsim, 1)
+DFdeltaOrder1<- result$dforder
+DFdeltaOrder1Summary <- result$dforderSummary
 ```
 *Table: Random samples from zero-order summary statistics*
 ```{r echo=FALSE}
@@ -274,12 +288,17 @@ print(DFdeltaOrder1Summary[sample(nrow(DFdeltaOrder1Summary), 10),])
 
 Next, we compute the minimum asymmetry in each `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` condition.
 ```{r}
-DFdeltaMinAsymmetry <- DFdeltaOrder1Summary %>%
+computeMinimumAsymmetry <- function(dfOrderSummary) {
+  deltaMinAsymmetry <- dfOrderSummary %>%
                        group_by(agent1AmbiguityMean, agent2AmbiguityMean) %>%
                        top_n(-1, asymmetry)
-DFdeltaMinAsymmetry$meanSuccess <- NULL
-DFdeltaMinAsymmetry$maxSuccess <- NULL
-colnames(DFdeltaMinAsymmetry) <- c("agent1AmbiguityMean", "agent2AmbiguityMean", "minAsymmetry")
+  deltaMinAsymmetry$meanSuccess <- NULL
+  deltaMinAsymmetry$maxSuccess <- NULL
+  colnames(deltaMinAsymmetry) <- c("agent1AmbiguityMean", "agent2AmbiguityMean", "minAsymmetry")
+  return(deltaMinAsymmetry)
+}
+
+DFdeltaMinAsymmetry <- computeMinimumAsymmetry(DFdeltaOrder1Summary)
 ```
 *Table: Random samples from minimum asymmetry*
 ```{r echo=FALSE}
@@ -288,12 +307,17 @@ print(DFdeltaOrder1Summary[sample(nrow(DFdeltaOrder1Summary), 5),])
 
 We then compute the maximum mean communicative success rate for 0 order agents in each `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` condition.
 ```{r}
-DFdeltaMaxSuccessOrder0 <- tapply(DFdeltaOrder0Summary$meanSuccess,
-                                  list(DFdeltaOrder0Summary$agent1AmbiguityMean, DFdeltaOrder0Summary$agent2AmbiguityMean),
+computeMaxSuccess <- function(dfDeltaOrderSummary) {
+  deltaMaxSuccessOrder <- tapply(dfDeltaOrderSummary$meanSuccess,
+                                  list(dfDeltaOrderSummary$agent1AmbiguityMean, dfDeltaOrderSummary$agent2AmbiguityMean),
                                   max)
-dimnames(DFdeltaMaxSuccessOrder0) <- list(agent1AmbiguityMean=1:8, agent2AmbiguityMean=1:8)
-DFdeltaMaxSuccessOrder0 <- as.data.frame(as.table(DFdeltaMaxSuccessOrder0))
-colnames(DFdeltaMaxSuccessOrder0) <- c("agent1AmbiguityMean", "agent2AmbiguityMean", "maxSuccess")
+  dimnames(deltaMaxSuccessOrder) <- list(agent1AmbiguityMean=1:8, agent2AmbiguityMean=1:8)
+  deltaMaxSuccessOrder <- as.data.frame(as.table(deltaMaxSuccessOrder))
+  colnames(deltaMaxSuccessOrder) <- c("agent1AmbiguityMean", "agent2AmbiguityMean", "maxSuccess")
+  return(deltaMaxSuccessOrder)
+}
+
+DFdeltaMaxSuccessOrder0 <- computeMaxSuccess(DFdeltaOrder0Summary)
 ```
 *Table: Random samples from minimum asymmetry*
 ```{r echo=FALSE}
@@ -303,28 +327,32 @@ print(DFdeltaMaxSuccessOrder0[sample(nrow(DFdeltaMaxSuccessOrder0), 5),])
 #### Communicative success
 Having computed the mean communicative success rates for each condition, we merge these data frames, compute the intersection by finding the first data point on the above and below of the best 0 order agents' success rate. If the intersection is not exactly on one of these points, we assume a linear relation between those two points and compute the intersection with that function.
 ```{r}
-DFdelta <- merge(x=DFdeltaOrder1Summary, y=DFdeltaMaxSuccessOrder0, by = c("agent1AmbiguityMean", "agent2AmbiguityMean"))
+computeDeltaStatistics <- function(dfdeltaOrder1Summary, dfdeltaMaxSuccessOrder0) {
+  dfdelta <- merge(x=dfdeltaOrder1Summary, y=dfdeltaMaxSuccessOrder0, by = c("agent1AmbiguityMean", "agent2AmbiguityMean"))
+  
+  DFdeltaUpperbounds <- dfdelta[dfdelta$meanSuccess>=dfdelta$maxSuccess,]
+  DFdeltaUpperbounds <- DFdeltaUpperbounds %>% group_by(agent1AmbiguityMean, agent2AmbiguityMean) %>% top_n(1, asymmetry)
+  DFdeltaLowerbounds <- dfdelta[dfdelta$meanSuccess<=dfdelta$maxSuccess,]
+  DFdeltaLowerbounds <- DFdeltaLowerbounds %>% group_by(agent1AmbiguityMean, agent2AmbiguityMean) %>% top_n(-1, asymmetry)
+  DFdeltaLowerbounds$maxSuccess <- NULL
+  
+  dfdelta <- merge(x=DFdeltaLowerbounds, y=DFdeltaUpperbounds, by = c("agent1AmbiguityMean", "agent2AmbiguityMean"))
+  dfdelta <- merge(x=dfdelta, y=DFdeltaMinAsymmetry, by = c("agent1AmbiguityMean", "agent2AmbiguityMean"))
+  
+  dfdelta$a <- ifelse(dfdelta$asymmetry.x == dfdelta$asymmetry.y,
+    dfdelta$asymmetry.x - dfdelta$minAsymmetry
+  ,
+    (dfdelta$asymmetry.y - dfdelta$asymmetry.x) / 
+    (dfdelta$meanSuccess.y - dfdelta$meanSuccess.x) *
+    (dfdelta$maxSuccess - dfdelta$meanSuccess.y) +
+    dfdelta$asymmetry.y - dfdelta$minAsymmetry
+  )
 
-DFdeltaUpperbounds <- DFdelta[DFdelta$meanSuccess>=DFdelta$maxSuccess,]
-DFdeltaUpperbounds <- DFdeltaUpperbounds %>% group_by(agent1AmbiguityMean, agent2AmbiguityMean) %>% top_n(1, asymmetry)
-DFdeltaLowerbounds <- DFdelta[DFdelta$meanSuccess<=DFdelta$maxSuccess,]
-DFdeltaLowerbounds <- DFdeltaLowerbounds %>% group_by(agent1AmbiguityMean, agent2AmbiguityMean) %>% top_n(-1, asymmetry)
-DFdeltaLowerbounds$maxSuccess <- NULL
+  return(dfdelta)
+}
 
-DFdelta <- merge(x=DFdeltaLowerbounds, y=DFdeltaUpperbounds, by = c("agent1AmbiguityMean", "agent2AmbiguityMean"))
-DFdelta <- merge(x=DFdelta, y=DFdeltaMinAsymmetry, by = c("agent1AmbiguityMean", "agent2AmbiguityMean"))
-
-DFdelta$a <- ifelse(DFdelta$asymmetry.x == DFdelta$asymmetry.y,
-  DFdelta$asymmetry.x - DFdelta$minAsymmetry
-,
-  (DFdelta$asymmetry.y - DFdelta$asymmetry.x) / 
-  (DFdelta$meanSuccess.y - DFdelta$meanSuccess.x) *
-  (DFdelta$maxSuccess - DFdelta$meanSuccess.y) +
-  DFdelta$asymmetry.y - DFdelta$minAsymmetry
-)
-
-plotCommSuccess = function(a1, a2, legendPos = "none") {
-  ggplot(DFstats[DFstats$agent1AmbiguityMean==a1 & DFstats$agent2AmbiguityMean==a2 & DFstats$agent1Order<2,]) +
+plotCommSuccess = function(dfstats, dfdelta, a1, a2, legendPos = "none") {
+  ggplot(dfstats[dfstats$agent1AmbiguityMean==a1 & dfstats$agent2AmbiguityMean==a2 & dfstats$agent1Order<2,]) +
   ggplot_theme +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
@@ -335,11 +363,11 @@ plotCommSuccess = function(a1, a2, legendPos = "none") {
   scale_y_continuous("", breaks=c(0,0.25,0.5,0.75,1.0), labels = c("0", rep("", 3), "1"), limits = c(0,1)) +
   scale_x_continuous("", breaks = c(0, 0.2, 0.4, 0.6), labels = c("0", "", "", ".6"), limits = c(0,0.6)) +
   geom_line(aes(x = asymmetry, y = mean, color = factor(agent1Order))) +
-  geom_point(data = DFdelta[DFdelta$agent1AmbiguityMean==a1 & DFdelta$agent2AmbiguityMean==a2,],
+  geom_point(data = dfdelta[dfdelta$agent1AmbiguityMean==a1 & dfdelta$agent2AmbiguityMean==a2,],
              aes(shape = "intersection", x = a+minAsymmetry, y = maxSuccess), size = 5, show.legend = TRUE) +
-  geom_point(data = DFdelta[DFdelta$agent1AmbiguityMean==a1 & DFdelta$agent2AmbiguityMean==a2,],
+  geom_point(data = dfdelta[dfdelta$agent1AmbiguityMean==a1 & dfdelta$agent2AmbiguityMean==a2,],
              aes(shape = "0 order max", x = minAsymmetry, y = maxSuccess), size = 5, show.legend = TRUE) + 
-  geom_segment(data = DFdelta[DFdelta$agent1AmbiguityMean==a1 & DFdelta$agent2AmbiguityMean==a2,],
+  geom_segment(data = dfdelta[dfdelta$agent1AmbiguityMean==a1 & dfdelta$agent2AmbiguityMean==a2,],
                aes(linetype = "delta", x = minAsymmetry, y = maxSuccess, xend = a+minAsymmetry, yend = maxSuccess)) +
   scale_color_brewer("order of pragmatic inference", palette = "Dark2",
                      guide = guide_legend(override.aes = list(
@@ -348,19 +376,21 @@ plotCommSuccess = function(a1, a2, legendPos = "none") {
   scale_shape_manual("intersection", values = c("0 order max" = 2, "intersection" = 6)) +
   scale_linetype_manual("delta", values = c("delta" = "dashed"), guide = guide_legend(override.aes = list(shape = c(NA))))
 }
+
+DFdelta <- computeDeltaStatistics(DFdeltaOrder1Summary, DFdeltaOrder0Summary)
 ```
 
 *Figure 3, Panel A: Communicative success and delta asymmetry illustration.*
 We can inspect the example graph, but you can change the ambiguity values to inspect different parts of the parameter space.
 ```{r echo = FALSE}
-plotCommSuccess(3, 3, "right")
+plotCommSuccess(DFstats, DFdelta, 3, 3, "right")
 ```
 
 #### Delta asymmetry
 This delta statistic is plotted in a heatmap below, for each `agent1AmbiguityMean` $\times$ `agent2AmbiguityMean` condition.
 ```{r}
-plotDeltaAsymmetry = function(legendPos = "none") {
-  ggplot(DFdelta, aes(x=factor(agent1AmbiguityMean), y=factor(agent2AmbiguityMean))) +
+plotDeltaAsymmetry = function(dfdelta, legendPos = "none") {
+  ggplot(dfdelta, aes(x=factor(agent1AmbiguityMean), y=factor(agent2AmbiguityMean))) +
   ggplot_theme +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
@@ -369,57 +399,35 @@ plotDeltaAsymmetry = function(legendPos = "none") {
         axis.title.y = element_text(size = 24),
         plot.title = element_text(size = 24),
         legend.position = legendPos) +
-  scale_y_discrete(bquote(ambiguity~alpha[1])) +
-  scale_x_discrete(bquote(ambiguity~alpha[2])) +
+  scale_y_discrete(bquote(ambiguity~alpha[2])) +
+  scale_x_discrete(bquote(ambiguity~alpha[1])) +
   scale_fill_distiller("delta asymmetry", palette = "BuGn", direction = 1) +
   geom_tile(aes(fill=a))
 }
 ```
 *Figure 3, Panel B: Delta asymmetry heatmap.*
 ```{r echo = FALSE}
-plotDeltaAsymmetry("right")
+plotDeltaAsymmetry(DFdelta, "right")
 ```
 
 ### Analysis 3: Replication and generalization
 The following analysis shows a replication of the effect reported by Frank et al. (2017) that increasing orders of pragmatic inference has diminishing returns (in terms of communicative success). We compute summary statistics for second order agents, then subtract communicative success of first order agents from second order agents. As a control we also compute the difference in communicative success between first and zero order agents. To replicate the effect, the first analysis should yield values around 0, and the second analysis should yield values greater than 0.
 ```{r}
-DFdeltaOrder2 <- DFsim[DFsim$agent1Order==2,
-                       c("pairId",
-                         "agent1Order",
-                         "agent2Order",
-                         "agent1AmbiguityMean",
-                         "agent2AmbiguityMean",
-                         "asymmetry",
-                         "averageSuccess")]
-
-
-DFreplication21 <- within(merge(DFdeltaOrder2,DFdeltaOrder1, by="pairId"), {
-  diffSuccess <- averageSuccess.x - averageSuccess.y
-  ambiguity1 <- agent1AmbiguityMean.x
-  ambiguity2 <- agent2AmbiguityMean.x
-  asymmetry <- asymmetry.x
-})[, c("pairId","ambiguity1","ambiguity2","asymmetry" ,"diffSuccess")]
-
-DFreplication10 <- within(merge(DFdeltaOrder1,DFdeltaOrder0, by="pairId"), {
-  diffSuccess <- averageSuccess.x - averageSuccess.y
-  ambiguity1 <- agent1AmbiguityMean.x
-  ambiguity2 <- agent2AmbiguityMean.x
-  asymmetry <- asymmetry.x
-})[, c("pairId","ambiguity1","ambiguity2","asymmetry","diffSuccess")]
-
-DFreplication21Summary <- ddply(DFreplication21,
-                                c("ambiguity1","ambiguity2","asymmetry"),
-                                summarise,
-                                meanDiffSuccess = mean(diffSuccess),
-                                comp = "order 2 - order 1"
-                                )
-
-DFreplication10Summary <- ddply(DFreplication10,
-                                c("ambiguity1","ambiguity2","asymmetry"),
-                                summarise,
-                                meanDiffSuccess = mean(diffSuccess),
-                                comp = "order 1 - order 0"
-                                )
+computeReplicationStatistics <- function(dfDeltaUpper, dfDeltaLower, upperOrder, lowerOrder) {
+  replication <- within(merge(dfDeltaUpper,dfDeltaLower, by="pairId"), {
+    diffSuccess <- averageSuccess.x - averageSuccess.y
+    ambiguity1 <- agent1AmbiguityMean.x
+    ambiguity2 <- agent2AmbiguityMean.x
+    asymmetry <- asymmetry.x
+  })[, c("pairId","ambiguity1","ambiguity2","asymmetry" ,"diffSuccess")]
+  
+  replicationSummary <- ddply(replication,
+                              c("ambiguity1","ambiguity2","asymmetry"),
+                              summarise,
+                              meanDiffSuccess = mean(diffSuccess),
+                              comp = paste0("order ", upperOrder, " - order ", lowerOrder)
+                              )
+}
 
 replicationLabeller <- function() {
   repLabels <- vector(mode="character", length=64)
@@ -431,8 +439,8 @@ replicationLabeller <- function() {
   repLabels
 }
 
-plotReplication = function(legendPos = "none") {
- ggplot(DFreplication21Summary, aes(x = asymmetry, y = meanDiffSuccess, color = factor(ambiguity1):factor(ambiguity2))) +
+plotReplication = function(dfreplication21summary, dfreplication10summary, legendPos = "none") {
+ ggplot(dfreplication21summary, aes(x = asymmetry, y = meanDiffSuccess, color = factor(ambiguity1):factor(ambiguity2))) +
   ggplot_theme +
   theme(panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
@@ -444,13 +452,17 @@ plotReplication = function(legendPos = "none") {
   scale_x_continuous(bquote(asymmetry~gamma), breaks = pretty_breaks(3)) +
   scale_color_discrete(bquote("ambiguity"~alpha[1]~":"~"ambiguity"~alpha[2]), labels = replicationLabeller()) +
   geom_line(stat = "identity") +
-  geom_line(data = DFreplication10Summary, stat = "identity") +
+  geom_line(data = dfreplication10summary, stat = "identity") +
   facet_wrap( ~ comp)
 }
+
+DFdeltaOrder2 <- computeSummaryPerOrder(DFsim, 2)$dforder
+DFreplication21Summary <- computeReplicationStatistics(DFdeltaOrder2, DFdeltaOrder1, 2, 1)
+DFreplication10Summary <- computeReplicationStatistics(DFdeltaOrder1, DFdeltaOrder0, 1, 0)
 ```
 *Figure 4: Replication and generalization of Frank et al. (2017).*
 ```{r}
-plotReplication()
+plotReplication(DFreplication21Summary, DFreplication10Summary)
 ```
 
 ### Analysis 4: Evolution of ambiguity
@@ -516,7 +528,7 @@ plotEvolution(legendPos= "right")
 ## Export figures to PDF
 The following code chunk exports the figures to PDF. The figures in the main paper have been edited and combined using an external PDF editor, hence the 'raw' figures outputted here may differ slightly from the actual figures in the paper.
 
-```{r echo = FALSE, results = 'hide'}
+```{results = 'hide'}
 pdf(file = paste0(outputPrefix, "fig2_theoretical_distribution.pdf"), height = 4, width = 8)
 plotTheoreticalDistribution(legend = "none", nrCols = 8)
 dev.off()
@@ -528,81 +540,171 @@ MPlayout <- matrix(c(11,12,3, 4, 5,
                    nrow = 4, byrow = TRUE)
 
 pdf(file = paste0(outputPrefix, "fig3_overview.pdf"), width = 15, height = 12)
-multiplot(plotCommSuccess(3,3),
-          plotDeltaAsymmetry(),
-          plotCommSuccess(4,4), #3
-          plotCommSuccess(5,4), #4
-          plotCommSuccess(5,5), #5
-          plotCommSuccess(4,5), #6
-          plotCommSuccess(3,4), #7
-          plotCommSuccess(1,1), #8
-          plotCommSuccess(2,2), #9
-          plotCommSuccess(2,3), #10
+multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3),
+          plotDeltaAsymmetry(DFdelta),
+          plotCommSuccess(DFstats, DFdelta, 4, 4), #3
+          plotCommSuccess(DFstats, DFdelta, 4, 5), #4
+          plotCommSuccess(DFstats, DFdelta, 5, 5), #5
+          plotCommSuccess(DFstats, DFdelta, 5, 4), #6
+          plotCommSuccess(DFstats, DFdelta, 4, 3), #7
+          plotCommSuccess(DFstats, DFdelta, 1, 1), #8
+          plotCommSuccess(DFstats, DFdelta, 2, 2), #9
+          plotCommSuccess(DFstats, DFdelta, 3, 2), #10
           NULL, NULL, NULL, NULL, #11, 12, 13, 14
           cols = 5, layout = MPlayout)
 dev.off()
 
 pdf(file = paste0(outputPrefix, "fig3_communicative_success_legend.pdf"))
-plotCommSuccess(3,3, legendPos = "right")
+plotCommSuccess(DFstats, DFdelta, 3, 3, legendPos = "right")
 dev.off()
  
 pdf(file = paste0(outputPrefix, "fig3_delta_asymmetry_legend.pdf"))
-plotDeltaAsymmetry(legendPos = "right")
+plotDeltaAsymmetry(DFdelta, legendPos = "right")
 dev.off()
 
 pdf(file = paste0(outputPrefix, "fig4_replication.pdf"), height = 4, width = 8)
-plotReplication(legendPos = "none")
+plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "none")
 dev.off()
 
 pdf(file = paste0(outputPrefix, "fig4_replication_legend.pdf"), height = 9, width = 8)
-plotReplication(legendPos = "bottom")
+plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "bottom")
 dev.off()
 
 pdf(file = paste0(outputPrefix, "fig5_evolutionary_trajectories.pdf"), height = 5, width = 8)
 plotEvolution(legendPos = "bottom")
 dev.off()
+
+pdf(file = paste0(outputPrefix, "figsi1_distribution.pdf"), height = 5, width = 8)
+plotMainSimulationDistribution(computeDistributionStatistics(DFsim), theoreticalLims = TRUE, legendPos = "right")
+dev.off()
 ```
 
-# Supporting Information
+# Supporting Information {#sie}
 
 ## Supporting Experiment A: Random generation
+```{r results = 'hide'}
+dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/35rounds/random2000"
+# location and tags for output files
+outputFolder = dataFolder
+tag = "random2000_"
+
+outputPrefix <- initializeOutput(outputFolder, tag)
+DFsim <- loadAndPreprocessData(dataFolder)
+DFsim <- filterData(DFsim) # Comment out this line to include outliers.
+DFstats <- computeSummaryStatistics(DFsim)
+
+result <- computeSummaryPerOrder(DFsim, 0)
+DFdeltaOrder0 <- result$dforder
+DFdeltaOrder0Summary <- result$dforderSummary
+result <- computeSummaryPerOrder(DFsim, 1)
+DFdeltaOrder1<- result$dforder
+DFdeltaOrder1Summary <- result$dforderSummary
+
+DFdeltaMinAsymmetry <- computeMinimumAsymmetry(DFdeltaOrder1Summary)
+DFdeltaMaxSuccessOrder0 <- computeMaxSuccess(DFdeltaOrder0Summary)
+DFdelta <- computeDeltaStatistics(DFdeltaOrder1Summary, DFdeltaOrder0Summary)
+DFdeltaOrder2 <- computeSummaryPerOrder(DFsim, 2)$dforder
+DFreplication21Summary <- computeReplicationStatistics(DFdeltaOrder2, DFdeltaOrder1, 2, 1)
+DFreplication10Summary <- computeReplicationStatistics(DFdeltaOrder1, DFdeltaOrder0, 1, 0)
+
+pdf(file = paste0(outputPrefix, "figsi2_random_overview.pdf"), width = 15, height = 12)
+multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3),
+          plotDeltaAsymmetry(DFdelta),
+          plotCommSuccess(DFstats, DFdelta, 3, 4), #3
+          plotCommSuccess(DFstats, DFdelta, 4, 4), #4
+          plotCommSuccess(DFstats, DFdelta, 5, 5), #5
+          plotCommSuccess(DFstats, DFdelta, 5, 4), #6
+          plotCommSuccess(DFstats, DFdelta, 4, 3), #7
+          plotCommSuccess(DFstats, DFdelta, 1, 1), #8
+          plotCommSuccess(DFstats, DFdelta, 1, 2), #9
+          plotCommSuccess(DFstats, DFdelta, 2, 2), #10
+          NULL, NULL, NULL, NULL, #11, 12, 13, 14
+          cols = 5, layout = MPlayout)
+dev.off()
+
+pdf(file = paste0(outputPrefix, "figsi2_random_communicative_success_legend.pdf"))
+plotCommSuccess(DFstats, DFdelta, 3, 3, legendPos = "right")
+dev.off()
+ 
+pdf(file = paste0(outputPrefix, "figsi2_random_delta_asymmetry_legend.pdf"))
+plotDeltaAsymmetry(DFdelta, legendPos = "right")
+dev.off()
+
+pdf(file = paste0(outputPrefix, "figsi3_random_replication.pdf"), height = 4, width = 8)
+plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "none")
+dev.off()
+
+pdf(file = paste0(outputPrefix, "figsi3_random_replication_legend.pdf"), height = 9, width = 8)
+plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "bottom")
+dev.off()
+
+pdf(file = paste0(outputPrefix, "figsi4_random_distribution.pdf"), height = 5, width = 8)
+plotMainSimulationDistribution(computeDistributionStatistics(DFsim), theoreticalLims = FALSE, legendPos = "right")
+dev.off()
+```
+
 
 ## Supporting Experiment B: Structured generation
 
-```{r}
-# plots for random
-          # plotPerformance(1,1), #3
-          # NULL,#plotPerformance(2,1), #4
-          # plotPerformance(2,2), #5
-          # NULL,#plotPerformance(3,2), #6
-          # NULL,#plotPerformance(4,4), #7
-          # NULL,#plotPerformance(4,5), #8
-          # NULL,#plotPerformance(3,5), #9
+```{r results='hide'}
+dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/35rounds/structured2000"
+# location and tags for output files
+outputFolder = dataFolder
+tag = "structured2000_"
 
-# plots for structured
-          # plotPerformance(1,1), #3
-          # plotPerformance(2,2), #4
-          # plotPerformance(2,3), #5
-          # plotPerformance(1,3), #6
-          # plotPerformance(3,4), #7
-          # plotPerformance(4,5), #8
-          # plotPerformance(5,5), #9
+outputPrefix <- initializeOutput(outputFolder, tag)
+DFsim <- loadAndPreprocessData(dataFolder)
+DFsim <- filterData(DFsim) # Comment out this line to include outliers.
+DFstats <- computeSummaryStatistics(DFsim)
 
-# MPlayout <- matrix(c(1, 1, 2, 2, 9,
-#                      1, 1, 2, 2, 8,
-#                      3, 4, 5, 6, 7),
-#                    nrow = 3, byrow = TRUE)
-# 
-# multiplot(GGdeltaExample + theme(legend.position = "none") + ggtitle(NULL),
-#           GGdelta + theme(legend.position = "none") + ggtitle(NULL),
-#           plotPerformance(1,1), #3
-#           plotPerformance(2,2), #4
-#           plotPerformance(2,3), #5
-#           plotPerformance(3,5), #6
-#           plotPerformance(4,4), #7
-#           plotPerformance(4,5), #8
-#           plotPerformance(5,5), #9
-#           cols = 5, layout = MPlayout)
+result <- computeSummaryPerOrder(DFsim, 0)
+DFdeltaOrder0 <- result$dforder
+DFdeltaOrder0Summary <- result$dforderSummary
+result <- computeSummaryPerOrder(DFsim, 1)
+DFdeltaOrder1<- result$dforder
+DFdeltaOrder1Summary <- result$dforderSummary
+
+DFdeltaMinAsymmetry <- computeMinimumAsymmetry(DFdeltaOrder1Summary)
+DFdeltaMaxSuccessOrder0 <- computeMaxSuccess(DFdeltaOrder0Summary)
+DFdelta <- computeDeltaStatistics(DFdeltaOrder1Summary, DFdeltaOrder0Summary)
+DFdeltaOrder2 <- computeSummaryPerOrder(DFsim, 2)$dforder
+DFreplication21Summary <- computeReplicationStatistics(DFdeltaOrder2, DFdeltaOrder1, 2, 1)
+DFreplication10Summary <- computeReplicationStatistics(DFdeltaOrder1, DFdeltaOrder0, 1, 0)
+
+pdf(file = paste0(outputPrefix, "figsi5_structured_overview.pdf"), width = 15, height = 12)
+multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3),
+          plotDeltaAsymmetry(DFdelta),
+          plotCommSuccess(DFstats, DFdelta, 4, 4), #3
+          plotCommSuccess(DFstats, DFdelta, 4, 5), #4
+          plotCommSuccess(DFstats, DFdelta, 5, 5), #5
+          plotCommSuccess(DFstats, DFdelta, 5, 4), #6
+          plotCommSuccess(DFstats, DFdelta, 4, 3), #7
+          plotCommSuccess(DFstats, DFdelta, 1, 1), #8
+          plotCommSuccess(DFstats, DFdelta, 2, 2), #9
+          plotCommSuccess(DFstats, DFdelta, 3, 2), #10
+          NULL, NULL, NULL, NULL, #11, 12, 13, 14
+          cols = 5, layout = MPlayout)
+dev.off()
+
+pdf(file = paste0(outputPrefix, "figsi5_structured_communicative_success_legend.pdf"))
+plotCommSuccess(DFstats, DFdelta, 3, 3, legendPos = "right")
+dev.off()
+ 
+pdf(file = paste0(outputPrefix, "figsi5_structured_delta_asymmetry_legend.pdf"))
+plotDeltaAsymmetry(DFdelta, legendPos = "right")
+dev.off()
+
+pdf(file = paste0(outputPrefix, "figsi6_structured_replication.pdf"), height = 4, width = 8)
+plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "none")
+dev.off()
+
+pdf(file = paste0(outputPrefix, "figsi6_structured_replication_legend.pdf"), height = 9, width = 8)
+plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "bottom")
+dev.off()
+
+pdf(file = paste0(outputPrefix, "figsi7_structured_distribution.pdf"), height = 5, width = 8)
+plotMainSimulationDistribution(computeDistributionStatistics(DFsim), theoreticalLims = FALSE, legendPos = "right")
+dev.off()
 ```
 
 
