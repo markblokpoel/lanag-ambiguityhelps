@@ -351,17 +351,17 @@ computeDeltaStatistics <- function(dfdeltaOrder1Summary, dfdeltaMaxSuccessOrder0
   return(dfdelta)
 }
 
-plotCommSuccess = function(dfstats, dfdelta, a1, a2, legendPos = "none") {
+plotCommSuccess = function(dfstats, dfdelta, a1, a2, legendPos = "none", axis = FALSE) {
   ggplot(dfstats[dfstats$agent1AmbiguityMean==a1 & dfstats$agent2AmbiguityMean==a2 & dfstats$agent1Order<2,]) +
   ggplot_theme +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         axis.text = element_text(size = 14),
-        axis.text.x = element_text(),
-        axis.text.y = element_text(),
+        axis.title.x = if(axis) element_text(size = 24) else element_blank(),
+        axis.title.y = if(axis) element_text(size = 24) else element_blank(),
         legend.position = legendPos) +
-  scale_y_continuous("", breaks=c(0,0.25,0.5,0.75,1.0), labels = c("0", rep("", 3), "1"), limits = c(0,1)) +
-  scale_x_continuous("", breaks = c(0, 0.2, 0.4, 0.6), labels = c("0", "", "", ".6"), limits = c(0,0.6)) +
+  scale_y_continuous("mean success rate", breaks=c(0,0.25,0.5,0.75,1.0), labels = c("0", rep("", 3), "1"), limits = c(0,1)) +
+  scale_x_continuous(bquote("asymmetry"~gamma), breaks = c(0, 0.2, 0.4, 0.6), labels = c("0", "", "", ".6"), limits = c(0,0.6)) +
   geom_line(aes(x = asymmetry, y = mean, color = factor(agent1Order))) +
   geom_point(data = dfdelta[dfdelta$agent1AmbiguityMean==a1 & dfdelta$agent2AmbiguityMean==a2,],
              aes(shape = "intersection", x = a+minAsymmetry, y = maxSuccess), size = 5, show.legend = TRUE) +
@@ -377,13 +377,13 @@ plotCommSuccess = function(dfstats, dfdelta, a1, a2, legendPos = "none") {
   scale_linetype_manual("delta", values = c("delta" = "dashed"), guide = guide_legend(override.aes = list(shape = c(NA))))
 }
 
-DFdelta <- computeDeltaStatistics(DFdeltaOrder1Summary, DFdeltaOrder0Summary)
+DFdelta <- computeDeltaStatistics(DFdeltaOrder1Summary, DFdeltaMaxSuccessOrder0)
 ```
 
 *Figure 3, Panel A: Communicative success and delta asymmetry illustration.*
 We can inspect the example graph, but you can change the ambiguity values to inspect different parts of the parameter space.
 ```{r echo = FALSE}
-plotCommSuccess(DFstats, DFdelta, 3, 3, "right")
+plotCommSuccess(DFstats, DFdelta, 3, 3, "right", axis = TRUE)
 ```
 
 #### Delta asymmetry
@@ -528,7 +528,7 @@ plotEvolution(legendPos= "right")
 ## Export figures to PDF
 The following code chunk exports the figures to PDF. The figures in the main paper have been edited and combined using an external PDF editor, hence the 'raw' figures outputted here may differ slightly from the actual figures in the paper.
 
-```{results = 'hide'}
+```{r results='hide'}
 pdf(file = paste0(outputPrefix, "fig2_theoretical_distribution.pdf"), height = 4, width = 8)
 plotTheoreticalDistribution(legend = "none", nrCols = 8)
 dev.off()
@@ -540,7 +540,7 @@ MPlayout <- matrix(c(11,12,3, 4, 5,
                    nrow = 4, byrow = TRUE)
 
 pdf(file = paste0(outputPrefix, "fig3_overview.pdf"), width = 15, height = 12)
-multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3),
+multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3, axis = TRUE),
           plotDeltaAsymmetry(DFdelta),
           plotCommSuccess(DFstats, DFdelta, 4, 4), #3
           plotCommSuccess(DFstats, DFdelta, 4, 5), #4
@@ -582,7 +582,7 @@ dev.off()
 # Supporting Information {#sie}
 
 ## Supporting Experiment A: Random generation
-```{r results = 'hide'}
+```{r results='hide'}
 dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/35rounds/random2000"
 # location and tags for output files
 outputFolder = dataFolder
@@ -602,13 +602,13 @@ DFdeltaOrder1Summary <- result$dforderSummary
 
 DFdeltaMinAsymmetry <- computeMinimumAsymmetry(DFdeltaOrder1Summary)
 DFdeltaMaxSuccessOrder0 <- computeMaxSuccess(DFdeltaOrder0Summary)
-DFdelta <- computeDeltaStatistics(DFdeltaOrder1Summary, DFdeltaOrder0Summary)
+DFdelta <- computeDeltaStatistics(DFdeltaOrder1Summary, DFdeltaMaxSuccessOrder0)
 DFdeltaOrder2 <- computeSummaryPerOrder(DFsim, 2)$dforder
 DFreplication21Summary <- computeReplicationStatistics(DFdeltaOrder2, DFdeltaOrder1, 2, 1)
 DFreplication10Summary <- computeReplicationStatistics(DFdeltaOrder1, DFdeltaOrder0, 1, 0)
 
 pdf(file = paste0(outputPrefix, "figsi2_random_overview.pdf"), width = 15, height = 12)
-multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3),
+multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3, axis = TRUE),
           plotDeltaAsymmetry(DFdelta),
           plotCommSuccess(DFstats, DFdelta, 3, 4), #3
           plotCommSuccess(DFstats, DFdelta, 4, 4), #4
@@ -622,20 +622,8 @@ multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3),
           cols = 5, layout = MPlayout)
 dev.off()
 
-pdf(file = paste0(outputPrefix, "figsi2_random_communicative_success_legend.pdf"))
-plotCommSuccess(DFstats, DFdelta, 3, 3, legendPos = "right")
-dev.off()
- 
-pdf(file = paste0(outputPrefix, "figsi2_random_delta_asymmetry_legend.pdf"))
-plotDeltaAsymmetry(DFdelta, legendPos = "right")
-dev.off()
-
 pdf(file = paste0(outputPrefix, "figsi3_random_replication.pdf"), height = 4, width = 8)
 plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "none")
-dev.off()
-
-pdf(file = paste0(outputPrefix, "figsi3_random_replication_legend.pdf"), height = 9, width = 8)
-plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "bottom")
 dev.off()
 
 pdf(file = paste0(outputPrefix, "figsi4_random_distribution.pdf"), height = 5, width = 8)
@@ -666,13 +654,13 @@ DFdeltaOrder1Summary <- result$dforderSummary
 
 DFdeltaMinAsymmetry <- computeMinimumAsymmetry(DFdeltaOrder1Summary)
 DFdeltaMaxSuccessOrder0 <- computeMaxSuccess(DFdeltaOrder0Summary)
-DFdelta <- computeDeltaStatistics(DFdeltaOrder1Summary, DFdeltaOrder0Summary)
+DFdelta <- computeDeltaStatistics(DFdeltaOrder1Summary, DFdeltaMaxSuccessOrder0)
 DFdeltaOrder2 <- computeSummaryPerOrder(DFsim, 2)$dforder
 DFreplication21Summary <- computeReplicationStatistics(DFdeltaOrder2, DFdeltaOrder1, 2, 1)
 DFreplication10Summary <- computeReplicationStatistics(DFdeltaOrder1, DFdeltaOrder0, 1, 0)
 
 pdf(file = paste0(outputPrefix, "figsi5_structured_overview.pdf"), width = 15, height = 12)
-multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3),
+multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3, axis = TRUE),
           plotDeltaAsymmetry(DFdelta),
           plotCommSuccess(DFstats, DFdelta, 4, 4), #3
           plotCommSuccess(DFstats, DFdelta, 4, 5), #4
@@ -686,20 +674,8 @@ multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3),
           cols = 5, layout = MPlayout)
 dev.off()
 
-pdf(file = paste0(outputPrefix, "figsi5_structured_communicative_success_legend.pdf"))
-plotCommSuccess(DFstats, DFdelta, 3, 3, legendPos = "right")
-dev.off()
- 
-pdf(file = paste0(outputPrefix, "figsi5_structured_delta_asymmetry_legend.pdf"))
-plotDeltaAsymmetry(DFdelta, legendPos = "right")
-dev.off()
-
 pdf(file = paste0(outputPrefix, "figsi6_structured_replication.pdf"), height = 4, width = 8)
 plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "none")
-dev.off()
-
-pdf(file = paste0(outputPrefix, "figsi6_structured_replication_legend.pdf"), height = 9, width = 8)
-plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "bottom")
 dev.off()
 
 pdf(file = paste0(outputPrefix, "figsi7_structured_distribution.pdf"), height = 5, width = 8)
