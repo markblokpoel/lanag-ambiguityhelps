@@ -12,7 +12,7 @@ output:
 ---
 
 # Introduction
-This R Notebook describes the data analysis of Blokpoel et al. (2019) *Pragmatic communicators can overcome asymmetry by exploiting ambiguity*. Running the code chunks in order will run all analyses and generates all graphs reported in the main paper. The datasets can be found here [link to Donders Repository or Github](), but you can also run the simulation experiment yourself and use that dataset.
+This R Notebook describes the data analysis of Blokpoel et al. (2019) *Pragmatic communicators can overcome asymmetry by exploiting ambiguity*. Running the code chunks in order will run all analyses and generates all graphs reported in the main paper. The datasets can be found here [link to Donders Repository or Github](), but you can also run the simulations yourself and use that dataset.
 
 # Packages and settings
 Run the following code to install and load the required libraries.
@@ -60,8 +60,8 @@ ggplot_theme <- theme(panel.background = element_blank(), axis.line = element_li
                       plot.title = tre.16)
 ```
 
-# Main experiment: Pragmatic communicators can overcome asymmetry
-Here we run analyses and generate the graphs reported for the main simulation experiment. We define functions that are used to perform the same analysis for the [Supporting Information Experiments](#sie).
+# Main simulation: Pragmatic communicators can overcome asymmetry
+Here we run analyses and generate the graphs reported for the main simulation. We define functions that are used to perform the same analysis for the [Supporting Information](#si).
 
 ## Loading data and pre-processing
 We load the data in `.csv` format, remove incomplete cases, round down ambiguity values and remove instances where ambiguity for either agent is 0. Set the variable `dataFolder` to point towards the location where the collection of data files is stored. The script loads all `.csv`-files from that folder. Set the variable `tag` to a string that will be added to all output files.
@@ -579,9 +579,10 @@ plotMainSimulationDistribution(computeDistributionStatistics(DFsim), theoretical
 dev.off()
 ```
 
-# Supporting Information {#sie}
+# Supporting Information {#si}
+This section contains the analyses and figures reported in the Supporting Information document. There is one [additional analyses](#variance), relative to the main study, which plots the variance in the ambiguity.
 
-## Supporting Experiment A: Random generation
+## Supporting Simulation I: Random generation
 ```{r results='hide'}
 dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/35rounds/random2000"
 # location and tags for output files
@@ -606,7 +607,45 @@ DFdelta <- computeDeltaStatistics(DFdeltaOrder1Summary, DFdeltaMaxSuccessOrder0)
 DFdeltaOrder2 <- computeSummaryPerOrder(DFsim, 2)$dforder
 DFreplication21Summary <- computeReplicationStatistics(DFdeltaOrder2, DFdeltaOrder1, 2, 1)
 DFreplication10Summary <- computeReplicationStatistics(DFdeltaOrder1, DFdeltaOrder0, 1, 0)
+```
 
+### Variance of ambiguity {#variance}
+XXX
+```{r}
+plotVariance <- function(dfsim, legendPos = "none") {
+  DFvariance <- rbind(data.frame(ag = 1, amb = dfsim$agent1AmbiguityMean, var = dfsim$agent1AmbiguityVar),
+                    data.frame(ag = 2, amb = dfsim$agent2AmbiguityMean, var = dfsim$agent2AmbiguityVar))
+  
+  DFvariance$varBin <- as.numeric(paste(cut(DFvariance$var,
+                           breaks=seq(min(DFvariance$var),max(DFvariance$var),0.125),
+                           labels=seq(min(DFvariance$var),max(DFvariance$var)-0.125,0.125),
+                           include.lowest = TRUE, right = TRUE)))
+  
+  DFvariance <- ddply(DFvariance,
+                      c("ag", "amb", "varBin"),
+                      summarise,
+                      N = length(varBin))
+  
+  ggplot(DFvariance, aes(x = varBin, y = N, fill = factor(ag))) + ggplot_theme +
+    theme(panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.text = element_text(),
+      axis.text.x = element_text(),
+      axis.text.y = element_text(),
+      legend.position = legendPos) +
+    scale_y_log10("number of samples", labels = scales::comma) +
+    scale_x_continuous("ambiguity variance", limits = c(0,8), breaks = pretty_breaks(8)) +
+    scale_fill_manual("agent", values = c("1" = "#7b3294", "2" = "#008837")) +
+    geom_bar(position = "dodge", stat = "identity") +
+    facet_wrap(amb ~ ., ncol = 4, labeller = label_bquote(cols= alpha == ~ .(amb)/.(8)))
+}
+```
+*Figure SI.?: Supporting simulation I variance of ambiguity.*
+```{r}
+plotVariance(DFsim, "bottom")
+```
+### Export figures to PDF
+```{r results='hide'}
 pdf(file = paste0(outputPrefix, "figsi2_random_overview.pdf"), width = 15, height = 12)
 multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3, axis = TRUE),
           plotDeltaAsymmetry(DFdelta),
@@ -629,11 +668,14 @@ dev.off()
 pdf(file = paste0(outputPrefix, "figsi4_random_distribution.pdf"), height = 5, width = 8)
 plotMainSimulationDistribution(computeDistributionStatistics(DFsim), theoreticalLims = FALSE, legendPos = "right")
 dev.off()
+
+pdf(file = paste0(outputPrefix, "figsi5_variance.pdf"), height = 3, width = 8)
+plotVariance(DFsim, "bottom")
+dev.off()
 ```
 
 
-## Supporting Experiment B: Structured generation
-
+## Supporting Simulation II: Structured generation
 ```{r results='hide'}
 dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/35rounds/structured2000"
 # location and tags for output files
@@ -658,8 +700,15 @@ DFdelta <- computeDeltaStatistics(DFdeltaOrder1Summary, DFdeltaMaxSuccessOrder0)
 DFdeltaOrder2 <- computeSummaryPerOrder(DFsim, 2)$dforder
 DFreplication21Summary <- computeReplicationStatistics(DFdeltaOrder2, DFdeltaOrder1, 2, 1)
 DFreplication10Summary <- computeReplicationStatistics(DFdeltaOrder1, DFdeltaOrder0, 1, 0)
+```
 
-pdf(file = paste0(outputPrefix, "figsi5_structured_overview.pdf"), width = 15, height = 12)
+*Figure SI.?: Supporting simulation II variance of ambiguity.*
+```{r}
+plotVariance(DFsim, "bottom")
+```
+
+```{r results='hide'}
+pdf(file = paste0(outputPrefix, "figsi6_structured_overview.pdf"), width = 15, height = 12)
 multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3, axis = TRUE),
           plotDeltaAsymmetry(DFdelta),
           plotCommSuccess(DFstats, DFdelta, 4, 4), #3
@@ -674,12 +723,16 @@ multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3, axis = TRUE),
           cols = 5, layout = MPlayout)
 dev.off()
 
-pdf(file = paste0(outputPrefix, "figsi6_structured_replication.pdf"), height = 4, width = 8)
+pdf(file = paste0(outputPrefix, "figsi5_structured_replication.pdf"), height = 4, width = 8)
 plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "none")
 dev.off()
 
-pdf(file = paste0(outputPrefix, "figsi7_structured_distribution.pdf"), height = 5, width = 8)
+pdf(file = paste0(outputPrefix, "figsi8_structured_distribution.pdf"), height = 5, width = 8)
 plotMainSimulationDistribution(computeDistributionStatistics(DFsim), theoreticalLims = FALSE, legendPos = "right")
+dev.off()
+
+pdf(file = paste0(outputPrefix, "figsi9_variance.pdf"), height = 3, width = 8)
+plotVariance(DFsim, "bottom")
 dev.off()
 ```
 
