@@ -100,3 +100,5 @@ lazy val gitSettings = Seq(
   publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(
     true)
 )
+
+libraryDependencies += "com.lihaoyi" %% "ammonite-ops" % "1.6.9"
