@@ -68,11 +68,12 @@ We load the data in `.csv` format, remove incomplete cases, round down ambiguity
 
 ```{r results='hide'}
 # location of the data
-dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/35rounds/uniform2000"
+dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/30-8/uniform2000"
 # location and tags for output files
 outputFolder = dataFolder
-tag = "uniform2000_"
-writePDF = FALSE
+tag = "uniform2000_30-8_"
+writePDF = TRUE
+supportingInfo = FALSE
 
 initializeOutput <- function(folder, tag) {
   # initialize output
@@ -461,7 +462,7 @@ replicationLabeller <- function() {
 }
 
 plotReplication = function(dfreplication21summary, dfreplication10summary, legendPos = "none") {
- ggplot(dfreplication21summary, aes(x = asymmetry, y = meanDiffSuccess, color = factor(ambiguity1):factor(ambiguity2))) +
+ ggplot(dfreplication21summary, aes(x = asymmetry, y = meanDiffSuccess, color = factor(ambiguity1):factor(ambiguity2), alpha = 0.5)) +
   ggplot_theme +
   theme(panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
@@ -472,8 +473,8 @@ plotReplication = function(dfreplication21summary, dfreplication10summary, legen
   scale_y_continuous("mean difference success", breaks = pretty_breaks(5), limits = c(-0.07,0.5)) +
   scale_x_continuous(bquote(asymmetry~gamma), breaks = pretty_breaks(3)) +
   scale_color_discrete(bquote("ambiguity"~alpha[1]~":"~"ambiguity"~alpha[2]), labels = replicationLabeller()) +
-  geom_line(stat = "identity") +
-  geom_line(data = dfreplication10summary, stat = "identity") +
+  geom_point() +
+  geom_point(data = dfreplication10summary) +
   facet_wrap( ~ comp)
 }
 
@@ -486,73 +487,13 @@ DFreplication10Summary <- computeReplicationStatistics(DFdeltaOrder1, DFdeltaOrd
 plotReplication(DFreplication21Summary, DFreplication10Summary)
 ```
 
-### Analysis 4: Evolution of ambiguity
-In this section we generate a sketch of evolutionary trajectories as described in the discussion section. Note that the actual numbers here are meaningless, what matters only is the approximation of the shape of the conjectured evolutionary trajectories.
-
-```{r}
-DFevolution <- data.frame(matrix(ncol = 4, nrow = 0))
-colnames(DFevolution) <- c("asymmetry", "condition", "ambiguity", "success")
-
-
-for(x in 0:9/10) {
-  # compute asymmetric trajectories
-  aa <- x/2
-  as <- (2*aa)^2
-  newRow <- data.frame(asymmetry="asymmetric",condition="low to medium",ambiguity=aa,success=as)
-  DFevolution <- rbind(DFevolution, newRow)
-  aa <- 0.5
-  as <- min(x,0.815)
-  newRow <- data.frame(asymmetry="asymmetric",condition="medium",ambiguity=aa,success=as)
-  DFevolution <- rbind(DFevolution, newRow)
-  aa <- 0.5+((.1+x)/2)
-  as <- (2-2*aa)^2
-  newRow <- data.frame(asymmetry="asymmetric",condition="high to medium",ambiguity=aa,success=as)
-  DFevolution <- rbind(DFevolution, newRow)
-  
-  # compute symmetric trajectories
-  aa <- 0
-  as <- min(x,0.815)
-  newRow <- data.frame(asymmetry="symmetric",condition="low",ambiguity=aa,success=as)
-  DFevolution <- rbind(DFevolution, newRow)
-  aa <- 0.05+x/2
-  as <- (1-2*aa)^2
-  newRow <- data.frame(asymmetry="symmetric",condition="medium to low",ambiguity=aa,success=as)
-  DFevolution <- rbind(DFevolution, newRow)
-  aa <- 0.1+x
-  as <- (1-aa)^2
-  newRow <- data.frame(asymmetry="symmetric",condition="high to low",ambiguity=aa,success=as)
-  DFevolution <- rbind(DFevolution, newRow)
-}
-
-plotEvolution <- function(legendPos = "none") {
-  ggplot(DFevolution, aes(x=ambiguity, y=success,color=factor(condition))) +
-  ggplot_theme +
-  theme(panel.grid.major = element_blank(),
-      panel.grid.minor = element_blank(),
-      axis.text = element_text(),
-      axis.text.x = element_blank(),
-      axis.text.y = element_blank(),
-      axis.ticks = element_blank(),
-      legend.position = legendPos) +
-  scale_y_continuous("success/fitness") +
-  scale_x_continuous(bquote({ambiguity}~alpha/time)) +
-  scale_color_brewer("evolutionary trajectory", palette="Set2") +
-  geom_line(stat = "identity") +
-  facet_wrap( ~ asymmetry)
-}
-```
-*Figure 5: Evolution of ambiguity.*
-```{r}
-plotEvolution(legendPos= "right")
-```
-
 ## Export figures to PDF
 The following code chunk exports the figures to PDF. The figures in the main paper have been edited and combined using an external PDF editor, hence the 'raw' figures outputted here may differ slightly from the actual figures in the paper.
 
 ```{r results='hide'}
 if(writePDF) {
   pdf(file = paste0(outputPrefix, "fig2_theoretical_distribution.pdf"), height = 4, width = 8)
-  plotTheoreticalDistribution(legend = "none", nrCols = 8)
+  print(plotTheoreticalDistribution(legend = "none", nrCols = 8))
   dev.off()
   
   MPlayout <- matrix(c(11,12,3, 4, 5,
@@ -562,7 +503,7 @@ if(writePDF) {
                      nrow = 4, byrow = TRUE)
   
   pdf(file = paste0(outputPrefix, "fig3_overview.pdf"), width = 15, height = 12)
-  multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3, axis = TRUE),
+  print(multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3, axis = TRUE),
             plotDeltaAsymmetry(DFdelta),
             plotCommSuccess(DFstats, DFdelta, 4, 4), #3
             plotCommSuccess(DFstats, DFdelta, 4, 5), #4
@@ -573,31 +514,27 @@ if(writePDF) {
             plotCommSuccess(DFstats, DFdelta, 2, 2), #9
             plotCommSuccess(DFstats, DFdelta, 3, 2), #10
             NULL, NULL, NULL, NULL, #11, 12, 13, 14
-            cols = 5, layout = MPlayout)
+            cols = 5, layout = MPlayout))
   dev.off()
   
   pdf(file = paste0(outputPrefix, "fig3_communicative_success_legend.pdf"))
-  plotCommSuccess(DFstats, DFdelta, 3, 3, legendPos = "right")
+  print(plotCommSuccess(DFstats, DFdelta, 3, 3, legendPos = "right"))
   dev.off()
    
   pdf(file = paste0(outputPrefix, "fig3_delta_asymmetry_legend.pdf"))
-  plotDeltaAsymmetry(DFdelta, legendPos = "right")
+  print(plotDeltaAsymmetry(DFdelta, legendPos = "right"))
   dev.off()
   
   pdf(file = paste0(outputPrefix, "fig4_replication.pdf"), height = 4, width = 8)
-  plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "none")
+  print(plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "none"))
   dev.off()
   
-  pdf(file = paste0(outputPrefix, "fig4_replication_legend.pdf"), height = 9, width = 8)
-  plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "bottom")
-  dev.off()
-  
-  pdf(file = paste0(outputPrefix, "fig5_evolutionary_trajectories.pdf"), height = 5, width = 8)
-  plotEvolution(legendPos = "bottom")
+  pdf(file = paste0(outputPrefix, "fig4_replication_legend.pdf"), height = 7, width = 8)
+  print(plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "bottom"))
   dev.off()
   
   pdf(file = paste0(outputPrefix, "figsi1_distribution.pdf"), height = 5, width = 8)
-  plotMainSimulationDistribution(computeDistributionStatistics(DFsim), theoreticalLims = TRUE, legendPos = "right")
+  print(plotMainSimulationDistribution(computeDistributionStatistics(DFsim), theoreticalLims = TRUE, legendPos = "right"))
   dev.off()
 }
 ```
@@ -607,29 +544,31 @@ This section contains the analyses and figures reported in the Supporting Inform
 
 ## Supporting Simulation I: Random generation
 ```{r results='hide'}
-dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/35rounds/random2000"
-# location and tags for output files
-outputFolder = dataFolder
-tag = "random2000_"
-
-outputPrefix <- initializeOutput(outputFolder, tag)
-DFsim <- loadAndPreprocessData(dataFolder)
-DFsim <- filterData(DFsim) # Comment out this line to include outliers.
-DFstats <- computeSummaryStatistics(DFsim)
-
-result <- computeSummaryPerOrder(DFsim, 0)
-DFdeltaOrder0 <- result$dforder
-DFdeltaOrder0Summary <- result$dforderSummary
-result <- computeSummaryPerOrder(DFsim, 1)
-DFdeltaOrder1<- result$dforder
-DFdeltaOrder1Summary <- result$dforderSummary
-
-DFdeltaMinAsymmetry <- computeMinimumAsymmetry(DFdeltaOrder1Summary)
-DFdeltaMaxSuccessOrder0 <- computeMaxSuccess(DFdeltaOrder0Summary)
-DFdelta <- computeDeltaStatistics(DFdeltaOrder1Summary, DFdeltaMaxSuccessOrder0)
-DFdeltaOrder2 <- computeSummaryPerOrder(DFsim, 2)$dforder
-DFreplication21Summary <- computeReplicationStatistics(DFdeltaOrder2, DFdeltaOrder1, 2, 1)
-DFreplication10Summary <- computeReplicationStatistics(DFdeltaOrder1, DFdeltaOrder0, 1, 0)
+if(supportingInfo) {
+  dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/35rounds/random2000"
+  # location and tags for output files
+  outputFolder = dataFolder
+  tag = "random2000_"
+  
+  outputPrefix <- initializeOutput(outputFolder, tag)
+  DFsim <- loadAndPreprocessData(dataFolder)
+  DFsim <- filterData(DFsim) # Comment out this line to include outliers.
+  DFstats <- computeSummaryStatistics(DFsim)
+  
+  result <- computeSummaryPerOrder(DFsim, 0)
+  DFdeltaOrder0 <- result$dforder
+  DFdeltaOrder0Summary <- result$dforderSummary
+  result <- computeSummaryPerOrder(DFsim, 1)
+  DFdeltaOrder1<- result$dforder
+  DFdeltaOrder1Summary <- result$dforderSummary
+  
+  DFdeltaMinAsymmetry <- computeMinimumAsymmetry(DFdeltaOrder1Summary)
+  DFdeltaMaxSuccessOrder0 <- computeMaxSuccess(DFdeltaOrder0Summary)
+  DFdelta <- computeDeltaStatistics(DFdeltaOrder1Summary, DFdeltaMaxSuccessOrder0)
+  DFdeltaOrder2 <- computeSummaryPerOrder(DFsim, 2)$dforder
+  DFreplication21Summary <- computeReplicationStatistics(DFdeltaOrder2, DFdeltaOrder1, 2, 1)
+  DFreplication10Summary <- computeReplicationStatistics(DFdeltaOrder1, DFdeltaOrder0, 1, 0)
+}
 ```
 
 ### Variance of ambiguity {#variance}
@@ -665,11 +604,13 @@ plotVariance <- function(dfsim, legendPos = "none") {
 ```
 *Figure SI.?: Supporting simulation I variance of ambiguity.*
 ```{r}
-plotVariance(DFsim, "bottom")
+if(supportingInfo) {
+  plotVariance(DFsim, "bottom")
+}
 ```
 ### Export figures to PDF
 ```{r results='hide'}
-if(writePDF) {
+if(writePDF && supportingInfo) {
   pdf(file = paste0(outputPrefix, "figsi2_random_overview.pdf"), width = 15, height = 12)
   multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3, axis = TRUE),
             plotDeltaAsymmetry(DFdelta),
@@ -702,38 +643,42 @@ if(writePDF) {
 
 ## Supporting Simulation II: Structured generation
 ```{r results='hide'}
-dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/35rounds/structured2000"
-# location and tags for output files
-outputFolder = dataFolder
-tag = "structured2000_"
-
-outputPrefix <- initializeOutput(outputFolder, tag)
-DFsim <- loadAndPreprocessData(dataFolder)
-DFsim <- filterData(DFsim) # Comment out this line to include outliers.
-DFstats <- computeSummaryStatistics(DFsim)
-
-result <- computeSummaryPerOrder(DFsim, 0)
-DFdeltaOrder0 <- result$dforder
-DFdeltaOrder0Summary <- result$dforderSummary
-result <- computeSummaryPerOrder(DFsim, 1)
-DFdeltaOrder1<- result$dforder
-DFdeltaOrder1Summary <- result$dforderSummary
-
-DFdeltaMinAsymmetry <- computeMinimumAsymmetry(DFdeltaOrder1Summary)
-DFdeltaMaxSuccessOrder0 <- computeMaxSuccess(DFdeltaOrder0Summary)
-DFdelta <- computeDeltaStatistics(DFdeltaOrder1Summary, DFdeltaMaxSuccessOrder0)
-DFdeltaOrder2 <- computeSummaryPerOrder(DFsim, 2)$dforder
-DFreplication21Summary <- computeReplicationStatistics(DFdeltaOrder2, DFdeltaOrder1, 2, 1)
-DFreplication10Summary <- computeReplicationStatistics(DFdeltaOrder1, DFdeltaOrder0, 1, 0)
+if(supportingInfo) {
+  dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/35rounds/structured2000"
+  # location and tags for output files
+  outputFolder = dataFolder
+  tag = "structured2000_"
+  
+  outputPrefix <- initializeOutput(outputFolder, tag)
+  DFsim <- loadAndPreprocessData(dataFolder)
+  DFsim <- filterData(DFsim) # Comment out this line to include outliers.
+  DFstats <- computeSummaryStatistics(DFsim)
+  
+  result <- computeSummaryPerOrder(DFsim, 0)
+  DFdeltaOrder0 <- result$dforder
+  DFdeltaOrder0Summary <- result$dforderSummary
+  result <- computeSummaryPerOrder(DFsim, 1)
+  DFdeltaOrder1<- result$dforder
+  DFdeltaOrder1Summary <- result$dforderSummary
+  
+  DFdeltaMinAsymmetry <- computeMinimumAsymmetry(DFdeltaOrder1Summary)
+  DFdeltaMaxSuccessOrder0 <- computeMaxSuccess(DFdeltaOrder0Summary)
+  DFdelta <- computeDeltaStatistics(DFdeltaOrder1Summary, DFdeltaMaxSuccessOrder0)
+  DFdeltaOrder2 <- computeSummaryPerOrder(DFsim, 2)$dforder
+  DFreplication21Summary <- computeReplicationStatistics(DFdeltaOrder2, DFdeltaOrder1, 2, 1)
+  DFreplication10Summary <- computeReplicationStatistics(DFdeltaOrder1, DFdeltaOrder0, 1, 0)
+}
 ```
 
 *Figure SI.?: Supporting simulation II variance of ambiguity.*
 ```{r}
-plotVariance(DFsim, "bottom")
+if(supportingInfo) {
+  plotVariance(DFsim, "bottom")
+}
 ```
 
 ```{r results='hide'}
-if(writePDF) {
+if(writePDF && supportingInfo) {
   pdf(file = paste0(outputPrefix, "figsi6_structured_overview.pdf"), width = 15, height = 12)
   multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3, axis = TRUE),
             plotDeltaAsymmetry(DFdelta),
