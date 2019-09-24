@@ -171,36 +171,36 @@ Once you have launched the application you will have to go through the following
 
 Select your preferred theme and click `Next: Default plugins`.
 
-![Win1](Documentation/Images/win1.png)
+![Win1](documentation/images/win1.png)
 
 Optionally, disable Swing and Android, as they are are not used for the simulation and click `Next: Featured plugins`.
 
-![Win2](Documentation/Images/win2.png)
+![Win2](documentation/images/win2.png)
 
 Install Scala, and optionally IdeaVim and IDE Features Trainer.
 
-![Win3](Documentation/Images/win3.png)
+![Win3](documentation/images/win3.png)
 
 Now you should see the following menu:
 
-![Win4](Documentation/Images/win4.png)
+![Win4](documentation/images/win4.png)
 
 Click on `Check out from Version Control` and select Git.
 
 Enter: `https://github.com/markblokpoel/lanag-ambiguityhelps.git` in the URL field.
 
-![Win5](Documentation/Images/win5.png)
+![Win5](documentation/images/win5.png)
 
 Select Yes.
-![Win6](Documentation/Images/win6.png)
+![Win6](documentation/images/win6.png)
 
 Select OK.
-![Win7](Documentation/Images/win7.png)
+![Win7](documentation/images/win7.png)
 
 This is the final window you should see after the installation.
 Wait until the bar in the bottom has finished loading.
 Select Project on the left vertical bar to see the project.
-![Win8](Documentation/Images/win8.png)
+![Win8](documentation/images/win8.png)
 
 ### Running simulation from IntellijIDEA
 Intellij will ignore `% Provided` library dependencies by default. However, this means it cannot find the
