@@ -73,7 +73,8 @@ dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/30-8/unif
 outputFolder = dataFolder
 tag = "uniform2000_30-8_"
 writePDF = TRUE
-supportingInfo = FALSE
+supportingInfo = TRUE
+writeSupportingPDF = TRUE
 
 initializeOutput <- function(folder, tag) {
   # initialize output
@@ -213,7 +214,7 @@ plotTheoreticalDistribution <- function(legendPos = "none", nrCols = 3) {
 }
 ```
 
-*Figure 2: Theoretical population distribution.*
+*Figure 3: Theoretical population distribution.*
 ```{r echo = FALSE}
 plotTheoreticalDistribution(nrCols = 8)
 ```
@@ -261,7 +262,7 @@ plotMainSimulationDistribution <- function(distributionStats, theoreticalLims = 
 }
 ```
 
-*Figure SI.1: Simulation population distribution.*
+*Figure S1: Simulation population distribution.*
 ```{r echo = FALSE}
 plotMainSimulationDistribution(computeDistributionStatistics(DFsim), theoreticalLims = TRUE, legendPos = "right")
 ```
@@ -402,7 +403,7 @@ plotCommSuccess = function(dfstats, dfdelta, a1, a2, legendPos = "none", axis = 
 DFdelta <- computeDeltaStatistics(DFdeltaOrder1Summary, DFdeltaMaxSuccessOrder0)
 ```
 
-*Figure 3, Panel A: Communicative success and delta asymmetry illustration.*
+*Figure 2, Panel A: Communicative success and delta asymmetry illustration.*
 We can inspect the example graph, but you can change the ambiguity values to inspect different parts of the parameter space.
 ```{r echo = FALSE}
 plotCommSuccess(DFstats, DFdelta, 3, 3, "right", axis = TRUE)
@@ -427,7 +428,7 @@ plotDeltaAsymmetry = function(dfdelta, legendPos = "none") {
   geom_tile(aes(fill=a))
 }
 ```
-*Figure 3, Panel B: Delta asymmetry heatmap.*
+*Figure 2, Panel B: Delta asymmetry heatmap.*
 ```{r echo = FALSE}
 plotDeltaAsymmetry(DFdelta, "right")
 ```
@@ -492,7 +493,7 @@ The following code chunk exports the figures to PDF. The figures in the main pap
 
 ```{r results='hide'}
 if(writePDF) {
-  pdf(file = paste0(outputPrefix, "fig2_theoretical_distribution.pdf"), height = 4, width = 8)
+  pdf(file = paste0(outputPrefix, "fig3_theoretical_distribution.pdf"), height = 4, width = 8)
   print(plotTheoreticalDistribution(legend = "none", nrCols = 8))
   dev.off()
   
@@ -502,7 +503,7 @@ if(writePDF) {
                        13,14,8, 9,10),
                      nrow = 4, byrow = TRUE)
   
-  pdf(file = paste0(outputPrefix, "fig3_overview.pdf"), width = 15, height = 12)
+  pdf(file = paste0(outputPrefix, "fig2_overview.pdf"), width = 15, height = 12)
   print(multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3, axis = TRUE),
             plotDeltaAsymmetry(DFdelta),
             plotCommSuccess(DFstats, DFdelta, 4, 4), #3
@@ -517,11 +518,11 @@ if(writePDF) {
             cols = 5, layout = MPlayout))
   dev.off()
   
-  pdf(file = paste0(outputPrefix, "fig3_communicative_success_legend.pdf"))
+  pdf(file = paste0(outputPrefix, "fig2_communicative_success_legend.pdf"))
   print(plotCommSuccess(DFstats, DFdelta, 3, 3, legendPos = "right"))
   dev.off()
    
-  pdf(file = paste0(outputPrefix, "fig3_delta_asymmetry_legend.pdf"))
+  pdf(file = paste0(outputPrefix, "fig2_delta_asymmetry_legend.pdf"))
   print(plotDeltaAsymmetry(DFdelta, legendPos = "right"))
   dev.off()
   
@@ -533,7 +534,7 @@ if(writePDF) {
   print(plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "bottom"))
   dev.off()
   
-  pdf(file = paste0(outputPrefix, "figsi1_distribution.pdf"), height = 5, width = 8)
+  pdf(file = paste0(outputPrefix, "figs1_distribution.pdf"), height = 5, width = 8)
   print(plotMainSimulationDistribution(computeDistributionStatistics(DFsim), theoreticalLims = TRUE, legendPos = "right"))
   dev.off()
 }
@@ -545,7 +546,7 @@ This section contains the analyses and figures reported in the Supporting Inform
 ## Supporting Simulation I: Random generation
 ```{r results='hide'}
 if(supportingInfo) {
-  dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/35rounds/random2000"
+  dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/30-8/random2000"
   # location and tags for output files
   outputFolder = dataFolder
   tag = "random2000_"
@@ -568,6 +569,34 @@ if(supportingInfo) {
   DFdeltaOrder2 <- computeSummaryPerOrder(DFsim, 2)$dforder
   DFreplication21Summary <- computeReplicationStatistics(DFdeltaOrder2, DFdeltaOrder1, 2, 1)
   DFreplication10Summary <- computeReplicationStatistics(DFdeltaOrder1, DFdeltaOrder0, 1, 0)
+}
+```
+
+*Figure S2, Panel A: Generation procedure I (randomized), Mean communicative success for $\alpha_1=3$ and $\alpha_2=3$.*
+```{r}
+if(supportingInfo) {
+  plotCommSuccess(DFstats, DFdelta, 3, 3, axis = TRUE)
+}
+```
+
+*Figure S2, Panel B: Generation procedure I (randomized), Increased asymmetry toleration.*
+```{r}
+if(supportingInfo) {
+  plotDeltaAsymmetry(DFdelta)
+}
+```
+
+*Figure S3, Panel B: Generation procedure I (randomized), Sample distribution.*
+```{r}
+if(supportingInfo) {
+  plotMainSimulationDistribution(computeDistributionStatistics(DFsim), theoreticalLims = FALSE, legendPos = "right")
+}
+```
+
+*Figure S4, Panel A: Generation procedure I (randomized), Replication and extension.*
+```{r}
+if(supportingInfo) {
+  plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "none")
 }
 ```
 
@@ -602,7 +631,7 @@ plotVariance <- function(dfsim, legendPos = "none") {
     facet_wrap(amb ~ ., ncol = 4, labeller = label_bquote(cols= alpha == ~ .(amb)/.(8)))
 }
 ```
-*Figure SI.?: Supporting simulation I variance of ambiguity.*
+*Figure S3, Panel A: Supporting simulation I variance of ambiguity.*
 ```{r}
 if(supportingInfo) {
   plotVariance(DFsim, "bottom")
@@ -610,9 +639,16 @@ if(supportingInfo) {
 ```
 ### Export figures to PDF
 ```{r results='hide'}
-if(writePDF && supportingInfo) {
-  pdf(file = paste0(outputPrefix, "figsi2_random_overview.pdf"), width = 15, height = 12)
-  multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3, axis = TRUE),
+# If the PDFs are not saved corretly, try running each PDF save manually.
+
+if(writeSupportingPDF && supportingInfo) {
+  pdf(file = paste0(outputPrefix, "figs2ab_random_overview.pdf"), width = 15, height = 12)
+    MPlayout <- matrix(c(11,12,3, 4, 5,
+                       1, 1, 2, 2, 6,
+                       1, 1, 2, 2, 7,
+                       13,14,8, 9,10),
+                     nrow = 4, byrow = TRUE)
+  print(multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3, axis = TRUE),
             plotDeltaAsymmetry(DFdelta),
             plotCommSuccess(DFstats, DFdelta, 3, 4), #3
             plotCommSuccess(DFstats, DFdelta, 4, 4), #4
@@ -623,19 +659,19 @@ if(writePDF && supportingInfo) {
             plotCommSuccess(DFstats, DFdelta, 1, 2), #9
             plotCommSuccess(DFstats, DFdelta, 2, 2), #10
             NULL, NULL, NULL, NULL, #11, 12, 13, 14
-            cols = 5, layout = MPlayout)
+            cols = 5, layout = MPlayout))
   dev.off()
   
-  pdf(file = paste0(outputPrefix, "figsi3_random_replication.pdf"), height = 4, width = 8)
-  plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "none")
+  pdf(file = paste0(outputPrefix, "figs4a_random_replication.pdf"), height = 4, width = 8)
+  print(plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "none"))
   dev.off()
   
-  pdf(file = paste0(outputPrefix, "figsi4_random_distribution.pdf"), height = 5, width = 8)
-  plotMainSimulationDistribution(computeDistributionStatistics(DFsim), theoreticalLims = FALSE, legendPos = "right")
+  pdf(file = paste0(outputPrefix, "figs3b_random_distribution.pdf"), height = 5, width = 8)
+  print(plotMainSimulationDistribution(computeDistributionStatistics(DFsim), theoreticalLims = FALSE, legendPos = "right"))
   dev.off()
   
-  pdf(file = paste0(outputPrefix, "figsi5_variance.pdf"), height = 3, width = 8)
-  plotVariance(DFsim, "bottom")
+  pdf(file = paste0(outputPrefix, "figs3a_variance.pdf"), height = 3, width = 8)
+  print(plotVariance(DFsim, "bottom"))
   dev.off()
 }
 ```
@@ -644,7 +680,7 @@ if(writePDF && supportingInfo) {
 ## Supporting Simulation II: Structured generation
 ```{r results='hide'}
 if(supportingInfo) {
-  dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/35rounds/structured2000"
+  dataFolder = "/Users/Mark/Google Drive/Big Question 3/Development/Data/30-8/structured2000"
   # location and tags for output files
   outputFolder = dataFolder
   tag = "structured2000_"
@@ -670,7 +706,35 @@ if(supportingInfo) {
 }
 ```
 
-*Figure SI.?: Supporting simulation II variance of ambiguity.*
+*Figure S2, Panel C: Generation procedure I (randomized), Mean communicative success for $\alpha_1=3$ and $\alpha_2=3$.*
+```{r}
+if(supportingInfo) {
+  plotCommSuccess(DFstats, DFdelta, 3, 3, axis = TRUE)
+}
+```
+
+*Figure S2, Panel D: Generation procedure I (randomized), Increased asymmetry toleration.*
+```{r}
+if(supportingInfo) {
+  plotDeltaAsymmetry(DFdelta)
+}
+```
+
+*Figure S3, Panel D: Generation procedure I (randomized), Sample distribution.*
+```{r}
+if(supportingInfo) {
+  plotMainSimulationDistribution(computeDistributionStatistics(DFsim), theoreticalLims = FALSE, legendPos = "right")
+}
+```
+
+*Figure S4, Panel C: Generation procedure I (randomized), Replication and extension.*
+```{r}
+if(supportingInfo) {
+  plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "none")
+}
+```
+
+*Figure S3, Panel C: Supporting simulation II variance of ambiguity.*
 ```{r}
 if(supportingInfo) {
   plotVariance(DFsim, "bottom")
@@ -678,9 +742,16 @@ if(supportingInfo) {
 ```
 
 ```{r results='hide'}
-if(writePDF && supportingInfo) {
-  pdf(file = paste0(outputPrefix, "figsi6_structured_overview.pdf"), width = 15, height = 12)
-  multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3, axis = TRUE),
+# If the PDFs are not saved corretly, try running each PDF save manually.
+
+if(writeSupportingPDF && supportingInfo) {
+  pdf(file = paste0(outputPrefix, "figs2cd_structured_overview.pdf"), width = 15, height = 12)
+    MPlayout <- matrix(c(11,12,3, 4, 5,
+                       1, 1, 2, 2, 6,
+                       1, 1, 2, 2, 7,
+                       13,14,8, 9,10),
+                     nrow = 4, byrow = TRUE)
+  print(multiplot(plotCommSuccess(DFstats, DFdelta, 3, 3, axis = TRUE),
             plotDeltaAsymmetry(DFdelta),
             plotCommSuccess(DFstats, DFdelta, 4, 4), #3
             plotCommSuccess(DFstats, DFdelta, 4, 5), #4
@@ -691,19 +762,19 @@ if(writePDF && supportingInfo) {
             plotCommSuccess(DFstats, DFdelta, 2, 2), #9
             plotCommSuccess(DFstats, DFdelta, 3, 2), #10
             NULL, NULL, NULL, NULL, #11, 12, 13, 14
-            cols = 5, layout = MPlayout)
+            cols = 5, layout = MPlayout))
   dev.off()
   
-  pdf(file = paste0(outputPrefix, "figsi5_structured_replication.pdf"), height = 4, width = 8)
-  plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "none")
+  pdf(file = paste0(outputPrefix, "figs4b_structured_replication.pdf"), height = 4, width = 8)
+  print(plotReplication(DFreplication21Summary, DFreplication10Summary, legendPos = "none"))
   dev.off()
   
-  pdf(file = paste0(outputPrefix, "figsi8_structured_distribution.pdf"), height = 5, width = 8)
-  plotMainSimulationDistribution(computeDistributionStatistics(DFsim), theoreticalLims = FALSE, legendPos = "right")
+  pdf(file = paste0(outputPrefix, "figs3d_structured_distribution.pdf"), height = 5, width = 8)
+  print(plotMainSimulationDistribution(computeDistributionStatistics(DFsim), theoreticalLims = FALSE, legendPos = "right"))
   dev.off()
   
-  pdf(file = paste0(outputPrefix, "figsi9_variance.pdf"), height = 3, width = 8)
-  plotVariance(DFsim, "bottom")
+  pdf(file = paste0(outputPrefix, "figs3c_variance.pdf"), height = 3, width = 8)
+  print(plotVariance(DFsim, "bottom"))
   dev.off()
 }
 ```
