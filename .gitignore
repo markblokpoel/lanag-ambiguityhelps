@@ -197,3 +197,6 @@ target/scala-2.12/resolution-cache/
 target/streams/
 /target/
 .idea
+
+### Unignore dataset
+!datasets/*.zip
