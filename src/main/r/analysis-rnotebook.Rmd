@@ -210,7 +210,7 @@ plotTheoreticalDistribution <- function(legendPos = "none", nrCols = 3) {
   scale_x_continuous(bquote("ambiguity"~alpha[1]), breaks = pretty_breaks(8)) +
   scale_fill_manual("", values = c("theoretical distribution" = "#d95f02")) +
   geom_crossbar(aes(ymin = mina, ymax = maxa, fill = "theoretical distribution")) +
-  facet_wrap(. ~ agent2AmbiguityMean, labeller = label_bquote(cols=.(agent2AmbiguityMean)/.(8)), ncol = nrCols)
+  facet_wrap(. ~ agent2AmbiguityMean, labeller = label_bquote(cols=.(agent2AmbiguityMean)/.(numberOfReferents)), ncol = nrCols)
 }
 ```
 
@@ -334,7 +334,7 @@ computeMaxSuccess <- function(dfDeltaOrderSummary) {
   deltaMaxSuccessOrder <- tapply(dfDeltaOrderSummary$meanSuccess,
                                   list(dfDeltaOrderSummary$agent1AmbiguityMean, dfDeltaOrderSummary$agent2AmbiguityMean),
                                   max)
-  dimnames(deltaMaxSuccessOrder) <- list(agent1AmbiguityMean=1:8, agent2AmbiguityMean=1:8)
+  dimnames(deltaMaxSuccessOrder) <- list(agent1AmbiguityMean=1:max(dfDeltaOrderSummary$agent1AmbiguityMean), agent2AmbiguityMean=1:max(dfDeltaOrderSummary$agent2AmbiguityMean))
   deltaMaxSuccessOrder <- as.data.frame(as.table(deltaMaxSuccessOrder))
   colnames(deltaMaxSuccessOrder) <- c("agent1AmbiguityMean", "agent2AmbiguityMean", "maxSuccess")
   return(deltaMaxSuccessOrder)
@@ -452,11 +452,11 @@ computeReplicationStatistics <- function(dfDeltaUpper, dfDeltaLower, upperOrder,
                               )
 }
 
-replicationLabeller <- function() {
+replicationLabeller <- function(a1max, a2max) {
   repLabels <- vector(mode="character", length=64)
-  for(a1 in 1:8) {
-    for(a2 in 1:8) {
-      repLabels[a1+((a2-1)*8)] <- paste0(a2,"/8:",a1,"/8")
+  for(a1 in 1:a1max) {
+    for(a2 in 1:a2max) {
+      repLabels[a1+((a2-1)*max(a1max,a2max))] <- paste0(a2,"/",max(a1max,a2max),":",a1,"/",max(a1max,a2max))
     }
   }
   repLabels
@@ -473,7 +473,7 @@ plotReplication = function(dfreplication21summary, dfreplication10summary, legen
       legend.position = legendPos) +
   scale_y_continuous("mean difference success", breaks = pretty_breaks(5), limits = c(-0.07,0.5)) +
   scale_x_continuous(bquote(asymmetry~gamma), breaks = pretty_breaks(3)) +
-  scale_color_discrete(bquote("ambiguity"~alpha[1]~":"~"ambiguity"~alpha[2]), labels = replicationLabeller()) +
+  scale_color_discrete(bquote("ambiguity"~alpha[1]~":"~"ambiguity"~alpha[2]), labels = replicationLabeller(max(DFreplication21Summary$ambiguity1),max( DFreplication21Summary$ambiguity2))) +
   geom_point() +
   geom_point(data = dfreplication10summary) +
   facet_wrap( ~ comp)
@@ -616,7 +616,9 @@ plotVariance <- function(dfsim, legendPos = "none") {
                       c("ag", "amb", "varBin"),
                       summarise,
                       N = length(varBin))
-  
+
+  amax = max(DFvariance$amb)
+
   ggplot(DFvariance, aes(x = varBin, y = N, fill = factor(ag))) + ggplot_theme +
     theme(panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
@@ -625,10 +627,10 @@ plotVariance <- function(dfsim, legendPos = "none") {
       axis.text.y = element_text(),
       legend.position = legendPos) +
     scale_y_log10("number of samples", labels = scales::comma) +
-    scale_x_continuous("ambiguity variance", limits = c(0,8), breaks = pretty_breaks(8)) +
+    scale_x_continuous("ambiguity variance", breaks = pretty_breaks(4)) +
     scale_fill_manual("agent", values = c("1" = "#7b3294", "2" = "#008837")) +
     geom_bar(position = "dodge", stat = "identity") +
-    facet_wrap(amb ~ ., ncol = 4, labeller = label_bquote(cols= alpha == ~ .(amb)/.(8)))
+    facet_wrap(amb ~ ., labeller = label_bquote(cols = alpha == ~ .(amb)/.(max(DFsim$agent1AmbiguityMean,DFsim$agent2AmbiguityMean))), ncol = 4)
 }
 ```
 *Figure S3, Panel A: Supporting simulation I variance of ambiguity.*
