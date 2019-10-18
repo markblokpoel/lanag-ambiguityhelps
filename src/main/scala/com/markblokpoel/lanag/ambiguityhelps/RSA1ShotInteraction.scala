@@ -33,8 +33,8 @@ case class RSA1ShotInteraction(
   override val agent2AsSpeaker: RSA1ShotSpeaker = agent2.asSpeaker
   override val agent1AsListener: RSA1ShotListener = agent1.asListener
   override val agent2AsListener: RSA1ShotListener = agent2.asListener
-  override protected val currentSpeaker: RSA1ShotSpeaker = agent1AsSpeaker
-  override protected val currentListener: RSA1ShotListener = agent2AsListener
+  override protected var currentSpeaker: RSA1ShotSpeaker = agent1AsSpeaker
+  override protected var currentListener: RSA1ShotListener = agent2AsListener
   private var turnCount = 0
 
   def atOrder(order: Int): RSA1ShotInteraction = RSA1ShotInteraction(
