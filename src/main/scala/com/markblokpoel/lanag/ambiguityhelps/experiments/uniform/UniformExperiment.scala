@@ -1,6 +1,5 @@
 package com.markblokpoel.lanag.ambiguityhelps.experiments.uniform
 
-
 import java.time.Instant
 
 import com.markblokpoel.lanag.ambiguityhelps.RSA1ShotInteraction
@@ -14,9 +13,9 @@ import org.apache.spark.sql.{Dataset, SparkSession}
   * @author Mark Blokpoel
   */
 @SerialVersionUID(100L)
-object UniformExperiment  extends Serializable with App {
+object UniformExperiment extends Serializable with App {
   val timestamp = Instant.now.toEpochMilli
-  val outputFolder = "output/rsa1shot_consistent-" + timestamp
+  val outputFolder = "output/rsa1shot_uniform-" + timestamp
 
   val conf = ConfigWrapper(ConfigFactory.load())
 
@@ -28,44 +27,51 @@ object UniformExperiment  extends Serializable with App {
   val sparkLocalMode = conf.getOrElse[Boolean]("core.spark-local-mode", false)
   val randomSeed = conf.getOrElse[Long]("core.random-seed", 0)
   val writeJSON = conf.getOrElse[Boolean]("core.write-json", false)
-  val changeResolution = conf.getOrElse[Double]("consistent.change-resolution", 0.2)
+  val changeResolution =
+    conf.getOrElse[Double]("consistent.change-resolution", 0.2)
 
   val sparkSimulation = SparkSimulation(sparkLocalMode)
   import sparkSimulation.spark.implicits._
 
   val dataSet: Dataset[DataFullUniform] =
-    run(
-      sparkSimulation.spark,
-      vocabularySize,
-      contextSize,
-      changeResolution,
-      sampleSize,
-      interactionLength,
-      beta,
-      randomSeed)
+    run(sparkSimulation.spark,
+        vocabularySize,
+        contextSize,
+        changeResolution,
+        sampleSize,
+        interactionLength,
+        beta,
+        randomSeed)
   dataSet.show()
 
   if (writeJSON) dataSet.write.json(outputFolder + "/json")
 
   // Summarize the individual turns, and write summarized data to CSV file.
   val summary =
-    dataSet.map(dataRow =>
-      DataFlatUniform(
-        dataRow.pairId,
-        dataRow.agent1Order,
-        dataRow.agent2Order,
-        dataRow.agent1AmbiguityMean,
-        dataRow.agent1AmbiguityVar,
-        dataRow.agent2AmbiguityMean,
-        dataRow.agent2AmbiguityVar,
-        dataRow.asymmetry,
-        dataRow.changeMethod,
-        dataRow.changeRate,
-        averageSuccess = dataRow.interaction.count(d => d.success) / dataRow.interaction.length.toDouble,
-        averageEntropyAsSpeaker = dataRow.interaction.foldLeft(0.0)((acc, e) =>
-          acc + e.speakerData.speakerEntropy.getOrElse(0.0)) / dataRow.interaction.length.toDouble,
-        averageEntropyAsListener = dataRow.interaction.foldLeft(0.0)((acc, e) =>
-          acc + e.listenerData.listenerEntropy.getOrElse(0.0)) / dataRow.interaction.length.toDouble))
+    dataSet.map(
+      dataRow =>
+        DataFlatUniform(
+          dataRow.pairId,
+          dataRow.agent1Order,
+          dataRow.agent2Order,
+          dataRow.agent1AmbiguityMean,
+          dataRow.agent1AmbiguityVar,
+          dataRow.agent2AmbiguityMean,
+          dataRow.agent2AmbiguityVar,
+          dataRow.asymmetry,
+          dataRow.changeMethod,
+          dataRow.changeRate,
+          averageSuccess = dataRow.interaction
+            .count(d => d.success) / dataRow.interaction.length.toDouble,
+          averageEntropyAsSpeaker = dataRow.interaction
+            .foldLeft(0.0)((acc, e) =>
+              acc + e.speakerData.speakerEntropy
+                .getOrElse(0.0)) / dataRow.interaction.length.toDouble,
+          averageEntropyAsListener = dataRow.interaction
+            .foldLeft(0.0)((acc, e) =>
+              acc + e.listenerData.listenerEntropy
+                .getOrElse(0.0)) / dataRow.interaction.length.toDouble
+      ))
   summary.write.option("header", value = true).csv(outputFolder + "/csv")
   summary.show()
 
@@ -95,21 +101,27 @@ object UniformExperiment  extends Serializable with App {
     /*
       Setting up the simulation.
      */
-    val gen = new UniformPairGenerator(
-      vocabularySize,
-      contextSize,
-      changeResolution,
-      sampleSize,
-      beta)
+    val gen = new UniformPairGenerator(vocabularySize,
+                                       contextSize,
+                                       changeResolution,
+                                       sampleSize,
+                                       beta)
     val parameterSpace = gen.generateParameterSpace
 
     // Setting up the simulation at the LocalSparkSimulation.
-    val sparkSimulation = sparkSession.sparkContext.parallelize(parameterSpace)
+    val sparkSimulation = sparkSession.sparkContext
+      .parallelize(parameterSpace)
       .map(parameters => gen.sampleGenerator(parameters))
       .map(generator =>
         generator.flatMap(pair => {
-          val interaction = RSA1ShotInteraction(pair.agent1, pair.agent2, pair.originData, maxTurns = interactionLength)
-          Seq(interaction.atOrder(0), interaction.atOrder(1), interaction.atOrder(2))}))
+          val interaction = RSA1ShotInteraction(pair.agent1,
+                                                pair.agent2,
+                                                pair.originData,
+                                                maxTurns = interactionLength)
+          Seq(interaction.atOrder(0),
+              interaction.atOrder(1),
+              interaction.atOrder(2))
+        }))
       .flatMap(interactions => interactions.map(_.runAndCollectData))
       .map(dataRow =>
         DataFullUniform(
@@ -123,7 +135,8 @@ object UniformExperiment  extends Serializable with App {
           dataRow.asymmetry,
           changeMethod = gen.decodeChangeMethod(dataRow.originData.parameter1),
           changeRate = dataRow.originData.parameter2,
-          dataRow.interaction))
+          dataRow.interaction
+      ))
 
     // Cache the results so Spark doesn't recompute simulation each time you use the Dataset.
     sparkSimulation.toDS().cache()

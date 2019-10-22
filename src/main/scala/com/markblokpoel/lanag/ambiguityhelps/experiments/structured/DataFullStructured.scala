@@ -14,4 +14,4 @@ case class DataFullStructured(pairId: Long,
                               threshold: Double,
                               representationalChangeRate: Double,
                               interaction: Seq[TurnData])
-  extends Data
+    extends Data

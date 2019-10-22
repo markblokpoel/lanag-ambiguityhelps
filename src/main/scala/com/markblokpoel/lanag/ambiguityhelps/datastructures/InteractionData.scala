@@ -12,4 +12,4 @@ case class InteractionData(pairId: Long,
                            asymmetry: Double,
                            originData: OriginData,
                            interaction: Seq[TurnData])
-  extends Data
+    extends Data

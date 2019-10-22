@@ -1,7 +1,16 @@
 package com.markblokpoel.lanag.ambiguityhelps
 
-import com.markblokpoel.lanag.ambiguityhelps.datastructures.{InteractionData, ListenerData, OriginData, TurnData}
-import com.markblokpoel.lanag.core.{ContentSignal, Interaction, ReferentialIntention}
+import com.markblokpoel.lanag.ambiguityhelps.datastructures.{
+  InteractionData,
+  ListenerData,
+  OriginData,
+  TurnData
+}
+import com.markblokpoel.lanag.core.{
+  ContentSignal,
+  Interaction,
+  ReferentialIntention
+}
 import com.markblokpoel.lanag.util.InteractionIdentifier
 
 /** This implements a 1-shot director matcher simulation between two Rational Speech Act agents. Agents
@@ -62,10 +71,7 @@ case class RSA1ShotInteraction(
       switchRoles()
       TurnData(turnCount - 1, success, speakerData, listenerData)
     } else {
-      TurnData(turnCount - 1,
-                   success = false,
-                   speakerData,
-                   ListenerData(None))
+      TurnData(turnCount - 1, success = false, speakerData, ListenerData(None))
     }
   }
 

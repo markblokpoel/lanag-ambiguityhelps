@@ -15,4 +15,4 @@ case class DataFlatRandom(pairId: Long,
                           averageSuccess: Double,
                           averageEntropyAsSpeaker: Double,
                           averageEntropyAsListener: Double)
-  extends Data
+    extends Data

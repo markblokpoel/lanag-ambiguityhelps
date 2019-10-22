@@ -1,7 +1,11 @@
 package com.markblokpoel.lanag.ambiguityhelps
 
 import com.markblokpoel.lanag.ambiguityhelps.datastructures.ListenerData
-import com.markblokpoel.lanag.core.{ContentSignal, Listener, ReferentialIntention}
+import com.markblokpoel.lanag.core.{
+  ContentSignal,
+  Listener,
+  ReferentialIntention
+}
 import com.markblokpoel.lanag.math.Probability
 import com.markblokpoel.lanag.rsa.Lexicon
 
@@ -13,7 +17,7 @@ import com.markblokpoel.lanag.rsa.Lexicon
   */
 case class RSA1ShotListener(override val originalLexicon: Lexicon,
                             override val order: Int)
-  extends RSA1ShotAgent(originalLexicon, order)
+    extends RSA1ShotAgent(originalLexicon, order)
     with Listener[ReferentialIntention, ContentSignal] {
 
   /** The lexicon after pragmatic reasoning at the level of the listener's <code>order</code>. */
@@ -24,9 +28,9 @@ case class RSA1ShotListener(override val originalLexicon: Lexicon,
     * @param signalIndex An index pointing to the referent in the lexicon context.
     */
   private def posteriorReferentDistribution(
-                                             signalIndex: Int): Vector[Double] = {
+      signalIndex: Int): Vector[Double] = {
     require(signalIndex >= 0 && signalIndex <= inferredLexicon.vocabularySize,
-      "Signal index out of bounds")
+            "Signal index out of bounds")
     val signalDistribution =
       Vector.tabulate(vocabularySize)(n => if (n == signalIndex) 1.0 else 0.0)
     inferredLexicon dotT signalDistribution
@@ -41,7 +45,7 @@ case class RSA1ShotListener(override val originalLexicon: Lexicon,
     *         the posterior distribution's entropy.
     */
   override def interpretSignal(
-                                signal: ContentSignal): (ReferentialIntention, ListenerData) = {
+      signal: ContentSignal): (ReferentialIntention, ListenerData) = {
     if (signal.isDefined) {
       val posterior = posteriorReferentDistribution(signal.content.get)
       val referentIndex = Probability.softArgMax(posterior, beta)

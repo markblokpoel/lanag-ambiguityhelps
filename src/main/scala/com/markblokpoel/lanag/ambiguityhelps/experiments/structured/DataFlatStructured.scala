@@ -15,4 +15,4 @@ case class DataFlatStructured(pairId: Long,
                               averageSuccess: Double,
                               averageEntropyAsSpeaker: Double,
                               averageEntropyAsListener: Double)
-  extends Data
+    extends Data

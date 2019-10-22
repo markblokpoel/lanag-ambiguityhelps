@@ -2,7 +2,12 @@ package com.markblokpoel.lanag.ambiguityhelps.experiments.uniform
 
 import com.markblokpoel.lanag.ambiguityhelps.RSA1ShotAgent
 import com.markblokpoel.lanag.ambiguityhelps.datastructures.OriginData
-import com.markblokpoel.lanag.core.{AgentPair, ContentSignal, PairGenerator, ReferentialIntention}
+import com.markblokpoel.lanag.core.{
+  AgentPair,
+  ContentSignal,
+  PairGenerator,
+  ReferentialIntention
+}
 import com.markblokpoel.lanag.math.Ranges
 import com.markblokpoel.lanag.rsa.Lexicon
 import com.markblokpoel.lanag.util.RNG
@@ -71,9 +76,9 @@ class UniformPairGenerator(vocabularySize: Int,
     */
   override def generatePair(
       parameters: ParametersUniform): AgentPair[ReferentialIntention,
-                                                           ContentSignal,
-                                                           RSA1ShotAgent,
-                                                           OriginData] = {
+                                                ContentSignal,
+                                                RSA1ShotAgent,
+                                                OriginData] = {
     val lexicon1 = Lexicon.generateConsistentAmbiguityMapping(
       parameters.agent1Ambiguity,
       vocabularySize,

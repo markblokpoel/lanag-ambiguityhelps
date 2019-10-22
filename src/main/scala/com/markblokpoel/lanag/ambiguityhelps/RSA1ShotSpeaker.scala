@@ -1,7 +1,11 @@
 package com.markblokpoel.lanag.ambiguityhelps
 
 import com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData
-import com.markblokpoel.lanag.core.{ContentSignal, ReferentialIntention, Speaker}
+import com.markblokpoel.lanag.core.{
+  ContentSignal,
+  ReferentialIntention,
+  Speaker
+}
 import com.markblokpoel.lanag.math.Probability
 import com.markblokpoel.lanag.rsa.Lexicon
 
@@ -15,7 +19,7 @@ import scala.util.Random
   */
 case class RSA1ShotSpeaker(override val originalLexicon: Lexicon,
                            override val order: Int)
-  extends RSA1ShotAgent(originalLexicon, order)
+    extends RSA1ShotAgent(originalLexicon, order)
     with Speaker[ReferentialIntention, ContentSignal] {
 
   /** The lexicon after pragmatic reasoning at the level of the speaker's <code>order</code>. */
@@ -31,7 +35,7 @@ case class RSA1ShotSpeaker(override val originalLexicon: Lexicon,
     */
   private def posteriorSignalDistribution(referentIndex: Int) = {
     require(referentIndex >= 0 && referentIndex < inferredLexicon.contextSize,
-      "Referent index out of bounds.")
+            "Referent index out of bounds.")
     val intentionDistribution =
       Vector.tabulate(contextSize)(n => if (n == referentIndex) 1.0 else 0.0)
     inferredLexicon dot intentionDistribution
@@ -46,7 +50,7 @@ case class RSA1ShotSpeaker(override val originalLexicon: Lexicon,
     *         the posterior distribution's entropy.
     */
   override def produceSignal(
-                              intention: ReferentialIntention): (ContentSignal, SpeakerData) = {
+      intention: ReferentialIntention): (ContentSignal, SpeakerData) = {
     if (intention.isDefined) {
       val posterior = posteriorSignalDistribution(intention.content.get)
       val signalIndex = Probability.softArgMax(posterior, beta)

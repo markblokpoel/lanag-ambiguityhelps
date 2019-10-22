@@ -14,4 +14,4 @@ case class DataFullUniform(pairId: Long,
                            changeMethod: String,
                            changeRate: Double,
                            interaction: Seq[TurnData])
-  extends Data
+    extends Data

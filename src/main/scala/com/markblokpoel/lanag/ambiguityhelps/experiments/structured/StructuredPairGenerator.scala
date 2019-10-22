@@ -2,9 +2,19 @@ package com.markblokpoel.lanag.ambiguityhelps.experiments.structured
 
 import com.markblokpoel.lanag.ambiguityhelps.RSA1ShotAgent
 import com.markblokpoel.lanag.ambiguityhelps.datastructures.OriginData
-import com.markblokpoel.lanag.core.{AgentPair, ContentSignal, PairGenerator, ReferentialIntention}
+import com.markblokpoel.lanag.core.{
+  AgentPair,
+  ContentSignal,
+  PairGenerator,
+  ReferentialIntention
+}
 import com.markblokpoel.lanag.math.Ranges
-import com.markblokpoel.lanag.rsa.{EDIT_DISTANCE, HAMMING_DISTANCE, StructuredLexicon, StructuredMappingFunction}
+import com.markblokpoel.lanag.rsa.{
+  EDIT_DISTANCE,
+  HAMMING_DISTANCE,
+  StructuredLexicon,
+  StructuredMappingFunction
+}
 
 /** Generates, for specific parameters, a pair of agents with random binary lexicons based on structured binary
   * string representations of the vocabulary and context..
@@ -43,11 +53,11 @@ class StructuredPairGenerator(vocabularySize: Int,
                               changeLowerBound: Double = 0,
                               changeUpperBound: Double = 1,
                               beta: Double = Double.PositiveInfinity)
-  extends PairGenerator[ParametersStructured,
-    ReferentialIntention,
-    ContentSignal,
-    RSA1ShotAgent,
-    OriginData](sampleSize)
+    extends PairGenerator[ParametersStructured,
+                          ReferentialIntention,
+                          ContentSignal,
+                          RSA1ShotAgent,
+                          OriginData](sampleSize)
     with Serializable {
 
   /** Generates the parameter space, specifying the full domain of parameters used to randomly generate
@@ -57,8 +67,8 @@ class StructuredPairGenerator(vocabularySize: Int,
     */
   override def generateParameterSpace: Seq[ParametersStructured] = {
     val thresholdRange = Ranges.range(thresholdResolution,
-      thresholdLowerBound,
-      thresholdUpperBound)
+                                      thresholdLowerBound,
+                                      thresholdUpperBound)
     val changeRange =
       Ranges.range(changeResolution, changeLowerBound, changeUpperBound)
 
@@ -76,7 +86,11 @@ class StructuredPairGenerator(vocabularySize: Int,
     *         and [[OriginData]] reflecting the pair's
     *         origin parameters, i.e., threshold and change rate.
     */
-  override def generatePair(parameters: ParametersStructured): AgentPair[ReferentialIntention, ContentSignal, RSA1ShotAgent, OriginData] = {
+  override def generatePair(
+      parameters: ParametersStructured): AgentPair[ReferentialIntention,
+                                                   ContentSignal,
+                                                   RSA1ShotAgent,
+                                                   OriginData] = {
     val lexicon1 = StructuredLexicon.generateBinaryStructuredLexicon(
       representationLength,
       mappingFunction,
@@ -103,14 +117,13 @@ class StructuredPairGenerator(vocabularySize: Int,
       case EDIT_DISTANCE    => 1.0
       case _                => -1.0
     }
-    val originData = OriginData(parameters.threshold,
-      parameters.changeRate,
-      mappingFunctionId)
+    val originData =
+      OriginData(parameters.threshold, parameters.changeRate, mappingFunctionId)
 
-    AgentPair[ReferentialIntention,
-      ContentSignal,
-      RSA1ShotAgent,
-      OriginData](agent1, agent2, originData)
+    AgentPair[ReferentialIntention, ContentSignal, RSA1ShotAgent, OriginData](
+      agent1,
+      agent2,
+      originData)
   }
 
   /** Helper function to translate the similarity measurement method.
