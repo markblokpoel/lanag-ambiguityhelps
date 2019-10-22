@@ -1,8 +1,16 @@
-package com.markblokpoel.lanag.ambiguityhelps.experiments.random
+package com.markblokpoel.lanag.ambiguityhelps.experiments
 
 import com.markblokpoel.lanag.ambiguityhelps.RSA1ShotAgent
-import com.markblokpoel.lanag.ambiguityhelps.datastructures.OriginData
-import com.markblokpoel.lanag.core.{AgentPair, ContentSignal, PairGenerator, ReferentialIntention}
+import com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.{
+  RSA1OriginData,
+  RSA1ShotRandomizedParameters
+}
+import com.markblokpoel.lanag.core.{
+  AgentPair,
+  ContentSignal,
+  PairGenerator,
+  ReferentialIntention
+}
 import com.markblokpoel.lanag.math.Ranges
 import com.markblokpoel.lanag.rsa.Lexicon
 
@@ -20,17 +28,17 @@ import com.markblokpoel.lanag.rsa.Lexicon
   * @param beta               The decision noise parameter used in the softargmax inference of the agents.
   */
 @SerialVersionUID(100L)
-class RandomPairGenerator(vocabularySize: Int,
-                          contextSize: Int,
-                          densityResolution: Double,
-                          mutationResolution: Double,
-                          sampleSize: Int,
-                          beta: Double = Double.PositiveInfinity)
-    extends PairGenerator[ParametersRandom,
+class RandomizedPairGenerator(vocabularySize: Int,
+                              contextSize: Int,
+                              densityResolution: Double,
+                              mutationResolution: Double,
+                              sampleSize: Int,
+                              beta: Double = Double.PositiveInfinity)
+    extends PairGenerator[RSA1ShotRandomizedParameters,
                           ReferentialIntention,
                           ContentSignal,
                           RSA1ShotAgent,
-                          OriginData](sampleSize)
+                          RSA1OriginData](sampleSize)
     with Serializable {
 
   /** Generates the parameter space, specifying the full domain of parameters used to randomly generate
@@ -38,28 +46,28 @@ class RandomPairGenerator(vocabularySize: Int,
     *
     * @return A sequence of parameters.
     */
-  override def generateParameterSpace: Seq[ParametersRandom] = {
+  override def generateParameterSpace: Seq[RSA1ShotRandomizedParameters] = {
     val densityRange = Ranges.range(densityResolution)
     val mutationRange = Ranges.range(mutationResolution)
 
     for {
       dens <- densityRange
       mut <- mutationRange
-    } yield ParametersRandom(dens, mut)
+    } yield RSA1ShotRandomizedParameters(dens, mut)
   }
 
   /** Generates, for specific parameters, a pair of agents with random lexicons, related by <code>mutationRate</code>.
     *
     * @param parameters Parameters from [[generateParameterSpace]].
-    * @return An [[com.markblokpoel.lanag.core.AgentPair]], containing a pair of agents of the specified type
-    *         and [[OriginData]] reflecting the
+    * @return An [[lanag.core.AgentPair]], containing a pair of agents of the specified type
+    *         and [[lanag.ambiguityhelps.RSA1ShotDataStructures.RSA1OriginData]] reflecting the
     *         pair's origin parameters.
     */
   override def generatePair(
-      parameters: ParametersRandom): AgentPair[ReferentialIntention,
+      parameters: RSA1ShotRandomizedParameters): AgentPair[ReferentialIntention,
                                                            ContentSignal,
                                                            RSA1ShotAgent,
-                                                           OriginData] = {
+                                                           RSA1OriginData] = {
     val lexicon1 = Lexicon.generateRandomBinaryLexicon(parameters.density,
                                                        vocabularySize,
                                                        contextSize)
@@ -67,10 +75,10 @@ class RandomPairGenerator(vocabularySize: Int,
     AgentPair[ReferentialIntention,
               ContentSignal,
               RSA1ShotAgent,
-              OriginData](
+              RSA1OriginData](
       new RSA1ShotAgent(lexicon1, beta = beta),
       new RSA1ShotAgent(lexicon2, beta = beta),
-      OriginData(parameters.density, parameters.mutationRate)
+      RSA1OriginData(parameters.density, parameters.mutationRate)
     )
   }
 }

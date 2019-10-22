@@ -1,8 +1,16 @@
-package com.markblokpoel.lanag.ambiguityhelps.experiments.uniform
+package com.markblokpoel.lanag.ambiguityhelps.experiments
 
 import com.markblokpoel.lanag.ambiguityhelps.RSA1ShotAgent
-import com.markblokpoel.lanag.ambiguityhelps.datastructures.OriginData
-import com.markblokpoel.lanag.core.{AgentPair, ContentSignal, PairGenerator, ReferentialIntention}
+import com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.{
+  RSA1OriginData,
+  RSA1ShotConsistentParameters
+}
+import com.markblokpoel.lanag.core.{
+  AgentPair,
+  ContentSignal,
+  PairGenerator,
+  ReferentialIntention
+}
 import com.markblokpoel.lanag.math.Ranges
 import com.markblokpoel.lanag.rsa.Lexicon
 import com.markblokpoel.lanag.util.RNG
@@ -20,16 +28,16 @@ import com.markblokpoel.lanag.util.RNG
   * @param beta             The decision noise parameter used in the softargmax inference of the agents.
   */
 @SerialVersionUID(100L)
-class UniformPairGenerator(vocabularySize: Int,
-                           contextSize: Int,
-                           changeResolution: Double,
-                           sampleSize: Int,
-                           beta: Double = Double.PositiveInfinity)
-    extends PairGenerator[ParametersUniform,
+class ConsistentPairGenerator(vocabularySize: Int,
+                              contextSize: Int,
+                              changeResolution: Double,
+                              sampleSize: Int,
+                              beta: Double = Double.PositiveInfinity)
+    extends PairGenerator[RSA1ShotConsistentParameters,
                           ReferentialIntention,
                           ContentSignal,
                           RSA1ShotAgent,
-                          OriginData](sampleSize)
+                          RSA1OriginData](sampleSize)
     with Serializable {
 
   /** Generates the parameter space, specifying the full domain of parameters used to randomly generate consistent
@@ -37,7 +45,7 @@ class UniformPairGenerator(vocabularySize: Int,
     *
     * @return A sequence of parameters.
     */
-  override def generateParameterSpace: Seq[ParametersUniform] = {
+  override def generateParameterSpace: Seq[RSA1ShotConsistentParameters] = {
     val ambiguityRange = 1 to contextSize
     val changeRange = Ranges.range(changeResolution)
 
@@ -45,7 +53,7 @@ class UniformPairGenerator(vocabularySize: Int,
       amb1 <- ambiguityRange
       amb2 <- ambiguityRange
       cha <- changeRange
-    } yield ParametersUniform(amb1, amb2, cha)
+    } yield RSA1ShotConsistentParameters(amb1, amb2, cha)
   }
 
   /** Helper function to translate the lexicon change method to a string representation.
@@ -65,15 +73,15 @@ class UniformPairGenerator(vocabularySize: Int,
     * <code>changeRate</code>.
     *
     * @param parameters Parameters from [[generateParameterSpace]].
-    * @return An [[com.markblokpoel.lanag.core.AgentPair]], containing a pair of agents of the specified type
-    *         and [[OriginData]] reflecting the pair's
+    * @return An [[lanag.core.AgentPair]], containing a pair of agents of the specified type
+    *         and [[lanag.ambiguityhelps.RSA1ShotDataStructures.RSA1OriginData]] reflecting the pair's
     *         origin parameters, i.e., change rate and change method.
     */
   override def generatePair(
-      parameters: ParametersUniform): AgentPair[ReferentialIntention,
+      parameters: RSA1ShotConsistentParameters): AgentPair[ReferentialIntention,
                                                            ContentSignal,
                                                            RSA1ShotAgent,
-                                                           OriginData] = {
+                                                           RSA1OriginData] = {
     val lexicon1 = Lexicon.generateConsistentAmbiguityMapping(
       parameters.agent1Ambiguity,
       vocabularySize,
@@ -92,19 +100,19 @@ class UniformPairGenerator(vocabularySize: Int,
     val agent1 = new RSA1ShotAgent(lexicon1, beta = beta)
     val agent2 = new RSA1ShotAgent(lexicon2, beta = beta)
     val originData =
-      OriginData(changeMethodId.toDouble, parameters.changeRate)
+      RSA1OriginData(changeMethodId.toDouble, parameters.changeRate)
 
     RNG.nextInt(2) match {
       case 0 =>
         AgentPair[ReferentialIntention,
                   ContentSignal,
                   RSA1ShotAgent,
-                  OriginData](agent1, agent2, originData)
+                  RSA1OriginData](agent1, agent2, originData)
       case 1 =>
         AgentPair[ReferentialIntention,
                   ContentSignal,
                   RSA1ShotAgent,
-                  OriginData](agent2, agent1, originData)
+                  RSA1OriginData](agent2, agent1, originData)
     }
   }
 }
