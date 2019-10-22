@@ -65,38 +65,30 @@ object StructuredExperiment extends Serializable with App {
       sampleSize,
       interactionLength,
       beta,
-      randomSeed
-    )
+      randomSeed)
   dataSet.show()
 
   if (writeJSON) dataSet.write.json(outputFolder + "/json")
 
   // Summarize the individual turns, and write summarized data to CSV file.
   val summary =
-    dataSet.map(
-      dataRow =>
-        DataFlatStructured(
-          dataRow.pairId,
-          dataRow.agent1Order,
-          dataRow.agent2Order,
-          dataRow.agent1AmbiguityMean,
-          dataRow.agent1AmbiguityVar,
-          dataRow.agent2AmbiguityMean,
-          dataRow.agent2AmbiguityVar,
-          dataRow.asymmetry,
-          dataRow.threshold,
-          dataRow.representationalChangeRate,
-          averageSuccess = dataRow.interaction
-            .count(d => d.success) / dataRow.interaction.length.toDouble,
-          averageEntropyAsSpeaker = dataRow.interaction
-            .foldLeft(0.0)((acc, e) =>
-              acc + e.speakerData.speakerEntropy
-                .getOrElse(0.0)) / dataRow.interaction.length.toDouble,
-          averageEntropyAsListener = dataRow.interaction
-            .foldLeft(0.0)((acc, e) =>
-              acc + e.listenerData.listenerEntropy
-                .getOrElse(0.0)) / dataRow.interaction.length.toDouble
-      ))
+    dataSet.map(dataRow =>
+      DataFlatStructured(
+        dataRow.pairId,
+        dataRow.agent1Order,
+        dataRow.agent2Order,
+        dataRow.agent1AmbiguityMean,
+        dataRow.agent1AmbiguityVar,
+        dataRow.agent2AmbiguityMean,
+        dataRow.agent2AmbiguityVar,
+        dataRow.asymmetry,
+        dataRow.threshold,
+        dataRow.representationalChangeRate,
+        averageSuccess = dataRow.interaction.count(d => d.success) / dataRow.interaction.length.toDouble,
+        averageEntropyAsSpeaker = dataRow.interaction.foldLeft(0.0)((acc, e) =>
+          acc + e.speakerData.speakerEntropy.getOrElse(0.0)) / dataRow.interaction.length.toDouble,
+        averageEntropyAsListener = dataRow.interaction.foldLeft(0.0)((acc, e) =>
+          acc + e.listenerData.listenerEntropy.getOrElse(0.0)) / dataRow.interaction.length.toDouble))
   summary.write.option("header", value = true).csv(outputFolder + "/csv")
   summary.show()
 
@@ -150,24 +142,16 @@ object StructuredExperiment extends Serializable with App {
       thresholdUpperBound,
       changeLowerBound,
       changeUpperBound,
-      beta
-    )
+      beta)
     val parameterSpace = spg.generateParameterSpace
 
     // Setting up the simulation at the LocalSparkSimulation.
-    val sparkSimulation = sparkSession.sparkContext
-      .parallelize(parameterSpace)
+    val sparkSimulation = sparkSession.sparkContext.parallelize(parameterSpace)
       .map(parameters => spg.sampleGenerator(parameters))
       .map(generator =>
         generator.flatMap(pair => {
-          val interaction = RSA1ShotInteraction(pair.agent1,
-                                                pair.agent2,
-                                                pair.originData,
-                                                maxTurns = interactionLength)
-          Seq(interaction.atOrder(0),
-              interaction.atOrder(1),
-              interaction.atOrder(2))
-        }))
+          val interaction = RSA1ShotInteraction(pair.agent1, pair.agent2, pair.originData, maxTurns = interactionLength)
+          Seq(interaction.atOrder(0), interaction.atOrder(1), interaction.atOrder(2))}))
       .flatMap(interactions => interactions.map(_.runAndCollectData))
       .map(dataRow =>
         DataFullStructured(
@@ -181,8 +165,7 @@ object StructuredExperiment extends Serializable with App {
           dataRow.asymmetry,
           threshold = dataRow.originData.parameter1,
           representationalChangeRate = dataRow.originData.parameter2,
-          dataRow.interaction
-      ))
+          dataRow.interaction))
 
     // Cache the results so Spark doesn't recompute simulation each time you use the Dataset.
     sparkSimulation.toDS().cache()

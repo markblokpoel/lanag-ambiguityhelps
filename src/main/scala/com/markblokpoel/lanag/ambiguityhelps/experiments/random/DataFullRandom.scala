@@ -14,4 +14,4 @@ case class DataFullRandom(pairId: Long,
                           densityOrigin: Double,
                           mutationRate: Double,
                           interaction: Seq[TurnData])
-    extends Data
+  extends Data

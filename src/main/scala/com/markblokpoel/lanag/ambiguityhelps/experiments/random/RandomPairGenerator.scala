@@ -2,12 +2,7 @@ package com.markblokpoel.lanag.ambiguityhelps.experiments.random
 
 import com.markblokpoel.lanag.ambiguityhelps.RSA1ShotAgent
 import com.markblokpoel.lanag.ambiguityhelps.datastructures.OriginData
-import com.markblokpoel.lanag.core.{
-  AgentPair,
-  ContentSignal,
-  PairGenerator,
-  ReferentialIntention
-}
+import com.markblokpoel.lanag.core.{AgentPair, ContentSignal, PairGenerator, ReferentialIntention}
 import com.markblokpoel.lanag.math.Ranges
 import com.markblokpoel.lanag.rsa.Lexicon
 
@@ -62,14 +57,17 @@ class RandomPairGenerator(vocabularySize: Int,
     */
   override def generatePair(
       parameters: ParametersRandom): AgentPair[ReferentialIntention,
-                                               ContentSignal,
-                                               RSA1ShotAgent,
-                                               OriginData] = {
+                                                           ContentSignal,
+                                                           RSA1ShotAgent,
+                                                           OriginData] = {
     val lexicon1 = Lexicon.generateRandomBinaryLexicon(parameters.density,
                                                        vocabularySize,
                                                        contextSize)
     val lexicon2 = lexicon1.mutate(parameters.mutationRate)
-    AgentPair[ReferentialIntention, ContentSignal, RSA1ShotAgent, OriginData](
+    AgentPair[ReferentialIntention,
+              ContentSignal,
+              RSA1ShotAgent,
+              OriginData](
       new RSA1ShotAgent(lexicon1, beta = beta),
       new RSA1ShotAgent(lexicon2, beta = beta),
       OriginData(parameters.density, parameters.mutationRate)

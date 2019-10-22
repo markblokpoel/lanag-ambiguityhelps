@@ -6,4 +6,4 @@ case class TurnData(turn: Int,
                     success: Boolean,
                     speakerData: SpeakerData,
                     listenerData: ListenerData)
-    extends Data
+  extends Data
