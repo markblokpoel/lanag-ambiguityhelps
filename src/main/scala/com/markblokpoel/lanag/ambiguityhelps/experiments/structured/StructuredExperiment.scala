@@ -15,85 +15,88 @@ import org.apache.spark.sql.{Dataset, SparkSession}
   */
 @SerialVersionUID(100L)
 object StructuredExperiment extends Serializable with App {
-  /*
-    Generic setup, loading configuration file if present.
-   */
-  val timestamp = Instant.now.toEpochMilli
-  val outputFolder = "output/rsa1shot_structured-" + timestamp
 
-  val conf = ConfigWrapper(ConfigFactory.load())
+  override def main(args: Array[String]): Unit = {
+    /*
+      Generic setup, loading configuration file if present.
+     */
+    val timestamp = Instant.now.toEpochMilli
+    val outputFolder = "output/rsa1shot_structured-" + timestamp
 
-  val vocabularySize = conf.getOrElse[Int]("core.vocabulary-size", 8)
-  val contextSize = conf.getOrElse[Int]("core.context-size", 4)
-  val sampleSize = conf.getOrElse[Int]("core.sample-size", 25)
-  val interactionLength = conf.getOrElse[Int]("core.interaction-length", 20)
-  val beta = conf.getOrElse[Double]("core.beta", Double.PositiveInfinity)
-  val writeJSON = conf.getOrElse[Boolean]("core.write-json", false)
-  val sparkLocalMode = conf.getOrElse[Boolean]("core.spark-local-mode", false)
-  val randomSeed = conf.getOrElse[Long]("core.random-seed", 0)
-  val representationLength = conf.getOrElse[Int](
-    "structured.representation-length",
-    math.max(vocabularySize, contextSize))
-  val thresholdResolution =
-    conf.getOrElse[Double]("structured.threshold-resolution", 0.1)
-  val thresholdLowerBound =
-    conf.getOrElse[Double]("structured.threshold-lowerbound", 0)
-  val thresholdUpperBound =
-    conf.getOrElse[Double]("structured.threshold-upperbound", 1)
-  val changeResolution =
-    conf.getOrElse[Double]("structured.change-resolution", 0.2)
-  val changeLowerBound =
-    conf.getOrElse[Double]("structured.change-lowerbound", 0)
-  val changeUpperBound =
-    conf.getOrElse[Double]("structured.change-upperbound", 1)
+    val conf = ConfigWrapper(ConfigFactory.load())
 
-  val sparkSimulation = SparkSimulation(sparkLocalMode)
-  import sparkSimulation.spark.implicits._
+    val vocabularySize = conf.getOrElse[Int]("core.vocabulary-size", 8)
+    val contextSize = conf.getOrElse[Int]("core.context-size", 4)
+    val sampleSize = conf.getOrElse[Int]("core.sample-size", 25)
+    val interactionLength = conf.getOrElse[Int]("core.interaction-length", 20)
+    val beta = conf.getOrElse[Double]("core.beta", Double.PositiveInfinity)
+    val writeJSON = conf.getOrElse[Boolean]("core.write-json", false)
+    val sparkLocalMode = conf.getOrElse[Boolean]("core.spark-local-mode", false)
+    val randomSeed = conf.getOrElse[Long]("core.random-seed", 0)
+    val representationLength = conf.getOrElse[Int](
+      "structured.representation-length",
+      math.max(vocabularySize, contextSize))
+    val thresholdResolution =
+      conf.getOrElse[Double]("structured.threshold-resolution", 0.1)
+    val thresholdLowerBound =
+      conf.getOrElse[Double]("structured.threshold-lowerbound", 0)
+    val thresholdUpperBound =
+      conf.getOrElse[Double]("structured.threshold-upperbound", 1)
+    val changeResolution =
+      conf.getOrElse[Double]("structured.change-resolution", 0.2)
+    val changeLowerBound =
+      conf.getOrElse[Double]("structured.change-lowerbound", 0)
+    val changeUpperBound =
+      conf.getOrElse[Double]("structured.change-upperbound", 1)
 
-  val dataSet: Dataset[DataFullStructured] =
-    run(
-      sparkSimulation.spark,
-      vocabularySize,
-      contextSize,
-      representationLength,
-      thresholdResolution,
-      thresholdLowerBound,
-      thresholdUpperBound,
-      changeResolution,
-      changeLowerBound,
-      changeUpperBound,
-      sampleSize,
-      interactionLength,
-      beta,
-      randomSeed)
-  dataSet.show()
+    val sparkSimulation = SparkSimulation(sparkLocalMode)
+    import sparkSimulation.spark.implicits._
 
-  if (writeJSON) dataSet.write.json(outputFolder + "/json")
+    val dataSet: Dataset[DataFullStructured] =
+      run(
+        sparkSimulation.spark,
+        vocabularySize,
+        contextSize,
+        representationLength,
+        thresholdResolution,
+        thresholdLowerBound,
+        thresholdUpperBound,
+        changeResolution,
+        changeLowerBound,
+        changeUpperBound,
+        sampleSize,
+        interactionLength,
+        beta,
+        randomSeed)
+    dataSet.show()
 
-  // Summarize the individual turns, and write summarized data to CSV file.
-  val summary =
-    dataSet.map(dataRow =>
-      DataFlatStructured(
-        dataRow.pairId,
-        dataRow.agent1Order,
-        dataRow.agent2Order,
-        dataRow.agent1AmbiguityMean,
-        dataRow.agent1AmbiguityVar,
-        dataRow.agent2AmbiguityMean,
-        dataRow.agent2AmbiguityVar,
-        dataRow.asymmetry,
-        dataRow.threshold,
-        dataRow.representationalChangeRate,
-        averageSuccess = dataRow.interaction.count(d => d.success) / dataRow.interaction.length.toDouble,
-        averageEntropyAsSpeaker = dataRow.interaction.foldLeft(0.0)((acc, e) =>
-          acc + e.speakerData.speakerEntropy.getOrElse(0.0)) / dataRow.interaction.length.toDouble,
-        averageEntropyAsListener = dataRow.interaction.foldLeft(0.0)((acc, e) =>
-          acc + e.listenerData.listenerEntropy.getOrElse(0.0)) / dataRow.interaction.length.toDouble))
-  summary.write.option("header", value = true).csv(outputFolder + "/csv")
-  summary.show()
+    if (writeJSON) dataSet.write.json(outputFolder + "/json")
 
-  // Close the spark session, ensuring all data is written to disk.
-  sparkSimulation.shutdown()
+    // Summarize the individual turns, and write summarized data to CSV file.
+    val summary =
+      dataSet.map(dataRow =>
+        DataFlatStructured(
+          dataRow.pairId,
+          dataRow.agent1Order,
+          dataRow.agent2Order,
+          dataRow.agent1AmbiguityMean,
+          dataRow.agent1AmbiguityVar,
+          dataRow.agent2AmbiguityMean,
+          dataRow.agent2AmbiguityVar,
+          dataRow.asymmetry,
+          dataRow.threshold,
+          dataRow.representationalChangeRate,
+          averageSuccess = dataRow.interaction.count(d => d.success) / dataRow.interaction.length.toDouble,
+          averageEntropyAsSpeaker = dataRow.interaction.foldLeft(0.0)((acc, e) =>
+            acc + e.speakerData.speakerEntropy.getOrElse(0.0)) / dataRow.interaction.length.toDouble,
+          averageEntropyAsListener = dataRow.interaction.foldLeft(0.0)((acc, e) =>
+            acc + e.listenerData.listenerEntropy.getOrElse(0.0)) / dataRow.interaction.length.toDouble))
+    summary.write.option("header", value = true).csv(outputFolder + "/csv")
+    summary.show()
+
+    // Close the spark session, ensuring all data is written to disk.
+    sparkSimulation.shutdown()
+  }
 
   def run(sparkSession: SparkSession,
           vocabularySize: Int,
