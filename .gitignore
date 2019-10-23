@@ -200,5 +200,5 @@ target/streams/
 /target/
 .idea
 
-### Unignore binaries for mybinder
+### Unignore binaries for jupyternotebook
 !binaries/lanag-ambiguityhelps-0.1.jar
