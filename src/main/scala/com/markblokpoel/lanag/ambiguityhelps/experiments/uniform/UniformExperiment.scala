@@ -31,7 +31,6 @@ object UniformExperiment extends Serializable with App {
     conf.getOrElse[Double]("consistent.change-resolution", 0.2)
 
   val sparkSimulation = SparkSimulation(sparkLocalMode)
-  import sparkSimulation.spark.implicits._
 
   val dataSet: Dataset[DataFullUniform] =
     run(sparkSimulation.spark,
@@ -45,14 +44,17 @@ object UniformExperiment extends Serializable with App {
   dataSet.show()
 
   if (writeJSON) dataSet.write.json(outputFolder + "/json")
-  val summary = flattenUniformData(dataSet)
+  val summary = flattenData(sparkSimulation.spark, dataSet)
   summary.write.option("header", value = true).csv(outputFolder + "/csv")
   summary.show()
 
   // Close the spark session, ensuring all data is written to disk.
   sparkSimulation.shutdown()
 
-  def flattenUniformData(fullData: Dataset[DataFullUniform]) = {
+  def flattenData(sparkSession: SparkSession,
+                  fullData: Dataset[DataFullUniform]) = {
+    import sparkSession.implicits._
+
     fullData.map(
       dataRow =>
         DataFlatUniform(

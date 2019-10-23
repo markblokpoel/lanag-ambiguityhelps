@@ -48,7 +48,6 @@ object StructuredExperiment extends Serializable with App {
     conf.getOrElse[Double]("structured.change-upperbound", 1)
 
   val sparkSimulation = SparkSimulation(sparkLocalMode)
-  import sparkSimulation.spark.implicits._
 
   val dataSet: Dataset[DataFullStructured] =
     run(
@@ -70,15 +69,18 @@ object StructuredExperiment extends Serializable with App {
   dataSet.show()
 
   if (writeJSON) dataSet.write.json(outputFolder + "/json")
-  val summary = flattenStructuredData(dataSet)
+  val summary = flattenData(sparkSimulation.spark, dataSet)
   summary.write.option("header", value = true).csv(outputFolder + "/csv")
   summary.show()
 
   // Close the spark session, ensuring all data is written to disk.
   sparkSimulation.shutdown()
 
-  def flattenStructuredData(
+  def flattenData(
+      sparkSession: SparkSession,
       fullData: Dataset[DataFullStructured]): Dataset[DataFlatStructured] = {
+    import sparkSession.implicits._
+
     fullData.map(
       dataRow =>
         DataFlatStructured(

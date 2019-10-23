@@ -36,7 +36,6 @@ object RandomExperiment extends Serializable with App {
     conf.getOrElse[Double]("random.mutation-resolution", 0.2)
 
   val sparkSimulation = SparkSimulation(sparkLocalMode)
-  import sparkSimulation.spark.implicits._
 
   val dataSet: Dataset[DataFullRandom] =
     run(sparkSimulation.spark,
@@ -52,15 +51,18 @@ object RandomExperiment extends Serializable with App {
 
   // Write the results to JSON file.
   if (writeJSON) dataSet.write.json(outputFolder + "/json")
-  val summary = flattenRandomData(dataSet)
+  val summary = flattenData(sparkSimulation.spark, dataSet)
   summary.write.option("header", value = true).csv(outputFolder + "/csv")
   summary.show()
 
   // Close the spark session, ensuring all data is written to disk.
   sparkSimulation.shutdown()
 
-  def flattenRandomData(
+  def flattenData(
+      sparkSession: SparkSession,
       fullData: Dataset[DataFullRandom]): Dataset[DataFlatRandom] = {
+    import sparkSession.implicits._
+
     fullData.map(
       dataRow =>
         DataFlatRandom(
