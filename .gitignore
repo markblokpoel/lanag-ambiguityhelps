@@ -200,5 +200,6 @@ target/streams/
 /target/
 .idea
 
-### Unignore binaries for jupyternotebook
+
+### Unignore binaries for jupyter notebooks
 !binaries/lanag-ambiguityhelps-0.1.jar
