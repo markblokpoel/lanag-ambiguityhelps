@@ -52,8 +52,8 @@ object UniformExperiment extends Serializable with App {
   // Close the spark session, ensuring all data is written to disk.
   sparkSimulation.shutdown()
 
-  def flattenUniformData(dataSet: Dataset[DataFullUniform]) = {
-    dataSet.map(
+  def flattenUniformData(fullData: Dataset[DataFullUniform]) = {
+    fullData.map(
       dataRow =>
         DataFlatUniform(
           dataRow.pairId,

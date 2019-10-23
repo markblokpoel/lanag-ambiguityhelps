@@ -78,8 +78,8 @@ object StructuredExperiment extends Serializable with App {
   sparkSimulation.shutdown()
 
   def flattenStructuredData(
-      dataSet: Dataset[DataFullStructured]): Dataset[DataFlatStructured] = {
-    dataSet.map(
+      fullData: Dataset[DataFullStructured]): Dataset[DataFlatStructured] = {
+    fullData.map(
       dataRow =>
         DataFlatStructured(
           dataRow.pairId,

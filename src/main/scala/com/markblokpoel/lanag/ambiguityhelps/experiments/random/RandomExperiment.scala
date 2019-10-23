@@ -60,8 +60,8 @@ object RandomExperiment extends Serializable with App {
   sparkSimulation.shutdown()
 
   def flattenRandomData(
-      dataSet: Dataset[DataFullRandom]): Dataset[DataFlatRandom] = {
-    dataSet.map(
+      fullData: Dataset[DataFullRandom]): Dataset[DataFlatRandom] = {
+    fullData.map(
       dataRow =>
         DataFlatRandom(
           dataRow.pairId,
