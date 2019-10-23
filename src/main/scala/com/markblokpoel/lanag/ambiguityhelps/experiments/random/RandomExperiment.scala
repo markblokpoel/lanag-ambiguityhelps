@@ -52,35 +52,40 @@ object RandomExperiment extends Serializable with App {
 
   // Write the results to JSON file.
   if (writeJSON) dataSet.write.json(outputFolder + "/json")
-
-  // Summarize the individual turns, and write summarized data to CSV file.
-  val summary = dataSet.map(
-    dataRow =>
-      DataFlatRandom(
-        dataRow.pairId,
-        dataRow.agent1Order,
-        dataRow.agent2Order,
-        dataRow.agent1AmbiguityMean,
-        dataRow.agent1AmbiguityVar,
-        dataRow.agent2AmbiguityMean,
-        dataRow.agent2AmbiguityVar,
-        dataRow.asymmetry,
-        dataRow.densityOrigin,
-        dataRow.mutationRate,
-        averageSuccess = dataRow.interaction
-          .count(d => d.success) / dataRow.interaction.length.toDouble,
-        averageEntropyAsSpeaker = dataRow.interaction.foldLeft(0.0)((acc, e) =>
-          acc + e.speakerData.speakerEntropy
-            .getOrElse(0.0)) / dataRow.interaction.length.toDouble,
-        averageEntropyAsListener = dataRow.interaction.foldLeft(0.0)((acc, e) =>
-          acc + e.listenerData.listenerEntropy
-            .getOrElse(0.0)) / dataRow.interaction.length.toDouble
-    ))
+  val summary = flattenRandomData(dataSet)
   summary.write.option("header", value = true).csv(outputFolder + "/csv")
   summary.show()
 
   // Close the spark session, ensuring all data is written to disk.
   sparkSimulation.shutdown()
+
+  def flattenRandomData(
+      dataSet: Dataset[DataFullRandom]): Dataset[DataFlatRandom] = {
+    dataSet.map(
+      dataRow =>
+        DataFlatRandom(
+          dataRow.pairId,
+          dataRow.agent1Order,
+          dataRow.agent2Order,
+          dataRow.agent1AmbiguityMean,
+          dataRow.agent1AmbiguityVar,
+          dataRow.agent2AmbiguityMean,
+          dataRow.agent2AmbiguityVar,
+          dataRow.asymmetry,
+          dataRow.densityOrigin,
+          dataRow.mutationRate,
+          averageSuccess = dataRow.interaction
+            .count(d => d.success) / dataRow.interaction.length.toDouble,
+          averageEntropyAsSpeaker = dataRow.interaction.foldLeft(0.0)(
+            (acc, e) =>
+              acc + e.speakerData.speakerEntropy
+                .getOrElse(0.0)) / dataRow.interaction.length.toDouble,
+          averageEntropyAsListener = dataRow.interaction.foldLeft(0.0)(
+            (acc, e) =>
+              acc + e.listenerData.listenerEntropy
+                .getOrElse(0.0)) / dataRow.interaction.length.toDouble
+      ))
+  }
 
   def run(sparkSession: SparkSession,
           vocabularySize: Int,

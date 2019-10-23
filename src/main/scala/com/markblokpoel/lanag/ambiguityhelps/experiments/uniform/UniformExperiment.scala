@@ -45,9 +45,14 @@ object UniformExperiment extends Serializable with App {
   dataSet.show()
 
   if (writeJSON) dataSet.write.json(outputFolder + "/json")
+  val summary = flattenUniformData(dataSet)
+  summary.write.option("header", value = true).csv(outputFolder + "/csv")
+  summary.show()
 
-  // Summarize the individual turns, and write summarized data to CSV file.
-  val summary =
+  // Close the spark session, ensuring all data is written to disk.
+  sparkSimulation.shutdown()
+
+  def flattenUniformData(dataSet: Dataset[DataFullUniform]) = {
     dataSet.map(
       dataRow =>
         DataFlatUniform(
@@ -72,11 +77,7 @@ object UniformExperiment extends Serializable with App {
               acc + e.listenerData.listenerEntropy
                 .getOrElse(0.0)) / dataRow.interaction.length.toDouble
       ))
-  summary.write.option("header", value = true).csv(outputFolder + "/csv")
-  summary.show()
-
-  // Close the spark session, ensuring all data is written to disk.
-  sparkSimulation.shutdown()
+  }
 
   def run(sparkSession: SparkSession,
           vocabularySize: Int,
