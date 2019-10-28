@@ -70,6 +70,7 @@ object StructuredExperiment extends Serializable with App {
 
   if (writeJSON) dataSet.write.json(outputFolder + "/json")
   val summary = flattenData(sparkSimulation.spark, dataSet)
+
   summary.write.option("header", value = true).csv(outputFolder + "/csv")
   summary.show()
 
