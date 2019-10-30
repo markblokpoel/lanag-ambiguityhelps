@@ -42,7 +42,9 @@ case class RSA1ShotInteraction(
   override val agent2AsSpeaker: RSA1ShotSpeaker = agent2.asSpeaker
   override val agent1AsListener: RSA1ShotListener = agent1.asListener
   override val agent2AsListener: RSA1ShotListener = agent2.asListener
+  //noinspection VarCouldBeVal
   override protected var currentSpeaker: RSA1ShotSpeaker = agent1AsSpeaker
+  //noinspection VarCouldBeVal
   override protected var currentListener: RSA1ShotListener = agent2AsListener
   private var turnCount = 0
 
