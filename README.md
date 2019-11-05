@@ -1,4 +1,4 @@
-# LANguage AGents - Rational Speech Act simulations
+# Language Agents - Rational Speech Act simulations
 
 This simulation software was designed for Blokpoel, Dingemanse, Kachergis, Bögels, Toni and van Rooij, (under review).
 It builds on the Rational Speech Act (RSA) theory by Frank & Goodman (2012). The simulations and
