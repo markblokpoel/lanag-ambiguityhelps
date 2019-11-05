@@ -183,10 +183,11 @@ dependencies with Provided scope". Furthermore, in the configuration file `resou
 
 ## Running simulations from the command line interface
 To run the simulation from the command line you need a binary. You can compile a JAR file using the SBT command
-`assembly`. This will create a fresh binary in `./target/scala-2.12/`. Move the newly created JAR file to a folder of your
+`assembly`. This will create a fresh binary in `./target/scala-2.12/`. Alternatively, you can use the binary provided
+ in the [Github repository](../binaries). Move the newly created JAR file to a folder of your
 choosing and also copy the [`application.conf`](../src/main/resources/application.conf) file there. Additionally, you
-can copy the `ah-*.sh` shell execution scripts, or use the command manually in case you want to customize the running script. The scripts assume
-you are running Spark locally.
+can copy the `ah-*.sh` shell execution scripts, or use the command manually in case you want to customize the running
+script. The scripts assume you are running Spark locally.
 
 ```
 spark-submit \
