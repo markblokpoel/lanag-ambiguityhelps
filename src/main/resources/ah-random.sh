@@ -3,6 +3,6 @@
 spark-submit \
   --conf spark.driver.extraJavaOptions=-Dconfig.file=./application.conf \
   --conf spark.executor.extraJavaOptions=-Dconfig.file=./application.conf \
-  --class com.markblokpoel.lanag.ambiguityhelps.experiments.RSA1ShotPureRandom \
-  --master local[4] \
+  --class com.markblokpoel.lanag.ambiguityhelps.experiments.random.RandomExperiment \
+  --master local[*] \
   com.markblokpoel.lanag-ambiguityhelps-assembly-0.1.jar
