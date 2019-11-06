@@ -5,6 +5,4 @@ package com.markblokpoel.lanag.ambiguityhelps.experiments
   * agent pairs are generated using a strategy that generates binary string representations for referents and
   * signals.
   */
-package object structured {
-
-}
+package object structured {}
