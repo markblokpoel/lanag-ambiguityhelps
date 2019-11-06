@@ -2,8 +2,9 @@
 ### Scala template
 *.class
 *.log
-### Java template
 
+
+### Java template
 
 
 # BlueJ files
@@ -198,5 +199,11 @@ target/streams/
 /target/
 .idea
 
-### Unignore dataset
-!datasets/*.zip
+
+### Unignore binaries for jupyter notebooks
+!binaries/lanag-ambiguityhelps-0.1.jar
+
+### Output folder
+output
+/project/target/
+/project/project/target/config-classes/
