@@ -64,7 +64,7 @@ under advanced) or you can import the project as a library using the Scala Build
 lines to your```build.sbt`` file:
 
 ```
-libraryDependencies += "com.markblokpoel" %% "lanag-core" % "0.3.2"
+libraryDependencies += "com.markblokpoel" %% "lanag-core" % "0.3.6"
 
 libraryDependencies += "com.markblokpoel" %% "lanag-ambiguityhelps" % "0.X.X"
 
