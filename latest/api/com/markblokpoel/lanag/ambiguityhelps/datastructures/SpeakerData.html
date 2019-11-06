@@ -3,26 +3,26 @@
         <head>
           <meta http-equiv="X-UA-Compatible" content="IE=edge" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-          <title>LANguage AGents - Project Ambiguity Helps  - com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData</title>
-          <meta name="description" content="LANguage AGents - Project Ambiguity Helps - com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData" />
-          <meta name="keywords" content="LANguage AGents Project Ambiguity Helps com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData" />
+          <title>LANguage AGents - Project Ambiguity Helps  - com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData</title>
+          <meta name="description" content="LANguage AGents - Project Ambiguity Helps - com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData" />
+          <meta name="keywords" content="LANguage AGents Project Ambiguity Helps com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
-      <link href="../../../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
-      <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
-      <link href="../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../../../lib/jquery.js"></script>
-      <script type="text/javascript" src="../../../../lib/jquery.panzoom.min.js"></script>
-      <script type="text/javascript" src="../../../../lib/jquery.mousewheel.min.js"></script>
-      <script type="text/javascript" src="../../../../lib/index.js"></script>
-      <script type="text/javascript" src="../../../../index.js"></script>
-      <script type="text/javascript" src="../../../../lib/scheduler.js"></script>
-      <script type="text/javascript" src="../../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../../lib/tools.tooltip.js"></script>
-      <script type="text/javascript" src="../../../../lib/modernizr.custom.js"></script><script type="text/javascript" src="../../../../lib/diagrams.js" id="diagrams-js"></script>
+      <link href="../../../../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../../../../lib/jquery.panzoom.min.js"></script>
+      <script type="text/javascript" src="../../../../../lib/jquery.mousewheel.min.js"></script>
+      <script type="text/javascript" src="../../../../../lib/index.js"></script>
+      <script type="text/javascript" src="../../../../../index.js"></script>
+      <script type="text/javascript" src="../../../../../lib/scheduler.js"></script>
+      <script type="text/javascript" src="../../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../../lib/tools.tooltip.js"></script>
+      <script type="text/javascript" src="../../../../../lib/modernizr.custom.js"></script><script type="text/javascript" src="../../../../../lib/diagrams.js" id="diagrams-js"></script>
       <script type="text/javascript">
         /* this variable can be used by the JS to determine the path to the root document */
-        var toRoot = '../../../../';
+        var toRoot = '../../../../../';
       </script>
     
         </head>
@@ -65,65 +65,12 @@
         <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="This simulation project builds on the Rational Speech Act theory by Frank &amp; Goodman (2012)." href="../../../../index.html"><span class="name">root</span></a>
+        <a title="For detailed documentation on using the framework please see the README.md file at the [Github repository](https://github.com/markblokpoel/lanag-ambiguityhelps)." href="../../../../../index.html"><span class="name">root</span></a>
       </span>
       
-      <p class="shortcomment cmt">This simulation project builds on the Rational Speech Act theory by Frank &amp; Goodman (2012).</p><div class="fullcomment"><div class="comment cmt"><h3>LANguage AGents - Project Ambiguity Helps</h3><p>This simulation project builds on the Rational Speech Act theory by Frank &amp; Goodman (2012). Here, we investigate
-the effects of lexicon ambiguity, order of pragmatic reasoning and asymmetry between agents on the agent's
-ability to successfully communicate.</p><p>This project consists of base code found in <a href="index.html" class="extype" name="com.markblokpoel.lanag.ambiguityhelps">com.markblokpoel.lanag.ambiguityhelps</a> to build your own
-Rational Speech Act-based experiments and three simulation experiments in
-<a href="experiments/index.html" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.experiments">com.markblokpoel.lanag.ambiguityhelps.experiments</a>. The results of these experiments are published in Blokpoel,
-Dingemanse, Toni and van Rooij, 2019). All three simulation experiments have pairs of agents taking turns to
-communicate for <code>n</code> rounds in a 1-shot communication task. That is, agent 1 selects a random referent,
-generates a signal; then agent 2 infers a referent from the signal. Then they switch roles and do another turn.
-The simulation keeps track of different statistics, amongst others the success rate. The three simulations differ in
-how the agents' lexicons are generated:</p><p><b>Randomized pairs:</b> Here, we randomly generate a lexicon based on a density parameter. Dense lexicons have many
-signal-referent relationships with value 1.0, sparse lexicons with value 0.0. The interlocutor's lexicon is a mutated
-copy of this first lexicon, where mutation-rate is varied as a parameter. This leads to lexicons where each signal
-can have a very different level of ambiguity from the next. Hence, we measure the mean and variance lexicon ambiguity.</p><p><b>Consistent pairs:</b> Here, we generate a random lexicon, but under the constraint that each signal refers to at
-least 1 referent <i>and</i> all signals refer to the same amount of referents. The interlocutor's lexicon is generated
-from the first lexicon, but randomly transformed using one of four methods: subtraction (randomly removing
-<code>n</code>% signal-referent mappings from each signal), addition (randomly adding <code>n</code>% signal-referent
-mappings from each signal), swap (randomly swap around the mappings between two signals) or random (generate a second
-consistent lexicon from scratch). Since there is no variance in ambiguity between signals, we can measure the ambiguity
-of a lexicon in just mean ambiguity.</p><p><b>Structures pairs</b>:</p><h4>Running the simulations</h4><p>The simulation platform uses Apache Spark to parallelize the computations. You can run them in three ways: Locally
-on your machine from within an IDE (e.g., IntellijIDEA), locally on your machine using <code>spark-submit</code>
-from a terminal, or on a Spark/Hadoop server (e.g., Amazon services <a href="https://aws.amazon.com/emr/features/spark/" target="_blank">https://aws.amazon.com/emr/features/spark/</a>).</p><h5>Running on a local machine</h5><p>Whether you rung the simulations from within an IDE (we will use IntellijIDEA) or from the commandline, you will first
-need to install Apache Spark and optionally Apache Hadoop.</p><h6>Install Spark on OSX or Linux</h6><p>The simulation framework requires Java JDK 1.8 (or higher) and Spark version 2.4.2 (higher version should be compatible
-but are untested). Go to <a href="https://spark.apache.org/downloads.html" target="_blank">https://spark.apache.org/downloads.html</a> and download Spark pre-build for Apache Hadoop 2.7
-and later. We will describe installation for a single user (no root access required). Open a terminal and in your home
-directory create a folder <code>libraries</code>. Unpack the contents of the of
-<code>spark-2.4.2-bin-hadoop2.7.tgz</code> to the libraries folder:</p><pre>$ tar -xvf spark-<span class="num">2.4</span>.<span class="num">2</span>-bin-hadoop2.<span class="num">7.</span>tgz ~/libraries</pre><p>Create a symbolic link for easier upgrading to newer Spark versions:</p><pre>$ ln -s ~/libraries/spark-<span class="num">2.4</span>.<span class="num">2</span>-bin-hadoop2.<span class="num">7</span> ~/libraries/spark</pre><p>We now need to configure Spark and your <code>PATH</code> variable. Again, from the terminal edit your profile using
-your favorite editor (e.g., Vim or Nano). It should be located in <code>~/.bash_profile</code> (for OSX) or
-<code>~/.profile</code> for Linux. Add the following lines at the start of the file, assuming the Java compiler is
-located in <code>/usr/bin</code> (you can using <code>which javac</code>):</p><pre>SPARK_HOME=~/libraries/spark
-JAVA_HOME=$(readlink -f /usr/bin/javac | sed <span class="lit">"s:/bin/javac::"</span>)</pre><p>Update the line starting with <code>PATH=</code> to:</p><pre>PATH=$SPARK_HOME/bin:$PATH</pre><p>Now restart your terminal session or reload your profile by running:</p><pre>$ source .bash_profile</pre><p>Start a Spark shell from your home directory to test if installation is successful:</p><pre>$ spark-shell</pre><h5>Optionally install Hadoop native library</h5><p>Running the simulations using the Hadoop native library potentially improves performance, but only on RHEL4/Fedora,
-Ubuntu or Gentoo (see Hadoop 3.1.2 documentation). First download Apache Hadoop 3.1.2 (or higher) from
-<a href="https://hadoop.apache.org/releases.html" target="_blank">https://hadoop.apache.org/releases.html</a>. &gt;. Unpack the contents of the of <code>hadoop-3.1.2.tar.gz</code> to
-your libraries folder:</p><pre>$ tar -xvf hadoop-<span class="num">3.1</span>.<span class="num">2.</span>tar.gz ~/libraries</pre><p>Create a symbolic link for easier upgrading to newer Spark versions:</p><pre>$ ln -s ~/libraries/hadoop-<span class="num">3.1</span>.<span class="num">2</span> ~/libraries/hadoop</pre><p>Open <code>~/.profile</code> or <code>~/.bash_profile</code> with an editor and add:</p><pre>HADOOP_HOME=~/libraries/hadoop
-HADOOP_CONF_DIR=$HADOOP_HOME/conf</pre><p>And add <code>$HADOOP_HOME/bin</code> to <code>$PATH</code>.</p><p>Next, we need to configure Hadoop. In the terminal:</p><pre>$ cd ~/libraries/hadoop/etc/hadoop
-$ vim hadoop-env.sh</pre><p>Uncomment <code># JAVA_HOME=..</code> and replace the line with:</p><pre>JAVA_HOME=$(readlink -f /usr/bin/javac | sed <span class="lit">"s:/bin/javac::"</span>)</pre><p>You can test if Hadoop is configured properly by running <code>hadoop</code> without any error messages.</p><p>Now we need to configure Spark to use the Hadoop native library. In terminal:</p><pre>$ cd ~/libraries/spark/conf
-$ cp spark-env.sh.template spark-env.sh
-$ vim spark-env.sh</pre><p>Add the following line somewhere after <code># Options read when launching programs locally with</code>:</p><pre>export SPARK_DIST_CLASSPATH=$(hadoop classpath)</pre><p>This might not be enough to get the Hadoop native libraries to load. You can always fall back to the Java
-implementation. You can try to add the following line to the shell scripts to force loading the native library. Note:
-use absolute path to your hadoop folder:</p><pre>--conf spark.driver.extraLibraryPath=/home/[username]/libraries/hadoop/lib/native \</pre><h6>Install Spark on Windows</h6><p>It is highly recommended to run Spark on a Unix OS such as Mac OSX or Linux. If you want to run Spark locally
-on your Windows machine, you may try to build Spark from source (not recommended) or run within a Virtual Machine,
-e.g. using Virtual Box <a href="https://www.virtualbox.org/" target="_blank">https://www.virtualbox.org/</a> and Ubuntu <a href="https://www.ubuntu.com/#download" target="_blank">https://www.ubuntu.com/#download</a>.</p><h6>Running simulation from IntellijIDEA</h6><p>Intellij will ignore <code>% Provided</code> library dependencies by default. However, this means it cannot find the
-Spark libraries and you will get an error message. These library dependencies have to be tagged as such, because these
-are assumed to be supplied by the Spark server and need to be excluded from the JAR assembly line. To run a simulation
-from within Intellij, you must edit the run configuration and under &quot;Configuration&quot; check the option &quot;Include
-dependencies with Provided scope&quot;. Furthermore, in the configuration file <code>resources/application.conf</code> set
-</code>spark-local-mode = true</code>.</p><h6>Running simulations from the command line interface</h6><p>Create a JAR file using the SBT command <code>assembly</code>. Move the newly created JAR file to a folder of your
-choosing and also copy the application.conf file there. Additionally, you can copy the <code>ah-*.sh</code> shell
-execution scripts, or use the command manually in case you want to customize the running script. The scripts assume
-you are running Spark locally.</p><pre>spark-submit \
-  --conf spark.driver.extraJavaOptions=-Dconfig.file=./application.conf \
-  --conf spark.executor.extraJavaOptions=-Dconfig.file=./application.conf \
-  --<span class="kw">class</span> com.markblokpoel.lanag.ambiguityhelps.experiments.RSA1ShotConsistent \
-  --master local[<span class="num">4</span>] \
-  com.markblokpoel.lanag-ambiguityhelps-assembly-<span class="num">0.1</span>.jar</pre><p>If you use the scripts, you need to set their permissions to be executable. In a terminal type:</p><pre>$ chmod +x ah-consistent.sh
-$ chmod +x ah-random.sh
-$ chmod +x ah-structured.sh</pre><p>Execute the scripts via terminal:</p><pre>./ah-consistent.sh</pre><h5>Running on a service / server</h5></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+      <p class="shortcomment cmt">For detailed documentation on using the framework please see the README.md file at the
+[Github repository](https://github.com/markblokpoel/lanag-ambiguityhelps).</p><div class="fullcomment"><div class="comment cmt"><h3>Language Agents - Project Ambiguity Helps</h3><p>For detailed documentation on using the framework please see the README.md file at the
+[Github repository](https://github.com/markblokpoel/lanag-ambiguityhelps).</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../../../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
     </li><li name="_root_.com" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="com"></a><a id="com:com"></a>
       <span class="permalink">
@@ -136,10 +83,10 @@ $ chmod +x ah-structured.sh</pre><p>Execute the scripts via terminal:</p><pre>./
         <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="" href="../../../index.html"><span class="name">com</span></a>
+        <a title="" href="../../../../index.html"><span class="name">com</span></a>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../../../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
     </li><li name="com.markblokpoel" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="markblokpoel"></a><a id="markblokpoel:markblokpoel"></a>
       <span class="permalink">
@@ -152,10 +99,10 @@ $ chmod +x ah-structured.sh</pre><p>Execute the scripts via terminal:</p><pre>./
         <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="" href="../../index.html"><span class="name">markblokpoel</span></a>
+        <a title="" href="../../../index.html"><span class="name">markblokpoel</span></a>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../../index.html" class="extype" name="com">com</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../../../index.html" class="extype" name="com">com</a></dd></dl></div>
     </li><li name="com.markblokpoel.lanag" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="lanag"></a><a id="lanag:lanag"></a>
       <span class="permalink">
@@ -168,10 +115,10 @@ $ chmod +x ah-structured.sh</pre><p>Execute the scripts via terminal:</p><pre>./
         <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="" href="../index.html"><span class="name">lanag</span></a>
+        <a title="" href="../../index.html"><span class="name">lanag</span></a>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="com.markblokpoel">markblokpoel</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../../index.html" class="extype" name="com.markblokpoel">markblokpoel</a></dd></dl></div>
     </li><li name="com.markblokpoel.lanag.ambiguityhelps" visbl="pub" class="indented4 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ambiguityhelps"></a><a id="ambiguityhelps:ambiguityhelps"></a>
       <span class="permalink">
@@ -184,66 +131,47 @@ $ chmod +x ah-structured.sh</pre><p>Execute the scripts via terminal:</p><pre>./
         <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="" href="index.html"><span class="name">ambiguityhelps</span></a>
+        <a title="" href="../index.html"><span class="name">ambiguityhelps</span></a>
       </span>
       
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"><h3>Project: Ambiguity helps higher order communicators overcome asymmetry.</h3></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="com.markblokpoel.lanag">lanag</a></dd></dl></div>
-    </li><li name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures" visbl="pub" class="indented5 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="RSA1ShotDataStructures"></a><a id="RSA1ShotDataStructures:RSA1ShotDataStructures"></a>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="com.markblokpoel.lanag">lanag</a></dd></dl></div>
+    </li><li name="com.markblokpoel.lanag.ambiguityhelps.datastructures" visbl="pub" class="indented5 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="datastructures"></a><a id="datastructures:datastructures"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/index.html#RSA1ShotDataStructures" title="Permalink">
+      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/index.html#datastructures" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">object</span>
+        <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="Contains a collection of data structures that are used to collect simulation data and support Apache Spark org.apache.spark.rdd.RDD, org.apache.spark.sql.DataFrame, and org.apache.spark.sql.Dataset." href="RSA1ShotDataStructures$.html"><span class="name">RSA1ShotDataStructures</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.12.8/scala/Serializable.html#scala.Serializable" class="extype" name="scala.Serializable">Serializable</a></span>
+        <a title="This package contains case classes for storing data of the rational speech act simulations." href="index.html"><span class="name">datastructures</span></a>
       </span>
       
-      <p class="shortcomment cmt">Contains a collection of data structures that are used to collect simulation data and support
-Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.DataFrame</code>, and
-<code>org.apache.spark.sql.Dataset</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Contains a collection of data structures that are used to collect simulation data and support
-Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.DataFrame</code>, and
-<code>org.apache.spark.sql.Dataset</code>.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="com.markblokpoel.lanag.ambiguityhelps">ambiguityhelps</a></dd><dt>Annotations</dt><dd>
-                <span class="name">@SerialVersionUID</span><span class="args">()</span>
-              
-        </dd></dl></div>
+      <p class="shortcomment cmt">This package contains case classes for storing data of the rational speech act simulations.</p><div class="fullcomment"><div class="comment cmt"><p>This package contains case classes for storing data of the rational speech act simulations.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="com.markblokpoel.lanag.ambiguityhelps">ambiguityhelps</a></dd></dl></div>
     </li><li class="current-entities indented5">
                         <span class="separator"></span>
-                        <a class="class" href="RSA1ShotDataStructures$$ListenerData.html" title=""></a>
-                        <a href="RSA1ShotDataStructures$$ListenerData.html" title="">ListenerData</a>
+                        <a class="class" href="InteractionData.html" title=""></a>
+                        <a href="InteractionData.html" title="">InteractionData</a>
                       </li><li class="current-entities indented5">
                         <span class="separator"></span>
-                        <a class="class" href="RSA1ShotDataStructures$$RSA1InteractionData.html" title=""></a>
-                        <a href="RSA1ShotDataStructures$$RSA1InteractionData.html" title="">RSA1InteractionData</a>
+                        <a class="class" href="ListenerData.html" title=""></a>
+                        <a href="ListenerData.html" title="">ListenerData</a>
                       </li><li class="current-entities indented5">
                         <span class="separator"></span>
-                        <a class="class" href="RSA1ShotDataStructures$$RSA1OriginData.html" title=""></a>
-                        <a href="RSA1ShotDataStructures$$RSA1OriginData.html" title="">RSA1OriginData</a>
-                      </li><li class="current-entities indented5">
-                        <span class="separator"></span>
-                        <a class="class" href="RSA1ShotDataStructures$$RSA1ShotConsistentParameters.html" title=""></a>
-                        <a href="RSA1ShotDataStructures$$RSA1ShotConsistentParameters.html" title="">RSA1ShotConsistentParameters</a>
-                      </li><li class="current-entities indented5">
-                        <span class="separator"></span>
-                        <a class="class" href="RSA1ShotDataStructures$$RSA1ShotRandomizedParameters.html" title=""></a>
-                        <a href="RSA1ShotDataStructures$$RSA1ShotRandomizedParameters.html" title="">RSA1ShotRandomizedParameters</a>
-                      </li><li class="current-entities indented5">
-                        <span class="separator"></span>
-                        <a class="class" href="RSA1ShotDataStructures$$RSA1ShotStructuredParameters.html" title=""></a>
-                        <a href="RSA1ShotDataStructures$$RSA1ShotStructuredParameters.html" title="">RSA1ShotStructuredParameters</a>
-                      </li><li class="current-entities indented5">
-                        <span class="separator"></span>
-                        <a class="class" href="RSA1ShotDataStructures$$RSA1TurnData.html" title=""></a>
-                        <a href="RSA1ShotDataStructures$$RSA1TurnData.html" title="">RSA1TurnData</a>
+                        <a class="class" href="OriginData.html" title=""></a>
+                        <a href="OriginData.html" title="">OriginData</a>
                       </li><li class="current-entities indented5">
                         <span class="separator"></span>
                         <a class="class" href="" title=""></a>
                         <a href="" title="">SpeakerData</a>
+                      </li><li class="current-entities indented5">
+                        <span class="separator"></span>
+                        <a class="class" href="TurnData.html" title=""></a>
+                        <a href="TurnData.html" title="">TurnData</a>
                       </li>
               </ul>
             </div>
@@ -252,9 +180,9 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
             <body class="class type">
       <div id="definition">
         <div class="big-circle class">c</div>
-        <p id="owner"><a href="../../../index.html" class="extype" name="com">com</a>.<a href="../../index.html" class="extype" name="com.markblokpoel">markblokpoel</a>.<a href="../index.html" class="extype" name="com.markblokpoel.lanag">lanag</a>.<a href="index.html" class="extype" name="com.markblokpoel.lanag.ambiguityhelps">ambiguityhelps</a>.<a href="RSA1ShotDataStructures$.html" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures">RSA1ShotDataStructures</a></p>
+        <p id="owner"><a href="../../../../index.html" class="extype" name="com">com</a>.<a href="../../../index.html" class="extype" name="com.markblokpoel">markblokpoel</a>.<a href="../../index.html" class="extype" name="com.markblokpoel.lanag">lanag</a>.<a href="../index.html" class="extype" name="com.markblokpoel.lanag.ambiguityhelps">ambiguityhelps</a>.<a href="index.html" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures">datastructures</a></p>
         <h1>SpeakerData<span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
@@ -281,7 +209,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
                 <span class="toggle diagram-link">
                   Type Hierarchy
                 </span>
-                <div class="diagram" id="inheritance-diagram"><svg class="class-diagram" id="graph1" viewBox="0.00 0.00 258.00 118.00" height="118pt" width="258pt" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g transform="scale(1 1) rotate(0) translate(4 114)" class="graph" id="graph0"><polygon points="-4,4 -4,-114 254,-114 254,4 -4,4" stroke="none" fill="white"></polygon><g class="cluster" id="clust1"></g><g class="cluster" id="clust2"></g><!-- node0 --><g class="node this class" id="graph1_0"><g id="a_this class|graph1_0"><a xlink:title="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData (this class)" xlink:href="#inheritance-diagram"><path d="M149.167,-49C149.167,-49 76.8333,-49 76.8333,-49 72.6667,-49 68.5,-44.8333 68.5,-40.6667 68.5,-40.6667 68.5,-32.3333 68.5,-32.3333 68.5,-28.1667 72.6667,-24 76.8333,-24 76.8333,-24 149.167,-24 149.167,-24 153.333,-24 157.5,-28.1667 157.5,-32.3333 157.5,-32.3333 157.5,-40.6667 157.5,-40.6667 157.5,-44.8333 153.333,-49 149.167,-49" stroke="#418565" fill="#418565"></path><image xlink:href="../../../../lib/class_diagram.png" y="-43.5" x="79" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-33.6" x="99.541" text-anchor="start">SpeakerData</text></a></g></g><!-- node1 --><g class="node trait" id="graph1_1"><g id="a_trait|graph1_1"><a xlink:title="com.markblokpoel.lanag.core.Data"><path d="M51.6667,-110C51.6667,-110 8.33333,-110 8.33333,-110 4.16667,-110 0,-105.833 0,-101.667 0,-101.667 0,-93.3333 0,-93.3333 0,-89.1667 4.16667,-85 8.33333,-85 8.33333,-85 51.6667,-85 51.6667,-85 55.8333,-85 60,-89.1667 60,-93.3333 60,-93.3333 60,-101.667 60,-101.667 60,-105.833 55.8333,-110 51.6667,-110" stroke="#2e6d82" fill="#2e6d82"></path><image xlink:href="../../../../lib/trait_diagram.png" y="-104.5" x="10" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-94.6" x="30.9395" text-anchor="start">Data</text></a></g></g><!-- node1&#45;&gt;node0 --><g class="edge inheritance" id="graph1_1_0"><g id="a_inheritance|graph1_1_0"><a xlink:title="SpeakerData is a subtype of Data"><path d="M52.1381,-80.7633C66.1325,-70.8155 83.9128,-58.1764 96.6359,-49.1323" stroke="#d4d4d4" fill="none"></path><polygon points="50.6841,-78.7909 46.3981,-84.8435 53.523,-82.7847 50.6841,-78.7909" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node2 --><g class="node trait" id="graph1_2"><g id="a_trait|graph1_2"><a xlink:title="scala.Product"><path d="M139.667,-110C139.667,-110 86.3333,-110 86.3333,-110 82.1667,-110 78,-105.833 78,-101.667 78,-101.667 78,-93.3333 78,-93.3333 78,-89.1667 82.1667,-85 86.3333,-85 86.3333,-85 139.667,-85 139.667,-85 143.833,-85 148,-89.1667 148,-93.3333 148,-93.3333 148,-101.667 148,-101.667 148,-105.833 143.833,-110 139.667,-110" stroke="#2e6d82" fill="#2e6d82"></path><image xlink:href="../../../../lib/trait_diagram.png" y="-104.5" x="88" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-94.6" x="108.604" text-anchor="start">Product</text></a></g></g><!-- node2&#45;&gt;node0 --><g class="edge inheritance" id="graph1_2_0"><g id="a_inheritance|graph1_2_0"><a xlink:title="SpeakerData is a subtype of Product"><path d="M113,-77.7603C113,-68.3675 113,-57.2882 113,-49.1323" stroke="#d4d4d4" fill="none"></path><polygon points="110.55,-77.8435 113,-84.8435 115.45,-77.8435 110.55,-77.8435" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node3 --><g class="node trait" id="graph1_3"><g id="a_trait|graph1_3"><a xlink:title="scala.Serializable"><path d="M241.667,-110C241.667,-110 174.333,-110 174.333,-110 170.167,-110 166,-105.833 166,-101.667 166,-101.667 166,-93.3333 166,-93.3333 166,-89.1667 170.167,-85 174.333,-85 174.333,-85 241.667,-85 241.667,-85 245.833,-85 250,-89.1667 250,-93.3333 250,-93.3333 250,-101.667 250,-101.667 250,-105.833 245.833,-110 241.667,-110" stroke="#2e6d82" fill="#2e6d82"></path><image xlink:href="../../../../lib/trait_diagram.png" y="-104.5" x="176" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-94.6" x="196.711" text-anchor="start">Serializable</text></a></g></g><!-- node3&#45;&gt;node0 --><g class="edge inheritance" id="graph1_3_0"><g id="a_inheritance|graph1_3_0"><a xlink:title="SpeakerData is a subtype of Serializable"><path d="M183.089,-81.0291C167.007,-71.0415 146.423,-58.2572 131.73,-49.1323" stroke="#d4d4d4" fill="none"></path><polygon points="181.992,-83.2316 189.231,-84.8435 184.577,-79.0691 181.992,-83.2316" stroke="#d4d4d4" fill="none"></polygon></a></g></g></g></svg></div>
+                <div class="diagram" id="inheritance-diagram"><svg class="class-diagram" id="graph1" viewBox="0.00 0.00 258.00 118.00" height="118pt" width="258pt" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g transform="scale(1 1) rotate(0) translate(4 114)" class="graph" id="graph0"><polygon points="-4,4 -4,-114 254,-114 254,4 -4,4" stroke="none" fill="white"></polygon><g class="cluster" id="clust1"></g><g class="cluster" id="clust2"></g><!-- node0 --><g class="node this class" id="graph1_0"><g id="a_this class|graph1_0"><a xlink:title="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData (this class)" xlink:href="#inheritance-diagram"><path d="M149.167,-49C149.167,-49 76.8333,-49 76.8333,-49 72.6667,-49 68.5,-44.8333 68.5,-40.6667 68.5,-40.6667 68.5,-32.3333 68.5,-32.3333 68.5,-28.1667 72.6667,-24 76.8333,-24 76.8333,-24 149.167,-24 149.167,-24 153.333,-24 157.5,-28.1667 157.5,-32.3333 157.5,-32.3333 157.5,-40.6667 157.5,-40.6667 157.5,-44.8333 153.333,-49 149.167,-49" stroke="#418565" fill="#418565"></path><image xlink:href="../../../../../lib/class_diagram.png" y="-43.5" x="79" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-33.6" x="99.541" text-anchor="start">SpeakerData</text></a></g></g><!-- node1 --><g class="node trait" id="graph1_1"><g id="a_trait|graph1_1"><a xlink:title="com.markblokpoel.lanag.core.Data"><path d="M51.6667,-110C51.6667,-110 8.33333,-110 8.33333,-110 4.16667,-110 0,-105.833 0,-101.667 0,-101.667 0,-93.3333 0,-93.3333 0,-89.1667 4.16667,-85 8.33333,-85 8.33333,-85 51.6667,-85 51.6667,-85 55.8333,-85 60,-89.1667 60,-93.3333 60,-93.3333 60,-101.667 60,-101.667 60,-105.833 55.8333,-110 51.6667,-110" stroke="#2e6d82" fill="#2e6d82"></path><image xlink:href="../../../../../lib/trait_diagram.png" y="-104.5" x="10" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-94.6" x="30.9395" text-anchor="start">Data</text></a></g></g><!-- node1&#45;&gt;node0 --><g class="edge inheritance" id="graph1_1_0"><g id="a_inheritance|graph1_1_0"><a xlink:title="SpeakerData is a subtype of Data"><path d="M52.1381,-80.7633C66.1325,-70.8155 83.9128,-58.1764 96.6359,-49.1323" stroke="#d4d4d4" fill="none"></path><polygon points="50.6841,-78.7909 46.3981,-84.8435 53.523,-82.7847 50.6841,-78.7909" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node2 --><g class="node trait" id="graph1_2"><g id="a_trait|graph1_2"><a xlink:title="scala.Product"><path d="M139.667,-110C139.667,-110 86.3333,-110 86.3333,-110 82.1667,-110 78,-105.833 78,-101.667 78,-101.667 78,-93.3333 78,-93.3333 78,-89.1667 82.1667,-85 86.3333,-85 86.3333,-85 139.667,-85 139.667,-85 143.833,-85 148,-89.1667 148,-93.3333 148,-93.3333 148,-101.667 148,-101.667 148,-105.833 143.833,-110 139.667,-110" stroke="#2e6d82" fill="#2e6d82"></path><image xlink:href="../../../../../lib/trait_diagram.png" y="-104.5" x="88" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-94.6" x="108.604" text-anchor="start">Product</text></a></g></g><!-- node2&#45;&gt;node0 --><g class="edge inheritance" id="graph1_2_0"><g id="a_inheritance|graph1_2_0"><a xlink:title="SpeakerData is a subtype of Product"><path d="M113,-77.7603C113,-68.3675 113,-57.2882 113,-49.1323" stroke="#d4d4d4" fill="none"></path><polygon points="110.55,-77.8435 113,-84.8435 115.45,-77.8435 110.55,-77.8435" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node3 --><g class="node trait" id="graph1_3"><g id="a_trait|graph1_3"><a xlink:title="scala.Serializable"><path d="M241.667,-110C241.667,-110 174.333,-110 174.333,-110 170.167,-110 166,-105.833 166,-101.667 166,-101.667 166,-93.3333 166,-93.3333 166,-89.1667 170.167,-85 174.333,-85 174.333,-85 241.667,-85 241.667,-85 245.833,-85 250,-89.1667 250,-93.3333 250,-93.3333 250,-101.667 250,-101.667 250,-105.833 245.833,-110 241.667,-110" stroke="#2e6d82" fill="#2e6d82"></path><image xlink:href="../../../../../lib/trait_diagram.png" y="-104.5" x="176" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="8.00" font-family="Source Code Pro" y="-94.6" x="196.711" text-anchor="start">Serializable</text></a></g></g><!-- node3&#45;&gt;node0 --><g class="edge inheritance" id="graph1_3_0"><g id="a_inheritance|graph1_3_0"><a xlink:title="SpeakerData is a subtype of Serializable"><path d="M183.089,-81.0291C167.007,-71.0415 146.423,-58.2572 131.73,-49.1323" stroke="#d4d4d4" fill="none"></path><polygon points="181.992,-83.2316 189.231,-84.8435 184.577,-79.0691 181.992,-83.2316" stroke="#d4d4d4" fill="none"></polygon></a></g></g></g></svg></div>
                 <div id="diagram-controls" class="hiddenContent">
                   <button id="diagram-zoom-out" class="diagram-btn"><i class="material-icons"></i></button>
                   <button id="diagram-zoom-in" class="diagram-btn"><i class="material-icons"></i></button>
@@ -312,7 +240,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData"><span>SpeakerData</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="com.markblokpoel.lanag.core.Data"><span>Data</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData"><span>SpeakerData</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="com.markblokpoel.lanag.core.Data"><span>Data</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
                   <span class="filtertype">Implicitly<br />
@@ -337,10 +265,10 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
         <div id="allMembers">
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
-              <ol><li name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(speakerEntropy:Option[Double]):com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData"></a><a id="&lt;init&gt;:SpeakerData"></a>
+              <ol><li name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(speakerEntropy:Option[Double]):com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData"></a><a id="&lt;init&gt;:SpeakerData"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#&lt;init&gt;(speakerEntropy:Option[Double]):com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#&lt;init&gt;(speakerEntropy:Option[Double]):com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -366,7 +294,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
                 <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#!=(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#!=(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -382,7 +310,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
     </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html###():Int" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html###():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -398,7 +326,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
     </li><li name="scala.Predef.any2stringadd#+" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="+(other:String):String"></a><a id="+(String):String"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#+(other:String):String" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#+(other:String):String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -411,14 +339,14 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a> to
-            <span class="extype" name="scala.Predef.any2stringadd">any2stringadd</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a>] performed by method any2stringadd in scala.Predef.
+            This member is added by an implicit conversion from <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a> to
+            <span class="extype" name="scala.Predef.any2stringadd">any2stringadd</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a>] performed by method any2stringadd in scala.Predef.
             
           </dd><dt>Definition Classes</dt><dd>any2stringadd</dd></dl></div>
     </li><li name="scala.Predef.ArrowAssoc#-&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="-&gt;[B](y:B):(A,B)"></a><a id="-&gt;[B](B):(SpeakerData,B)"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#-&gt;[B](y:B):(A,B)" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#-&gt;[B](y:B):(A,B)" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -427,12 +355,12 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $minus$greater" class="implicit">-&gt;</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="y">y: <span class="extype" name="scala.Predef.ArrowAssoc.-&gt;.B">B</span></span>)</span><span class="result">: (<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a>, <span class="extype" name="scala.Predef.ArrowAssoc.-&gt;.B">B</span>)</span>
+        <span title="gt4s: $minus$greater" class="implicit">-&gt;</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="y">y: <span class="extype" name="scala.Predef.ArrowAssoc.-&gt;.B">B</span></span>)</span><span class="result">: (<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a>, <span class="extype" name="scala.Predef.ArrowAssoc.-&gt;.B">B</span>)</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a> to
-            <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a>] performed by method ArrowAssoc in scala.Predef.
+            This member is added by an implicit conversion from <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a> to
+            <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a>] performed by method ArrowAssoc in scala.Predef.
             
           </dd><dt>Definition Classes</dt><dd>ArrowAssoc</dd><dt>Annotations</dt><dd>
                 <span class="name">@inline</span><span class="args">()</span>
@@ -441,7 +369,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
     </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#==(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#==(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -457,7 +385,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#asInstanceOf[T0]:T0" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#asInstanceOf[T0]:T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -473,7 +401,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#clone():Object" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#clone():Object" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -485,7 +413,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
         <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.8/scala/AnyRef.html#scala.AnyRef" class="extype" name="scala.AnyRef">AnyRef</a></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@native</span><span class="args">()</span>
               
                 <span class="name">@throws</span><span class="args">(<span>
@@ -497,7 +425,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
     </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ensuring(cond:A=&gt;Boolean,msg:=&gt;Any):A"></a><a id="ensuring((SpeakerData)⇒Boolean,⇒Any):SpeakerData"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#ensuring(cond:A=&gt;Boolean,msg:=&gt;Any):A" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#ensuring(cond:A=&gt;Boolean,msg:=&gt;Any):A" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -506,18 +434,18 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: (<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a>) ⇒ <a href="http://www.scala-lang.org/api/2.12.8/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a></span>, <span name="msg">msg: ⇒ <a href="http://www.scala-lang.org/api/2.12.8/scala/Any.html#scala.Any" class="extype" name="scala.Any">Any</a></span>)</span><span class="result">: <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a></span>
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: (<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a>) ⇒ <a href="http://www.scala-lang.org/api/2.12.8/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a></span>, <span name="msg">msg: ⇒ <a href="http://www.scala-lang.org/api/2.12.8/scala/Any.html#scala.Any" class="extype" name="scala.Any">Any</a></span>)</span><span class="result">: <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a> to
-            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a>] performed by method Ensuring in scala.Predef.
+            This member is added by an implicit conversion from <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a> to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a>] performed by method Ensuring in scala.Predef.
             
           </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
     </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ensuring(cond:A=&gt;Boolean):A"></a><a id="ensuring((SpeakerData)⇒Boolean):SpeakerData"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#ensuring(cond:A=&gt;Boolean):A" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#ensuring(cond:A=&gt;Boolean):A" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -526,18 +454,18 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: (<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a>) ⇒ <a href="http://www.scala-lang.org/api/2.12.8/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a></span>
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: (<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a>) ⇒ <a href="http://www.scala-lang.org/api/2.12.8/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a> to
-            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a>] performed by method Ensuring in scala.Predef.
+            This member is added by an implicit conversion from <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a> to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a>] performed by method Ensuring in scala.Predef.
             
           </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
     </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ensuring(cond:Boolean,msg:=&gt;Any):A"></a><a id="ensuring(Boolean,⇒Any):SpeakerData"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#ensuring(cond:Boolean,msg:=&gt;Any):A" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#ensuring(cond:Boolean,msg:=&gt;Any):A" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -546,18 +474,18 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: <a href="http://www.scala-lang.org/api/2.12.8/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a></span>, <span name="msg">msg: ⇒ <a href="http://www.scala-lang.org/api/2.12.8/scala/Any.html#scala.Any" class="extype" name="scala.Any">Any</a></span>)</span><span class="result">: <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a></span>
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: <a href="http://www.scala-lang.org/api/2.12.8/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a></span>, <span name="msg">msg: ⇒ <a href="http://www.scala-lang.org/api/2.12.8/scala/Any.html#scala.Any" class="extype" name="scala.Any">Any</a></span>)</span><span class="result">: <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a> to
-            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a>] performed by method Ensuring in scala.Predef.
+            This member is added by an implicit conversion from <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a> to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a>] performed by method Ensuring in scala.Predef.
             
           </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
     </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ensuring(cond:Boolean):A"></a><a id="ensuring(Boolean):SpeakerData"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#ensuring(cond:Boolean):A" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#ensuring(cond:Boolean):A" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -566,18 +494,18 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: <a href="http://www.scala-lang.org/api/2.12.8/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a></span>
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: <a href="http://www.scala-lang.org/api/2.12.8/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a> to
-            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a>] performed by method Ensuring in scala.Predef.
+            This member is added by an implicit conversion from <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a> to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a>] performed by method Ensuring in scala.Predef.
             
           </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#eq(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -593,7 +521,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#finalize():Unit" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#finalize():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -605,7 +533,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.8/scala/Unit.html#scala.Unit" class="extype" name="scala.Unit">Unit</a></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -615,7 +543,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
     </li><li name="scala.Predef.StringFormat#formatted" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="formatted(fmtstr:String):String"></a><a id="formatted(String):String"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#formatted(fmtstr:String):String" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#formatted(fmtstr:String):String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -628,8 +556,8 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a> to
-            <span class="extype" name="scala.Predef.StringFormat">StringFormat</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a>] performed by method StringFormat in scala.Predef.
+            This member is added by an implicit conversion from <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a> to
+            <span class="extype" name="scala.Predef.StringFormat">StringFormat</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a>] performed by method StringFormat in scala.Predef.
             
           </dd><dt>Definition Classes</dt><dd>StringFormat</dd><dt>Annotations</dt><dd>
                 <span class="name">@inline</span><span class="args">()</span>
@@ -638,7 +566,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#getClass():Class[_]" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#getClass():Class[_]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -657,7 +585,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#isInstanceOf[T0]:Boolean" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#isInstanceOf[T0]:Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -673,7 +601,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#ne(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -689,7 +617,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
     </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#notify():Unit" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#notify():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -708,7 +636,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#notifyAll():Unit" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#notifyAll():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -724,10 +652,10 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData#speakerEntropy" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData#speakerEntropy" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="speakerEntropy:Option[Double]"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#speakerEntropy:Option[Double]" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#speakerEntropy:Option[Double]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -743,7 +671,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -759,7 +687,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#wait():Unit" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#wait():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -781,7 +709,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -803,7 +731,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#wait(x$1:Long):Unit" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#wait(x$1:Long):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -827,7 +755,7 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
     </li><li name="scala.Predef.ArrowAssoc#→" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="→[B](y:B):(A,B)"></a><a id="→[B](B):(SpeakerData,B)"></a>
       <span class="permalink">
-      <a href="../../../../com/markblokpoel/lanag/ambiguityhelps/RSA1ShotDataStructures$$SpeakerData.html#→[B](y:B):(A,B)" title="Permalink">
+      <a href="../../../../../com/markblokpoel/lanag/ambiguityhelps/datastructures/SpeakerData.html#→[B](y:B):(A,B)" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -836,12 +764,12 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $u2192" class="implicit">→</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="y">y: <span class="extype" name="scala.Predef.ArrowAssoc.→.B">B</span></span>)</span><span class="result">: (<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a>, <span class="extype" name="scala.Predef.ArrowAssoc.→.B">B</span>)</span>
+        <span title="gt4s: $u2192" class="implicit">→</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="y">y: <span class="extype" name="scala.Predef.ArrowAssoc.→.B">B</span></span>)</span><span class="result">: (<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a>, <span class="extype" name="scala.Predef.ArrowAssoc.→.B">B</span>)</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a> to
-            <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a>] performed by method ArrowAssoc in scala.Predef.
+            This member is added by an implicit conversion from <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a> to
+            <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a>] performed by method ArrowAssoc in scala.Predef.
             
           </dd><dt>Definition Classes</dt><dd>ArrowAssoc</dd></dl></div>
     </li>
@@ -871,19 +799,19 @@ Apache Spark <code>org.apache.spark.rdd.RDD</code>, <code>org.apache.spark.sql.D
             </div>
         <div class="conversion" name="scala.Predef.any2stringadd">
               <h3>Inherited by implicit conversion any2stringadd from
-                <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a> to <span class="extype" name="scala.Predef.any2stringadd">any2stringadd</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a>]
+                <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a> to <span class="extype" name="scala.Predef.any2stringadd">any2stringadd</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a>]
               </h3>
             </div><div class="conversion" name="scala.Predef.StringFormat">
               <h3>Inherited by implicit conversion StringFormat from
-                <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a> to <span class="extype" name="scala.Predef.StringFormat">StringFormat</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a>]
+                <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a> to <span class="extype" name="scala.Predef.StringFormat">StringFormat</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a>]
               </h3>
             </div><div class="conversion" name="scala.Predef.Ensuring">
               <h3>Inherited by implicit conversion Ensuring from
-                <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a> to <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a>]
+                <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a> to <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a>]
               </h3>
             </div><div class="conversion" name="scala.Predef.ArrowAssoc">
               <h3>Inherited by implicit conversion ArrowAssoc from
-                <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a> to <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.RSA1ShotDataStructures.SpeakerData">SpeakerData</a>]
+                <a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a> to <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData">SpeakerData</a>]
               </h3>
             </div>
         </div>

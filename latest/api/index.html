@@ -68,62 +68,9 @@
         <span class="name">root</span>
       </span>
       
-      <p class="shortcomment cmt">This simulation project builds on the Rational Speech Act theory by Frank &amp; Goodman (2012).</p><div class="fullcomment"><div class="comment cmt"><h3>LANguage AGents - Project Ambiguity Helps</h3><p>This simulation project builds on the Rational Speech Act theory by Frank &amp; Goodman (2012). Here, we investigate
-the effects of lexicon ambiguity, order of pragmatic reasoning and asymmetry between agents on the agent's
-ability to successfully communicate.</p><p>This project consists of base code found in <a href="com/markblokpoel/lanag/ambiguityhelps/index.html" class="extype" name="com.markblokpoel.lanag.ambiguityhelps">com.markblokpoel.lanag.ambiguityhelps</a> to build your own
-Rational Speech Act-based experiments and three simulation experiments in
-<a href="com/markblokpoel/lanag/ambiguityhelps/experiments/index.html" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.experiments">com.markblokpoel.lanag.ambiguityhelps.experiments</a>. The results of these experiments are published in Blokpoel,
-Dingemanse, Toni and van Rooij, 2019). All three simulation experiments have pairs of agents taking turns to
-communicate for <code>n</code> rounds in a 1-shot communication task. That is, agent 1 selects a random referent,
-generates a signal; then agent 2 infers a referent from the signal. Then they switch roles and do another turn.
-The simulation keeps track of different statistics, amongst others the success rate. The three simulations differ in
-how the agents' lexicons are generated:</p><p><b>Randomized pairs:</b> Here, we randomly generate a lexicon based on a density parameter. Dense lexicons have many
-signal-referent relationships with value 1.0, sparse lexicons with value 0.0. The interlocutor's lexicon is a mutated
-copy of this first lexicon, where mutation-rate is varied as a parameter. This leads to lexicons where each signal
-can have a very different level of ambiguity from the next. Hence, we measure the mean and variance lexicon ambiguity.</p><p><b>Consistent pairs:</b> Here, we generate a random lexicon, but under the constraint that each signal refers to at
-least 1 referent <i>and</i> all signals refer to the same amount of referents. The interlocutor's lexicon is generated
-from the first lexicon, but randomly transformed using one of four methods: subtraction (randomly removing
-<code>n</code>% signal-referent mappings from each signal), addition (randomly adding <code>n</code>% signal-referent
-mappings from each signal), swap (randomly swap around the mappings between two signals) or random (generate a second
-consistent lexicon from scratch). Since there is no variance in ambiguity between signals, we can measure the ambiguity
-of a lexicon in just mean ambiguity.</p><p><b>Structures pairs</b>:</p><h4>Running the simulations</h4><p>The simulation platform uses Apache Spark to parallelize the computations. You can run them in three ways: Locally
-on your machine from within an IDE (e.g., IntellijIDEA), locally on your machine using <code>spark-submit</code>
-from a terminal, or on a Spark/Hadoop server (e.g., Amazon services <a href="https://aws.amazon.com/emr/features/spark/" target="_blank">https://aws.amazon.com/emr/features/spark/</a>).</p><h5>Running on a local machine</h5><p>Whether you rung the simulations from within an IDE (we will use IntellijIDEA) or from the commandline, you will first
-need to install Apache Spark and optionally Apache Hadoop.</p><h6>Install Spark on OSX or Linux</h6><p>The simulation framework requires Java JDK 1.8 (or higher) and Spark version 2.4.2 (higher version should be compatible
-but are untested). Go to <a href="https://spark.apache.org/downloads.html" target="_blank">https://spark.apache.org/downloads.html</a> and download Spark pre-build for Apache Hadoop 2.7
-and later. We will describe installation for a single user (no root access required). Open a terminal and in your home
-directory create a folder <code>libraries</code>. Unpack the contents of the of
-<code>spark-2.4.2-bin-hadoop2.7.tgz</code> to the libraries folder:</p><pre>$ tar -xvf spark-<span class="num">2.4</span>.<span class="num">2</span>-bin-hadoop2.<span class="num">7.</span>tgz ~/libraries</pre><p>Create a symbolic link for easier upgrading to newer Spark versions:</p><pre>$ ln -s ~/libraries/spark-<span class="num">2.4</span>.<span class="num">2</span>-bin-hadoop2.<span class="num">7</span> ~/libraries/spark</pre><p>We now need to configure Spark and your <code>PATH</code> variable. Again, from the terminal edit your profile using
-your favorite editor (e.g., Vim or Nano). It should be located in <code>~/.bash_profile</code> (for OSX) or
-<code>~/.profile</code> for Linux. Add the following lines at the start of the file, assuming the Java compiler is
-located in <code>/usr/bin</code> (you can using <code>which javac</code>):</p><pre>SPARK_HOME=~/libraries/spark
-JAVA_HOME=$(readlink -f /usr/bin/javac | sed <span class="lit">"s:/bin/javac::"</span>)</pre><p>Update the line starting with <code>PATH=</code> to:</p><pre>PATH=$SPARK_HOME/bin:$PATH</pre><p>Now restart your terminal session or reload your profile by running:</p><pre>$ source .bash_profile</pre><p>Start a Spark shell from your home directory to test if installation is successful:</p><pre>$ spark-shell</pre><h5>Optionally install Hadoop native library</h5><p>Running the simulations using the Hadoop native library potentially improves performance, but only on RHEL4/Fedora,
-Ubuntu or Gentoo (see Hadoop 3.1.2 documentation). First download Apache Hadoop 3.1.2 (or higher) from
-<a href="https://hadoop.apache.org/releases.html" target="_blank">https://hadoop.apache.org/releases.html</a>. &gt;. Unpack the contents of the of <code>hadoop-3.1.2.tar.gz</code> to
-your libraries folder:</p><pre>$ tar -xvf hadoop-<span class="num">3.1</span>.<span class="num">2.</span>tar.gz ~/libraries</pre><p>Create a symbolic link for easier upgrading to newer Spark versions:</p><pre>$ ln -s ~/libraries/hadoop-<span class="num">3.1</span>.<span class="num">2</span> ~/libraries/hadoop</pre><p>Open <code>~/.profile</code> or <code>~/.bash_profile</code> with an editor and add:</p><pre>HADOOP_HOME=~/libraries/hadoop
-HADOOP_CONF_DIR=$HADOOP_HOME/conf</pre><p>And add <code>$HADOOP_HOME/bin</code> to <code>$PATH</code>.</p><p>Next, we need to configure Hadoop. In the terminal:</p><pre>$ cd ~/libraries/hadoop/etc/hadoop
-$ vim hadoop-env.sh</pre><p>Uncomment <code># JAVA_HOME=..</code> and replace the line with:</p><pre>JAVA_HOME=$(readlink -f /usr/bin/javac | sed <span class="lit">"s:/bin/javac::"</span>)</pre><p>You can test if Hadoop is configured properly by running <code>hadoop</code> without any error messages.</p><p>Now we need to configure Spark to use the Hadoop native library. In terminal:</p><pre>$ cd ~/libraries/spark/conf
-$ cp spark-env.sh.template spark-env.sh
-$ vim spark-env.sh</pre><p>Add the following line somewhere after <code># Options read when launching programs locally with</code>:</p><pre>export SPARK_DIST_CLASSPATH=$(hadoop classpath)</pre><p>This might not be enough to get the Hadoop native libraries to load. You can always fall back to the Java
-implementation. You can try to add the following line to the shell scripts to force loading the native library. Note:
-use absolute path to your hadoop folder:</p><pre>--conf spark.driver.extraLibraryPath=/home/[username]/libraries/hadoop/lib/native \</pre><h6>Install Spark on Windows</h6><p>It is highly recommended to run Spark on a Unix OS such as Mac OSX or Linux. If you want to run Spark locally
-on your Windows machine, you may try to build Spark from source (not recommended) or run within a Virtual Machine,
-e.g. using Virtual Box <a href="https://www.virtualbox.org/" target="_blank">https://www.virtualbox.org/</a> and Ubuntu <a href="https://www.ubuntu.com/#download" target="_blank">https://www.ubuntu.com/#download</a>.</p><h6>Running simulation from IntellijIDEA</h6><p>Intellij will ignore <code>% Provided</code> library dependencies by default. However, this means it cannot find the
-Spark libraries and you will get an error message. These library dependencies have to be tagged as such, because these
-are assumed to be supplied by the Spark server and need to be excluded from the JAR assembly line. To run a simulation
-from within Intellij, you must edit the run configuration and under &quot;Configuration&quot; check the option &quot;Include
-dependencies with Provided scope&quot;. Furthermore, in the configuration file <code>resources/application.conf</code> set
-</code>spark-local-mode = true</code>.</p><h6>Running simulations from the command line interface</h6><p>Create a JAR file using the SBT command <code>assembly</code>. Move the newly created JAR file to a folder of your
-choosing and also copy the application.conf file there. Additionally, you can copy the <code>ah-*.sh</code> shell
-execution scripts, or use the command manually in case you want to customize the running script. The scripts assume
-you are running Spark locally.</p><pre>spark-submit \
-  --conf spark.driver.extraJavaOptions=-Dconfig.file=./application.conf \
-  --conf spark.executor.extraJavaOptions=-Dconfig.file=./application.conf \
-  --<span class="kw">class</span> com.markblokpoel.lanag.ambiguityhelps.experiments.RSA1ShotConsistent \
-  --master local[<span class="num">4</span>] \
-  com.markblokpoel.lanag-ambiguityhelps-assembly-<span class="num">0.1</span>.jar</pre><p>If you use the scripts, you need to set their permissions to be executable. In a terminal type:</p><pre>$ chmod +x ah-consistent.sh
-$ chmod +x ah-random.sh
-$ chmod +x ah-structured.sh</pre><p>Execute the scripts via terminal:</p><pre>./ah-consistent.sh</pre><h5>Running on a service / server</h5></div></div>
+      <p class="shortcomment cmt">For detailed documentation on using the framework please see the README.md file at the
+[Github repository](https://github.com/markblokpoel/lanag-ambiguityhelps).</p><div class="fullcomment"><div class="comment cmt"><h3>Language Agents - Project Ambiguity Helps</h3><p>For detailed documentation on using the framework please see the README.md file at the
+[Github repository](https://github.com/markblokpoel/lanag-ambiguityhelps).</p></div></div>
     </li><li name="_root_.com" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="com"></a><a id="com:com"></a>
       <span class="permalink">
@@ -168,62 +115,8 @@ $ chmod +x ah-structured.sh</pre><p>Execute the scripts via terminal:</p><pre>./
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><h3>LANguage AGents - Project Ambiguity Helps</h3><p>This simulation project builds on the Rational Speech Act theory by Frank &amp; Goodman (2012). Here, we investigate
-the effects of lexicon ambiguity, order of pragmatic reasoning and asymmetry between agents on the agent's
-ability to successfully communicate.</p><p>This project consists of base code found in <a href="com/markblokpoel/lanag/ambiguityhelps/index.html" class="extype" name="com.markblokpoel.lanag.ambiguityhelps">com.markblokpoel.lanag.ambiguityhelps</a> to build your own
-Rational Speech Act-based experiments and three simulation experiments in
-<a href="com/markblokpoel/lanag/ambiguityhelps/experiments/index.html" class="extype" name="com.markblokpoel.lanag.ambiguityhelps.experiments">com.markblokpoel.lanag.ambiguityhelps.experiments</a>. The results of these experiments are published in Blokpoel,
-Dingemanse, Toni and van Rooij, 2019). All three simulation experiments have pairs of agents taking turns to
-communicate for <code>n</code> rounds in a 1-shot communication task. That is, agent 1 selects a random referent,
-generates a signal; then agent 2 infers a referent from the signal. Then they switch roles and do another turn.
-The simulation keeps track of different statistics, amongst others the success rate. The three simulations differ in
-how the agents' lexicons are generated:</p><p><b>Randomized pairs:</b> Here, we randomly generate a lexicon based on a density parameter. Dense lexicons have many
-signal-referent relationships with value 1.0, sparse lexicons with value 0.0. The interlocutor's lexicon is a mutated
-copy of this first lexicon, where mutation-rate is varied as a parameter. This leads to lexicons where each signal
-can have a very different level of ambiguity from the next. Hence, we measure the mean and variance lexicon ambiguity.</p><p><b>Consistent pairs:</b> Here, we generate a random lexicon, but under the constraint that each signal refers to at
-least 1 referent <i>and</i> all signals refer to the same amount of referents. The interlocutor's lexicon is generated
-from the first lexicon, but randomly transformed using one of four methods: subtraction (randomly removing
-<code>n</code>% signal-referent mappings from each signal), addition (randomly adding <code>n</code>% signal-referent
-mappings from each signal), swap (randomly swap around the mappings between two signals) or random (generate a second
-consistent lexicon from scratch). Since there is no variance in ambiguity between signals, we can measure the ambiguity
-of a lexicon in just mean ambiguity.</p><p><b>Structures pairs</b>:</p><h4>Running the simulations</h4><p>The simulation platform uses Apache Spark to parallelize the computations. You can run them in three ways: Locally
-on your machine from within an IDE (e.g., IntellijIDEA), locally on your machine using <code>spark-submit</code>
-from a terminal, or on a Spark/Hadoop server (e.g., Amazon services <a href="https://aws.amazon.com/emr/features/spark/" target="_blank">https://aws.amazon.com/emr/features/spark/</a>).</p><h5>Running on a local machine</h5><p>Whether you rung the simulations from within an IDE (we will use IntellijIDEA) or from the commandline, you will first
-need to install Apache Spark and optionally Apache Hadoop.</p><h6>Install Spark on OSX or Linux</h6><p>The simulation framework requires Java JDK 1.8 (or higher) and Spark version 2.4.2 (higher version should be compatible
-but are untested). Go to <a href="https://spark.apache.org/downloads.html" target="_blank">https://spark.apache.org/downloads.html</a> and download Spark pre-build for Apache Hadoop 2.7
-and later. We will describe installation for a single user (no root access required). Open a terminal and in your home
-directory create a folder <code>libraries</code>. Unpack the contents of the of
-<code>spark-2.4.2-bin-hadoop2.7.tgz</code> to the libraries folder:</p><pre>$ tar -xvf spark-<span class="num">2.4</span>.<span class="num">2</span>-bin-hadoop2.<span class="num">7.</span>tgz ~/libraries</pre><p>Create a symbolic link for easier upgrading to newer Spark versions:</p><pre>$ ln -s ~/libraries/spark-<span class="num">2.4</span>.<span class="num">2</span>-bin-hadoop2.<span class="num">7</span> ~/libraries/spark</pre><p>We now need to configure Spark and your <code>PATH</code> variable. Again, from the terminal edit your profile using
-your favorite editor (e.g., Vim or Nano). It should be located in <code>~/.bash_profile</code> (for OSX) or
-<code>~/.profile</code> for Linux. Add the following lines at the start of the file, assuming the Java compiler is
-located in <code>/usr/bin</code> (you can using <code>which javac</code>):</p><pre>SPARK_HOME=~/libraries/spark
-JAVA_HOME=$(readlink -f /usr/bin/javac | sed <span class="lit">"s:/bin/javac::"</span>)</pre><p>Update the line starting with <code>PATH=</code> to:</p><pre>PATH=$SPARK_HOME/bin:$PATH</pre><p>Now restart your terminal session or reload your profile by running:</p><pre>$ source .bash_profile</pre><p>Start a Spark shell from your home directory to test if installation is successful:</p><pre>$ spark-shell</pre><h5>Optionally install Hadoop native library</h5><p>Running the simulations using the Hadoop native library potentially improves performance, but only on RHEL4/Fedora,
-Ubuntu or Gentoo (see Hadoop 3.1.2 documentation). First download Apache Hadoop 3.1.2 (or higher) from
-<a href="https://hadoop.apache.org/releases.html" target="_blank">https://hadoop.apache.org/releases.html</a>. &gt;. Unpack the contents of the of <code>hadoop-3.1.2.tar.gz</code> to
-your libraries folder:</p><pre>$ tar -xvf hadoop-<span class="num">3.1</span>.<span class="num">2.</span>tar.gz ~/libraries</pre><p>Create a symbolic link for easier upgrading to newer Spark versions:</p><pre>$ ln -s ~/libraries/hadoop-<span class="num">3.1</span>.<span class="num">2</span> ~/libraries/hadoop</pre><p>Open <code>~/.profile</code> or <code>~/.bash_profile</code> with an editor and add:</p><pre>HADOOP_HOME=~/libraries/hadoop
-HADOOP_CONF_DIR=$HADOOP_HOME/conf</pre><p>And add <code>$HADOOP_HOME/bin</code> to <code>$PATH</code>.</p><p>Next, we need to configure Hadoop. In the terminal:</p><pre>$ cd ~/libraries/hadoop/etc/hadoop
-$ vim hadoop-env.sh</pre><p>Uncomment <code># JAVA_HOME=..</code> and replace the line with:</p><pre>JAVA_HOME=$(readlink -f /usr/bin/javac | sed <span class="lit">"s:/bin/javac::"</span>)</pre><p>You can test if Hadoop is configured properly by running <code>hadoop</code> without any error messages.</p><p>Now we need to configure Spark to use the Hadoop native library. In terminal:</p><pre>$ cd ~/libraries/spark/conf
-$ cp spark-env.sh.template spark-env.sh
-$ vim spark-env.sh</pre><p>Add the following line somewhere after <code># Options read when launching programs locally with</code>:</p><pre>export SPARK_DIST_CLASSPATH=$(hadoop classpath)</pre><p>This might not be enough to get the Hadoop native libraries to load. You can always fall back to the Java
-implementation. You can try to add the following line to the shell scripts to force loading the native library. Note:
-use absolute path to your hadoop folder:</p><pre>--conf spark.driver.extraLibraryPath=/home/[username]/libraries/hadoop/lib/native \</pre><h6>Install Spark on Windows</h6><p>It is highly recommended to run Spark on a Unix OS such as Mac OSX or Linux. If you want to run Spark locally
-on your Windows machine, you may try to build Spark from source (not recommended) or run within a Virtual Machine,
-e.g. using Virtual Box <a href="https://www.virtualbox.org/" target="_blank">https://www.virtualbox.org/</a> and Ubuntu <a href="https://www.ubuntu.com/#download" target="_blank">https://www.ubuntu.com/#download</a>.</p><h6>Running simulation from IntellijIDEA</h6><p>Intellij will ignore <code>% Provided</code> library dependencies by default. However, this means it cannot find the
-Spark libraries and you will get an error message. These library dependencies have to be tagged as such, because these
-are assumed to be supplied by the Spark server and need to be excluded from the JAR assembly line. To run a simulation
-from within Intellij, you must edit the run configuration and under &quot;Configuration&quot; check the option &quot;Include
-dependencies with Provided scope&quot;. Furthermore, in the configuration file <code>resources/application.conf</code> set
-</code>spark-local-mode = true</code>.</p><h6>Running simulations from the command line interface</h6><p>Create a JAR file using the SBT command <code>assembly</code>. Move the newly created JAR file to a folder of your
-choosing and also copy the application.conf file there. Additionally, you can copy the <code>ah-*.sh</code> shell
-execution scripts, or use the command manually in case you want to customize the running script. The scripts assume
-you are running Spark locally.</p><pre>spark-submit \
-  --conf spark.driver.extraJavaOptions=-Dconfig.file=./application.conf \
-  --conf spark.executor.extraJavaOptions=-Dconfig.file=./application.conf \
-  --<span class="kw">class</span> com.markblokpoel.lanag.ambiguityhelps.experiments.RSA1ShotConsistent \
-  --master local[<span class="num">4</span>] \
-  com.markblokpoel.lanag-ambiguityhelps-assembly-<span class="num">0.1</span>.jar</pre><p>If you use the scripts, you need to set their permissions to be executable. In a terminal type:</p><pre>$ chmod +x ah-consistent.sh
-$ chmod +x ah-random.sh
-$ chmod +x ah-structured.sh</pre><p>Execute the scripts via terminal:</p><pre>./ah-consistent.sh</pre><h5>Running on a service / server</h5></div></div>
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><h3>Language Agents - Project Ambiguity Helps</h3><p>For detailed documentation on using the framework please see the README.md file at the
+[Github repository](https://github.com/markblokpoel/lanag-ambiguityhelps).</p></div></div>
         
 
       
