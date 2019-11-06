@@ -1,5 +1,5 @@
 val username = "markblokpoel"
-val repo = "com.markblokpoel.lanag-ambiguityhelps"
+val repo = "lanag-ambiguityhelps"
 
 lazy val commonSettings = Seq(
   name := repo,

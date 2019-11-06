@@ -66,6 +66,6 @@ lines to your```build.sbt`` file:
 ```
 libraryDependencies += "com.markblokpoel" %% "lanag-core" % "0.3.6"
 
-libraryDependencies += "com.markblokpoel" %% "lanag-ambiguityhelps" % "0.X.X"
+libraryDependencies += "com.markblokpoel" %% "lanag-ambiguityhelps" % "0.9.1"
 
 ```
