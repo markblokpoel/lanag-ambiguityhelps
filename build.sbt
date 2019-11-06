@@ -21,7 +21,7 @@ lazy val commonSettings = Seq(
   ),
   // Compile options
   compile in Compile := (compile in Compile).dependsOn(formatAll).value,
-  mainClass in assembly := Some("com.markblokpoel.lanag"),
+  mainClass in assembly := Some("com.markblokpoel.lanag.ambiguityhelps.experiments.uniform.UniformExperiment"),
   assemblyMergeStrategy in assembly := {
     case "application.conf" => MergeStrategy.discard
     case x =>
