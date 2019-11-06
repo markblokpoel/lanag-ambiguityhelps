@@ -46,7 +46,7 @@ case class RSA1ShotSpeaker(override val originalLexicon: Lexicon,
     *
     * @param intention The [[com.markblokpoel.lanag.core.ReferentialIntention]] to be communicated.
     * @return A tuple that consisting of the [[com.markblokpoel.lanag.core.ContentSignal]] selected by
-    *         the communicator and [[SpeakerData]] that contains
+    *         the communicator and [[com.markblokpoel.lanag.ambiguityhelps.datastructures.SpeakerData]] that contains
     *         the posterior distribution's entropy.
     */
   override def produceSignal(

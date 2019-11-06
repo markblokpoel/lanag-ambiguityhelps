@@ -57,7 +57,7 @@ class RandomPairGenerator(vocabularySize: Int,
     *
     * @param parameters Parameters from [[generateParameterSpace]].
     * @return An [[com.markblokpoel.lanag.core.AgentPair]], containing a pair of agents of the specified type
-    *         and [[OriginData]] reflecting the
+    *         and [[com.markblokpoel.lanag.ambiguityhelps.datastructures.OriginData]] reflecting the
     *         pair's origin parameters.
     */
   override def generatePair(

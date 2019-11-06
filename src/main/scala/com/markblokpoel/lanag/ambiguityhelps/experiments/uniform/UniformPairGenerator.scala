@@ -71,7 +71,7 @@ class UniformPairGenerator(vocabularySize: Int,
     *
     * @param parameters Parameters from [[generateParameterSpace]].
     * @return An [[com.markblokpoel.lanag.core.AgentPair]], containing a pair of agents of the specified type
-    *         and [[OriginData]] reflecting the pair's
+    *         and [[com.markblokpoel.lanag.ambiguityhelps.datastructures.OriginData]] reflecting the pair's
     *         origin parameters, i.e., change rate and change method.
     */
   override def generatePair(

@@ -83,7 +83,7 @@ class StructuredPairGenerator(vocabularySize: Int,
     *
     * @param parameters Parameters from [[generateParameterSpace]].
     * @return An [[com.markblokpoel.lanag.core.AgentPair]], containing a pair of agents of the specified type
-    *         and [[OriginData]] reflecting the pair's
+    *         and [[com.markblokpoel.lanag.ambiguityhelps.datastructures.OriginData]] reflecting the pair's
     *         origin parameters, i.e., threshold and change rate.
     */
   override def generatePair(

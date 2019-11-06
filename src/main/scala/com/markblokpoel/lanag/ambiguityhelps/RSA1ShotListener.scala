@@ -41,7 +41,7 @@ case class RSA1ShotListener(override val originalLexicon: Lexicon,
     *
     * @param signal The [[com.markblokpoel.lanag.core.ContentSignal]] to be communicated.
     * @return A tuple that consisting of the [[com.markblokpoel.lanag.core.ReferentialIntention]] selected by
-    *         the communicator and [[ListenerData]] that contains
+    *         the communicator and [[com.markblokpoel.lanag.ambiguityhelps.datastructures.ListenerData]] that contains
     *         the posterior distribution's entropy.
     */
   override def interpretSignal(
