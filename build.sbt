@@ -17,7 +17,7 @@ lazy val commonSettings = Seq(
     "com.typesafe" % "config" % "1.3.3",
     "com.markblokpoel" %% "lanag-core" % "0.3.6",
     "com.lihaoyi" %% "scalatags" % "0.7.0",
-    "com.github.jupyter" % "jvm-repr" % "0.4.0"
+    "com.github.jupyter" % "jvm-repr" % "0.4.0" % Provided
   ),
   // Compile options
   compile in Compile := (compile in Compile).dependsOn(formatAll).value,
@@ -105,5 +105,3 @@ lazy val gitSettings = Seq(
   publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(
     true)
 )
-
-libraryDependencies += "com.lihaoyi" %% "ammonite-ops" % "1.6.9"
