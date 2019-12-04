@@ -15,7 +15,7 @@ lazy val commonSettings = Seq(
     "org.apache.spark" %% "spark-core" % "2.4.1" % Provided,
     "org.apache.spark" %% "spark-sql" % "2.4.1" % Provided,
     "com.typesafe" % "config" % "1.3.3",
-    "com.markblokpoel" %% "lanag-core" % "0.3.6",
+    "com.markblokpoel" %% "lanag-core" % "0.3.7-SNAPSHOT",
     "com.lihaoyi" %% "scalatags" % "0.7.0",
     "com.github.jupyter" % "jvm-repr" % "0.4.0" % Provided
   ),

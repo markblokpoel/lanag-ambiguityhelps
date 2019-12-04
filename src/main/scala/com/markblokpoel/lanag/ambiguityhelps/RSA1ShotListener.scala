@@ -15,10 +15,12 @@ import com.markblokpoel.lanag.rsa.Lexicon
   * @param order           The order of the agent as listener.
   * @author Mark Blokpoel
   */
+@SerialVersionUID(100L)
 case class RSA1ShotListener(override val originalLexicon: Lexicon,
                             override val order: Int)
     extends RSA1ShotAgent(originalLexicon, order)
-    with Listener[ReferentialIntention, ContentSignal] {
+    with Listener[ReferentialIntention, ContentSignal]
+    with Serializable {
 
   /** The lexicon after pragmatic reasoning at the level of the listener's <code>order</code>. */
   lazy val inferredLexicon: Lexicon = originalLexicon.setOrderAsListener(order)
@@ -54,4 +56,17 @@ case class RSA1ShotListener(override val originalLexicon: Lexicon,
     } else
       (ReferentialIntention(None), ListenerData(None))
   }
+
+  override def canEqual(that: Any): Boolean =
+    that.isInstanceOf[RSA1ShotListener]
+
+  override def equals(that: Any): Boolean = that match {
+    case that: RSA1ShotListener =>
+      that.canEqual(this) &&
+        that.originalLexicon == this.originalLexicon &&
+        that.order == this.order
+    case _ => false
+  }
+
+  override def hashCode(): Int = this.originalLexicon.hashCode() * 31 + order
 }

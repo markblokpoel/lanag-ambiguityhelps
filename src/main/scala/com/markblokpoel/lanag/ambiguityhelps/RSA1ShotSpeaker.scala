@@ -17,10 +17,12 @@ import scala.util.Random
   * @param order           The order of the agent as speaker.
   * @author Mark Blokpoel
   */
+@SerialVersionUID(100L)
 case class RSA1ShotSpeaker(override val originalLexicon: Lexicon,
                            override val order: Int)
     extends RSA1ShotAgent(originalLexicon, order)
-    with Speaker[ReferentialIntention, ContentSignal] {
+    with Speaker[ReferentialIntention, ContentSignal]
+    with Serializable {
 
   /** The lexicon after pragmatic reasoning at the level of the speaker's <code>order</code>. */
   lazy val inferredLexicon: Lexicon = originalLexicon.setOrderAsSpeaker(order)
@@ -59,4 +61,16 @@ case class RSA1ShotSpeaker(override val originalLexicon: Lexicon,
     } else
       (ContentSignal(None), SpeakerData(None))
   }
+
+  override def canEqual(that: Any): Boolean = that.isInstanceOf[RSA1ShotSpeaker]
+
+  override def equals(that: Any): Boolean = that match {
+    case that: RSA1ShotSpeaker =>
+      that.canEqual(this) &&
+        that.originalLexicon == this.originalLexicon &&
+        that.order == this.order
+    case _ => false
+  }
+
+  override def hashCode(): Int = this.originalLexicon.hashCode() * 31 + order
 }

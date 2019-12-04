@@ -39,4 +39,17 @@ class RSA1ShotAgent(val originalLexicon: Lexicon,
 
   override def toString: String =
     s"Agent with order $order\n" + originalLexicon.toString
+
+  def canEqual(that: Any): Boolean = that.isInstanceOf[RSA1ShotAgent]
+
+  override def equals(that: Any): Boolean = that match {
+    case that: RSA1ShotAgent =>
+      that.canEqual(this) &&
+        that.originalLexicon == this.originalLexicon &&
+        that.order == this.order
+    case _ => false
+  }
+
+  override def hashCode(): Int = this.originalLexicon.hashCode() * 31 + order
+
 }
