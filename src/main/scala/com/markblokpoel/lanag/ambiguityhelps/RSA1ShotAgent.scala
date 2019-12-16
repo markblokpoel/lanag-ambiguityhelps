@@ -37,8 +37,14 @@ class RSA1ShotAgent(val originalLexicon: Lexicon,
   override def asListener: RSA1ShotListener =
     RSA1ShotListener(originalLexicon, order)
 
-  override def toString: String =
-    s"Agent with order $order\n" + originalLexicon.toString
+  override def toString: String = {
+    if (originalLexicon.data.forall(v => v == 0.0 || v == 1.0)) {
+      val id =
+        Integer.parseInt(originalLexicon.data.map(_.intValue).mkString(""), 2)
+      s"[RSA1SA-O$order-ID#$id]"
+    } else
+      s"Agent with order $order\n" + originalLexicon.toString
+  }
 
   def canEqual(that: Any): Boolean = that.isInstanceOf[RSA1ShotAgent]
 

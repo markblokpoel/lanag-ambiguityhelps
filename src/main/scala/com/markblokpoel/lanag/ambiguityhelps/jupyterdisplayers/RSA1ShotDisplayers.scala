@@ -22,7 +22,7 @@ object RSA1ShotDisplayers {
                td(agent.beta),
                td(colspan := agent.originalLexicon.contextSize - 1)),
             agent.originalLexicon match {
-              case Lexicon(vocabularySize, contextSize, data) =>
+              case Lexicon(vocabularySize, contextSize, data, _, _) =>
                 Vector(
                   tr(td("Original lexicon"),
                      for (i <- 1 to contextSize) yield th("R", sub(i))))
@@ -58,7 +58,7 @@ object RSA1ShotDisplayers {
                td(agent.beta),
                td(colspan := agent.originalLexicon.contextSize - 1)),
             agent.inferredLexicon match {
-              case Lexicon(vocabularySize, contextSize, data) =>
+              case Lexicon(vocabularySize, contextSize, data, _, _) =>
                 Vector(
                   tr(td("Higher order lexicon"),
                      for (i <- 1 to contextSize) yield th("R", sub(i))))
@@ -94,7 +94,7 @@ object RSA1ShotDisplayers {
                td(agent.beta),
                td(colspan := agent.originalLexicon.contextSize - 1)),
             agent.inferredLexicon match {
-              case Lexicon(vocabularySize, contextSize, data) =>
+              case Lexicon(vocabularySize, contextSize, data, _, _) =>
                 Vector(
                   tr(td("Higher order lexicon"),
                      for (i <- 1 to contextSize) yield th("R", sub(i))))

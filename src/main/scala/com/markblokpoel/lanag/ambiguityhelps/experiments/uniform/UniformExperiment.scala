@@ -28,7 +28,7 @@ object UniformExperiment extends Serializable with App {
   val randomSeed = conf.getOrElse[Long]("core.random-seed", 0)
   val writeJSON = conf.getOrElse[Boolean]("core.write-json", false)
   val changeResolution =
-    conf.getOrElse[Double]("consistent.change-resolution", 0.2)
+    conf.getOrElse[Double]("uniform.change-resolution", 0.2)
 
   val sparkSimulation = SparkSimulation(sparkLocalMode)
 
